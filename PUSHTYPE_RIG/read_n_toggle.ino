@@ -1,5 +1,6 @@
 int read_n_toggle()
 {
+  /*
   //*****************************************************************************
   //READ MODE BUTTON (STEP or AUTO-MODE):
 
@@ -11,6 +12,7 @@ int read_n_toggle()
   {
     step_mode = false;
   }
+  */
   //*****************************************************************************
   //IN AUTO MODE, MACHINE RUNS FROM STEP TO STEP AUTOMATICALLY:
 

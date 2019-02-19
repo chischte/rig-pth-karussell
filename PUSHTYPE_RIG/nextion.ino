@@ -557,31 +557,35 @@ void nex_zyl_revolverschieberPopCallback(void *ptr)
 
 void nex_but_slider1_leftPushCallback(void *ptr)
 {
-  if (upper_feedtime >= 50)
+  upper_feedtime = upper_feedtime - 100;
+  if (upper_feedtime < 0)
   {
-    upper_feedtime = upper_feedtime - 50;
+    upper_feedtime = 0;
   }
 }
 
 void nex_but_slider1_rightPushCallback(void *ptr)
 {
-  if (upper_feedtime <= 9950)
+  upper_feedtime = upper_feedtime + 100;
+  if (upper_feedtime > 5000)
   {
-    upper_feedtime = upper_feedtime + 50;
+    upper_feedtime = 5000;
   }
 }
 void nex_but_slider2_leftPushCallback(void *ptr)
 {
-  if (lower_feedtime >= 50)
+  lower_feedtime = lower_feedtime - 100;
+  if (lower_feedtime < 0)
   {
-    lower_feedtime = lower_feedtime - 50;
+    lower_feedtime = 0;
   }
 }
 void nex_but_slider2_rightPushCallback(void *ptr)
 {
-  if (lower_feedtime <= 9950)
+  lower_feedtime = lower_feedtime + 100;
+  if (lower_feedtime > 5000)
   {
-    lower_feedtime = lower_feedtime + 50;
+    lower_feedtime = 5000;
   }
 }
 //*************************************************
