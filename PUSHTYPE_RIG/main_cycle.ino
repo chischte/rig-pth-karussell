@@ -14,7 +14,7 @@ int run_main_test_cycle()
           error_blink = false;//Plomben verfügbar, Fehlerblinken beenden
           zyl_gummihalter.set(1);//obere Plomben werden fixiert
         }
-		        else //MAGAZIN LEER! ROTE SIGNALLEUCHTE BLINKT
+        else //MAGAZIN LEER! ROTE SIGNALLEUCHTE BLINKT
         {
           machine_running = false;
           //Serial.println("ABBRUCH, KEINE PLOMBE DETEKTIERT!");
@@ -44,7 +44,7 @@ int run_main_test_cycle()
         //***************************************************************************
         //Serial.println("Plombe ausfahren...");
         zyl_magnetarm.set(1);
-         prev_time = millis();
+        prev_time = millis();
         timer_next_step = 500;
         clearance_next_step = false;
         cycle_step++;
@@ -79,7 +79,7 @@ int run_main_test_cycle()
         //***************************************************************************
         //Serial.println("PRESSEN");
         //mot_pressmechanik.stroke(3000);
-        timer_next_step = millis() + 500;
+        timer_next_step = 500;
         //if(stroke completed)
         clearance_next_step = false;
         cycle_step++;

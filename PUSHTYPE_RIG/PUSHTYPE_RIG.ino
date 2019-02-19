@@ -95,7 +95,7 @@ boolean seal_available = false;
 byte cycle_step = 1;
 byte nex_prev_cycle_step;
 
-int timer_next_step;
+unsigned long timer_next_step;
 
 long upper_feedtime;//LONG because EEPROM function
 long lower_feedtime;//LONG because EEPROM function
