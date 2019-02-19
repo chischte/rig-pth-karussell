@@ -43,7 +43,7 @@ int read_n_toggle()
   //*****************************************************************************
   //READ SEAL DETECTION SENSOR:
 
-  if (digitalRead(sensor_plombe) == false)//=Plombe detektiert
+  if (!digitalRead(sensor_plombe) == false)//=Plombe detektiert
   {
     seal_available = true;
   }
