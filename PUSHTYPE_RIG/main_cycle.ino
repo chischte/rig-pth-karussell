@@ -1,4 +1,4 @@
-int run_main_test_cycle()
+void run_main_test_cycle()
 {
   if (clearance_next_step == true && millis() - prev_time > timer_next_step)
   {
@@ -66,6 +66,7 @@ int run_main_test_cycle()
       case 5://DAS OBERE BAND WIRD VORGESCHOBEN
         //***************************************************************************
         //Serial.println("Bandvorschub oben...");
+        zyl_messer.set(0);//sicherstellen das Messer zurückgezogen ist
         mot_feed_oben.stroke(upper_feedtime, 0);
 
         if (mot_feed_oben.stroke_completed() == true)

@@ -450,6 +450,15 @@ void nex_switch_play_pausePushCallback(void *ptr)
   {
     clearance_next_step = true;
   }
+  if (machine_running == false)
+  {
+    //abort running processes:
+    mot_feed_oben.set(0);
+    mot_feed_unten.set(0);
+    zyl_messer.set(0);
+    zyl_revolverschieber.set(0);
+
+  }
   nex_state_machine_running = !nex_state_machine_running;
 }
 void nex_switch_modePushCallback(void *ptr)
@@ -474,7 +483,7 @@ void nex_but_stepnxtPushCallback(void *ptr)
 }
 void nex_but_reset_cyclePushCallback(void *ptr)
 {
-  cycle_step = 1;
+  reset();
 }
 //*************************************************
 //TOUCH EVENT FUNCTIONS PAGE 1 - RIGHT SIDE

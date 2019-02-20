@@ -16,7 +16,7 @@
 #include <Nextion.h>
 #include <Controllino.h> //CONTROLLINO_xx aliases
 ///*
-#define CONTROLLINO_D0   2 
+#define CONTROLLINO_D0   2
 #define CONTROLLINO_D1   3
 #define CONTROLLINO_D2   4
 #define CONTROLLINO_D3   5
@@ -74,7 +74,6 @@ Cylinder mot_feed_oben (CONTROLLINO_D0);
 Cylinder mot_feed_unten (CONTROLLINO_D1);
 Cylinder zyl_messer(CONTROLLINO_D3);
 Cylinder zyl_revolverschieber (CONTROLLINO_D2);
-Cylinder zyl_loescherblink(CONTROLLINO_D11);
 //*****************************************************************************
 //DECLARATION OF VARIABLES / DATA TYPES
 //*****************************************************************************
@@ -114,19 +113,19 @@ unsigned long prev_time;
 //***********************#**#**********#****#******#*#*************************
 //*****************######***######*****#*****######**#*************************
 //*****************************************************************************
-void setup() {  
+void setup() {
   //***************************************************************************
   Serial.begin(500000);//start serial connection
 
   nextion_setup();
- 
+
   pinMode(stop_button, INPUT);
   pinMode(start_button, INPUT);
   pinMode(step_mode_button, INPUT);
   pinMode(auto_mode_button, INPUT);
   pinMode(green_light, OUTPUT);
   pinMode(red_light, OUTPUT);
-
+  reset();
   Serial.println("EXIT SETUP");
 }
 //*****************************************************************************
@@ -139,7 +138,7 @@ void setup() {
 //*****************************************************************************
 //*****************************************************************************
 void loop() {
-
+  
   read_n_toggle();
   lights();
 
