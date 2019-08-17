@@ -14,7 +14,7 @@ void lights()
     }
   }
 
-    if (step_mode == true)//IN STEP MODE THE GREEN IS OFF BETWEEN STEPS
+  if (step_mode == true)//IN STEP MODE THE GREEN IS OFF BETWEEN STEPS
     if (machine_running == true && clearance_next_step == true)
     {
       digitalWrite((green_light), HIGH);

@@ -1,3 +1,13 @@
+/*
+* *****************************************************************************
+* nextion.ino
+* configuration of the Nextion touch display
+* Michael Wettstein
+* November 2018, Zürich
+* *****************************************************************************
+*/
+
+
 #include "Cylinder.h"
 #include "Nextion.h"
 

@@ -1,7 +1,12 @@
 /*
-  Cylinder.h - Library for switching pneumatic cylinder valves.
-  Created by Michi, November 2018.
+* *****************************************************************************
+* Cylinder.h
+* Library for switching pneumatic cylinder valves.
+* Michael Wettstein
+* November 2018, Zürich
+* *****************************************************************************
 */
+
 #ifndef Cylinder_h
 #define Cylinder_h
 

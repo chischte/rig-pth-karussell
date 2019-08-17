@@ -1,17 +1,17 @@
 void read_n_toggle()
 {
   /*
-  //*****************************************************************************
-  //READ MODE BUTTON (STEP or AUTO-MODE):
+    //*****************************************************************************
+    //READ MODE BUTTON (STEP or AUTO-MODE):
 
-  if (digitalRead(step_mode_button) == HIGH)
-  {
+    if (digitalRead(step_mode_button) == HIGH)
+    {
     step_mode = true;
-  }
-  if (digitalRead(auto_mode_button) == HIGH)
-  {
+    }
+    if (digitalRead(auto_mode_button) == HIGH)
+    {
     step_mode = false;
-  }
+    }
   */
   //*****************************************************************************
   //IN AUTO MODE, MACHINE RUNS FROM STEP TO STEP AUTOMATICALLY:

@@ -1,6 +1,10 @@
 /*
-  Cylinder.cpp - Library for switching pneumatic cylinder valves.
-  Created by Michi, November 2018.
+* *****************************************************************************
+* Cylinder.cpp
+* Library for switching pneumatic cylinder valves.
+* Michael Wettstein
+* November 2018, Zürich
+* *****************************************************************************
 */
 
 #include "Arduino.h"

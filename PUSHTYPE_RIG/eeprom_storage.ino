@@ -1,6 +1,10 @@
 /*
-  EEPROM Functions to store long values.
-  Created by Michi, Dezember 2018.
+* *****************************************************************************
+* eeprom_storage.ino
+* Function to store long values on EEPROM memory
+* Michael Wettstein
+* November 2018, Zürich
+* *****************************************************************************
 */
 
 //EEPROM size:4096 bytes ATmega2560.
