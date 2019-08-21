@@ -8,15 +8,15 @@
 */
 
 
-#include "Cylinder.h"
-#include "Nextion.h"
+//#include <Cylinder.h>
+//#include <Nextion.h>
 
 // Include the nextion library (the official one) https://github.com/itead/ITEADLIB_Arduino_Nextion
 // Make sure you edit the NexConfig.h file on the library folder to set the correct serial port for the display.
 // By default it's set to Serial1, which most arduino boards don't have.
 // Change "#define nexSerial Serial1" to "#define nexSerial Serial" if you are using arduino uno, nano, etc.
 //**************************************************************************************
-//VARIOUS COMMANDS
+//VARIOUS COMMANDS:
 //**************************************************************************************
 // Serial2.print("click bt1,1");//CLICK BUTTON
 // send_to_nextion();
