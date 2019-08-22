@@ -1,13 +1,13 @@
 /*
-* *****************************************************************************
-* PUSHTYPE_RIG
-* *****************************************************************************
-* Program to control the Push Type 100.000 Cycles Test Rig "Solinger Karussell"
-* *****************************************************************************
-* Michael Wettstein
-* Dezember 2018, Zürich
-* *****************************************************************************
-*/
+ * *****************************************************************************
+ * PUSHTYPE_RIG
+ * *****************************************************************************
+ * Program to control the Push Type 100.000 Cycles Test Rig "Solinger Karussell"
+ * *****************************************************************************
+ * Michael Wettstein
+ * Dezember 2018, Zürich
+ * *****************************************************************************
+ */
 
 #include <Cylinder.h> // https://github.com/chischte/cylinder-library
 #include <Nextion.h>
@@ -33,13 +33,13 @@
 //*****************************************************************************
 //VALVES / MOTORS
 //*****************************************************************************
-Cylinder zyl_gummihalter (CONTROLLINO_D6);
-Cylinder zyl_falltuerschieber (CONTROLLINO_D7);
-Cylinder zyl_magnetarm (CONTROLLINO_D8);
-Cylinder mot_feed_oben (CONTROLLINO_D0);
-Cylinder mot_feed_unten (CONTROLLINO_D1);
+Cylinder zyl_gummihalter(CONTROLLINO_D6);
+Cylinder zyl_falltuerschieber(CONTROLLINO_D7);
+Cylinder zyl_magnetarm(CONTROLLINO_D8);
+Cylinder mot_feed_oben(CONTROLLINO_D0);
+Cylinder mot_feed_unten(CONTROLLINO_D1);
 Cylinder zyl_messer(CONTROLLINO_D3);
-Cylinder zyl_revolverschieber (CONTROLLINO_D2);
+Cylinder zyl_revolverschieber(CONTROLLINO_D2);
 //*****************************************************************************
 //DECLARATION OF VARIABLES / DATA TYPES
 //*****************************************************************************
@@ -62,10 +62,10 @@ byte nex_prev_cycle_step;
 
 unsigned long timer_next_step;
 
-long upper_feedtime;//LONG because EEPROM function
-long lower_feedtime;//LONG because EEPROM function
-long shorttime_counter;//LONG because EEPROM function
-long longtime_counter;//LONG because EEPROM function
+long upper_feedtime; //LONG because EEPROM function
+long lower_feedtime; //LONG because EEPROM function
+long shorttime_counter; //LONG because EEPROM function
+long longtime_counter; //LONG because EEPROM function
 
 unsigned long timer_error_blink;
 unsigned long runtime;
@@ -79,9 +79,10 @@ unsigned long prev_time;
 //***********************#**#**********#****#******#*#*************************
 //*****************######***######*****#*****######**#*************************
 //*****************************************************************************
-void setup() {
+void setup()
+{
 
-  Serial.begin(500000);//start serial connection
+  Serial.begin(500000); //start serial connection
 
   nextion_setup();
 
@@ -103,7 +104,8 @@ void setup() {
 //********************#######***#####***#####***#******************************
 //*****************************************************************************
 //*****************************************************************************
-void loop() {
+void loop()
+{
 
   read_n_toggle();
   lights();
@@ -119,7 +121,7 @@ void loop() {
   //Serial.println(runtime);
   //runtime_stopwatch = millis();
 
-}//END MAIN LOOP
+}  //END MAIN LOOP
 //*****************************************************************************
 //*****************************************************************************
 //*****************************************************************************

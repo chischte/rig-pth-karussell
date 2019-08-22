@@ -1,22 +1,21 @@
 void read_n_toggle()
 {
   /*
-    //*****************************************************************************
-    //READ MODE BUTTON (STEP or AUTO-MODE):
+   //*****************************************************************************
+   //READ MODE BUTTON (STEP or AUTO-MODE):
 
-    if (digitalRead(step_mode_button) == HIGH)
-    {
-    step_mode = true;
-    }
-    if (digitalRead(auto_mode_button) == HIGH)
-    {
-    step_mode = false;
-    }
-  */
+   if (digitalRead(step_mode_button) == HIGH)
+   {
+   step_mode = true;
+   }
+   if (digitalRead(auto_mode_button) == HIGH)
+   {
+   step_mode = false;
+   }
+   */
   //*****************************************************************************
   //IN AUTO MODE, MACHINE RUNS FROM STEP TO STEP AUTOMATICALLY:
-
-  if (step_mode == false)//=AUTO MODE
+  if (step_mode == false)  //=AUTO MODE
   {
     clearance_next_step = true;
   }
@@ -45,7 +44,7 @@ void read_n_toggle()
   //*****************************************************************************
   //READ SEAL DETECTION SENSOR:
 
-  if (!digitalRead(sensor_plombe) == false)//=Plombe detektiert
+  if (!digitalRead(sensor_plombe) == false)  //=Plombe detektiert
   {
     seal_available = true;
   }
@@ -54,4 +53,4 @@ void read_n_toggle()
     seal_available = false;
   }
   //*****************************************************************************
-}//END OF READ_N_TOGGLE
+}  //END OF READ_N_TOGGLE

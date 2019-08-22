@@ -2,7 +2,8 @@ void lights()
 {
   //GREEN LIGHT
   //*****************************************************************************
-  if (step_mode == false)//IN AUTOMATIC MODE THE GREEN LIGHT IS ON PERMANENTLY
+  //in automatic mode the green light is on permanently:
+  if (step_mode == false)
   {
     if (machine_running == true)
     {
@@ -14,7 +15,9 @@ void lights()
     }
   }
 
-  if (step_mode == true)//IN STEP MODE THE GREEN IS OFF BETWEEN STEPS
+  //in step mode the green is off between steps:
+  if (step_mode == true)
+  {
     if (machine_running == true && clearance_next_step == true)
     {
       digitalWrite((green_light), HIGH);
@@ -23,6 +26,7 @@ void lights()
     {
       digitalWrite((green_light), LOW);
     }
+  }
 
   //RED LIGHT / ERROR BLINKER
   //*****************************************************************************

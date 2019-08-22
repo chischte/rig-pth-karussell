@@ -1,16 +1,14 @@
 /*
-* *****************************************************************************
-* nextion.ino
-* configuration of the Nextion touch display
-* Michael Wettstein
-* November 2018, Zürich
-* *****************************************************************************
-*/
-
+ * *****************************************************************************
+ * nextion.ino
+ * configuration of the Nextion touch display
+ * Michael Wettstein
+ * November 2018, Zürich
+ * *****************************************************************************
+ */
 
 //#include <Cylinder.h>
 //#include <Nextion.h>
-
 // Include the nextion library (the official one) https://github.com/itead/ITEADLIB_Arduino_Nextion
 // Make sure you edit the NexConfig.h file on the library folder to set the correct serial port for the display.
 // By default it's set to Serial1, which most arduino boards don't have.
@@ -21,10 +19,8 @@
 // Serial2.print("click bt1,1");//CLICK BUTTON
 // send_to_nextion();
 // A switch (Dual State Button)will be toggled with this command, a Button wil be set permanently pressed)
-
 // Serial2.print("vis t0,0");//HIDE OBJECT
 // send_to_nextion();
-
 // Serial2.print("t0.txt=");//WRITE TEXT:
 // Serial2.print("\"");
 // Serial2.print("SCHNEIDEN");
@@ -34,7 +30,9 @@
 //DECLARATION OF VARIABLES
 //**************************************************************************************
 int CurrentPage;
-String cycle_name[] = {"1 KLEMMEN", "2 FALLENLASSEN", "3 AUSFAHREN", "4 BAND UNTEN", "5 BAND OBEN", "6 PRESSEN", "7 SCHNEIDEN", "8 ZURUECKFAHREN", "9 REVOLVER", "RESET"};
+String cycle_name[] =
+{ "1 KLEMMEN", "2 FALLENLASSEN", "3 AUSFAHREN", "4 BAND UNTEN", "5 BAND OBEN",
+    "6 PRESSEN", "7 SCHNEIDEN", "8 ZURUECKFAHREN", "9 REVOLVER", "RESET" };
 //***************************************************************************
 //NEXTION SWITCH STATES LIST
 //Every nextion switch button (dualstate) needs a switchstate variable to control switchtoggle
@@ -78,19 +76,19 @@ NexDSButton nex_switch_mode = NexDSButton(1, 4, "bt1");
 
 //PAGE 1 - RIGHT SIDE
 NexPage nex_page2 = NexPage(2, 0, "page2");
-NexDSButton nex_zyl_gummihalter = NexDSButton(1, 15 , "bt5");
-NexDSButton nex_zyl_falltuer = NexDSButton(1, 14 , "bt4");
+NexDSButton nex_zyl_gummihalter = NexDSButton(1, 15, "bt5");
+NexDSButton nex_zyl_falltuer = NexDSButton(1, 14, "bt4");
 NexDSButton nex_zyl_magnetarm = NexDSButton(1, 13, "bt3");
-NexButton nex_mot_band_oben = NexButton(1, 12 , "b5");
-NexButton nex_mot_band_unten = NexButton(1, 11 , "b4");
+NexButton nex_mot_band_oben = NexButton(1, 12, "b5");
+NexButton nex_mot_band_unten = NexButton(1, 11, "b4");
 NexDSButton nex_zyl_messer = NexDSButton(1, 10, "bt2");
-NexButton nex_zyl_revolverschieber = NexButton(1, 9 , "b3");
+NexButton nex_zyl_revolverschieber = NexButton(1, 9, "b3");
 
 //PAGE 2 - LEFT SIDE:
 NexButton nex_but_slider1_left = NexButton(2, 6, "b1");
 NexButton nex_but_slider1_right = NexButton(2, 7, "b2");
-NexButton nex_but_slider2_left = NexButton(2, 9 , "b0");
-NexButton nex_but_slider2_right = NexButton(2, 11 , "b3");
+NexButton nex_but_slider2_left = NexButton(2, 9, "b0");
+NexButton nex_but_slider2_right = NexButton(2, 11, "b3");
 
 //PAGE 2 - RIGHT SIDE:
 NexButton nex_but_reset_shorttime_counter = NexButton(2, 18, "b4");
@@ -99,36 +97,22 @@ NexButton nex_but_reset_shorttime_counter = NexButton(2, 18, "b4");
 //END OF OBJECT DECLARATION
 //**************************************************************************************
 
-char buffer[100] = {0};  // This is needed only if you are going to receive a text from the display. You can remove it otherwise.
+char buffer[100] =
+{ 0 }; // This is needed only if you are going to receive a text from the display. You can remove it otherwise.
 
 //**************************************************************************************
 //TOUCH EVENT LIST //DECLARATION OF TOUCH EVENTS TO BE MONITORED
 //**************************************************************************************
 NexTouch *nex_listen_list[] =
-{
-  &nex_but_reset_shorttime_counter,
-  &nex_but_stepback,
-  &nex_but_stepnxt,
-  &nex_but_reset_cycle,
-  &nex_but_slider1_left,
-  &nex_but_slider1_right,
-  &nex_but_slider2_left,
-  &nex_but_slider2_right,
-  &nex_switch_play_pause,
-  &nex_switch_mode,
-  &nex_zyl_messer,
-  &nex_zyl_magnetarm,
-  &nex_page0,
-  &nex_page1,
-  &nex_page2,
-  &nex_zyl_gummihalter,
-  &nex_zyl_falltuer,
-  &nex_mot_band_oben,
-  &nex_mot_band_unten,
-  &nex_zyl_revolverschieber,
+{ &nex_but_reset_shorttime_counter, &nex_but_stepback, &nex_but_stepnxt,
+    &nex_but_reset_cycle, &nex_but_slider1_left, &nex_but_slider1_right,
+    &nex_but_slider2_left, &nex_but_slider2_right, &nex_switch_play_pause,
+    &nex_switch_mode, &nex_zyl_messer, &nex_zyl_magnetarm, &nex_page0,
+    &nex_page1, &nex_page2, &nex_zyl_gummihalter, &nex_zyl_falltuer,
+    &nex_mot_band_oben, &nex_mot_band_unten, &nex_zyl_revolverschieber,
 
-  NULL //String terminated
-};
+    NULL //String terminated
+    };
 //**************************************************************************************
 //END OF TOUCH EVENT LIST
 //**************************************************************************************
@@ -154,17 +138,15 @@ void nextion_setup()
   //INCREASE BAUD RATE
   //**************************************************************************************
   /*
-    delay(500);
-    Serial2.print("baud=38400");
-    send_to_nextion();
-    Serial2.end();
-    Serial2.begin(38400);
-  */
+   delay(500);
+   Serial2.print("baud=38400");
+   send_to_nextion();
+   Serial2.end();
+   Serial2.begin(38400);
+   */
   //**************************************************************************************
   //REGISTER THE EVENT CALLBACK FUNCTIONS
   //**************************************************************************************
-
-
   nex_but_stepback.attachPush(nex_but_stepbackPushCallback);
   nex_but_stepnxt.attachPush(nex_but_stepnxtPushCallback);
   nex_zyl_magnetarm.attachPush(nex_zyl_magnetarmPushCallback);
@@ -192,17 +174,19 @@ void nextion_setup()
   nex_mot_band_unten.attachPop(nex_mot_band_untenPopCallback);
   nex_zyl_revolverschieber.attachPush(nex_zyl_revolverschieberPushCallback);
   nex_zyl_revolverschieber.attachPop(nex_zyl_revolverschieberPopCallback);
-  nex_but_reset_shorttime_counter.attachPush(nex_but_reset_shorttime_counterPushCallback);
-  nex_but_reset_shorttime_counter.attachPop(nex_but_reset_shorttime_counterPopCallback);
+  nex_but_reset_shorttime_counter.attachPush(
+      nex_but_reset_shorttime_counterPushCallback);
+  nex_but_reset_shorttime_counter.attachPop(
+      nex_but_reset_shorttime_counterPopCallback);
 
   //**************************************************************************************
   //END OF REGISTER
   //**************************************************************************************
   delay(2000);
-  sendCommand("page 1");//SWITCH NEXTION TO PAGE X
+  sendCommand("page 1");  //SWITCH NEXTION TO PAGE X
   send_to_nextion();
 
-}//END OF NEXTION SETUP
+}  //END OF NEXTION SETUP
 
 //**************************************************************************************
 //**************************************************************************************
@@ -215,7 +199,7 @@ void nextion_loop()
 
   nexLoop(nex_listen_list); //check for any touch event
   //**************************************************************************************
-  if (CurrentPage == 1)//START PAGE 1
+  if (CurrentPage == 1)  //START PAGE 1
   {
     //*******************
     //PAGE 1 - LEFT SIDE:
@@ -223,7 +207,7 @@ void nextion_loop()
     //UPDATE SWITCHSTATE "PLAY"/"PAUSE"
     if (nex_state_machine_running != machine_running)
     {
-      Serial2.print("click bt0,1");//CLICK BUTTON
+      Serial2.print("click bt0,1");    //CLICK BUTTON
       send_to_nextion();
       nex_state_machine_running = !nex_state_machine_running;
     }
@@ -234,7 +218,7 @@ void nextion_loop()
     {
       if (step_mode == true)
       {
-        Serial2.print("click bt1,1");//CLICK BUTTON
+        Serial2.print("click bt1,1");    //CLICK BUTTON
         send_to_nextion();
         Serial2.print("bt1.txt=");
         Serial2.print("\"");
@@ -244,7 +228,7 @@ void nextion_loop()
       }
       else
       {
-        Serial2.print("click bt1,1");//CLICK BUTTON
+        Serial2.print("click bt1,1");    //CLICK BUTTON
         send_to_nextion();
         Serial2.print("bt1.txt=");
         Serial2.print("\"");
@@ -270,7 +254,7 @@ void nextion_loop()
       {
         Serial2.print("t4.txt=");
         Serial2.print("\"");
-        Serial2.print("");//ERASE TEXT
+        Serial2.print("");    //ERASE TEXT
         Serial2.print("\"");
         send_to_nextion();
       }
@@ -293,21 +277,21 @@ void nextion_loop()
     //UPDATE SWITCHBUTTON (dual state):
     if (zyl_gummihalter.request_state() != nex_state_zyl_gummihalter)
     {
-      Serial2.print("click bt5,1");//CLICK BUTTON
+      Serial2.print("click bt5,1");    //CLICK BUTTON
       send_to_nextion();
       nex_state_zyl_gummihalter = !nex_state_zyl_gummihalter;
     }
     //UPDATE SWITCHBUTTON (dual state):
     if (zyl_falltuerschieber.request_state() != nex_state_zyl_falltuerschieber)
     {
-      Serial2.print("click bt4,1");//CLICK BUTTON
+      Serial2.print("click bt4,1");    //CLICK BUTTON
       send_to_nextion();
       nex_state_zyl_falltuerschieber = !nex_state_zyl_falltuerschieber;
     }
     //UPDATE SWITCHBUTTON (dual state):
     if (zyl_magnetarm.request_state() != nex_state_zyl_magnetarm)
     {
-      Serial2.print("click bt3,1");//CLICK BUTTON
+      Serial2.print("click bt3,1");    //CLICK BUTTON
       send_to_nextion();
       nex_state_zyl_magnetarm = !nex_state_zyl_magnetarm;
     }
@@ -318,12 +302,12 @@ void nextion_loop()
 
       if (mot_feed_oben.request_state() == HIGH)
       {
-        Serial2.print("click b5,1");//CLICK BUTTON
+        Serial2.print("click b5,1");    //CLICK BUTTON
         send_to_nextion();
       }
       else
       {
-        Serial2.print("click b5,0");//CLICK BUTTON
+        Serial2.print("click b5,0");    //CLICK BUTTON
         send_to_nextion();
       }
       nex_state_mot_feed_oben = mot_feed_oben.request_state();
@@ -334,12 +318,12 @@ void nextion_loop()
     {
       if (mot_feed_unten.request_state() == HIGH)
       {
-        Serial2.print("click b4,1");//CLICK BUTTON
+        Serial2.print("click b4,1");    //CLICK BUTTON
         send_to_nextion();
       }
       else
       {
-        Serial2.print("click b4,0");//CLICK BUTTON
+        Serial2.print("click b4,0");    //CLICK BUTTON
         send_to_nextion();
       }
       nex_state_mot_feed_unten = mot_feed_unten.request_state();
@@ -348,7 +332,7 @@ void nextion_loop()
     //UPDATE SWITCHBUTTON (dual state):
     if (zyl_messer.request_state() != nex_state_zyl_messer)
     {
-      Serial2.print("click bt2,1");//CLICK BUTTON
+      Serial2.print("click bt2,1");    //CLICK BUTTON
       send_to_nextion();
       nex_state_zyl_messer = !nex_state_zyl_messer;
     }
@@ -357,20 +341,20 @@ void nextion_loop()
     {
       if (zyl_revolverschieber.request_state() == HIGH)
       {
-        Serial2.print("click b3,1");//CLICK BUTTON
+        Serial2.print("click b3,1");    //CLICK BUTTON
         send_to_nextion();
       }
       else
       {
-        Serial2.print("click b3,0");//CLICK BUTTON
+        Serial2.print("click b3,0");    //CLICK BUTTON
         send_to_nextion();
       }
       nex_state_zyl_revolverschieber = zyl_revolverschieber.request_state();
     }
 
-  }//END PAGE 1
-  //**************************************************************************************
-  if (CurrentPage == 2)//START PAGE 2
+  }    //END PAGE 1
+       //**************************************************************************************
+  if (CurrentPage == 2)  //START PAGE 2
   {
     //*******************
     //PAGE 2 - LEFT SIDE
@@ -433,9 +417,9 @@ void nextion_loop()
         longtime_counter = 0;
       }
     }
-  }//END PAGE 2
+  }    //END PAGE 2
 
-}//END OF NEXTION LOOP
+}    //END OF NEXTION LOOP
 //**************************************************************************************
 //**************************************************************************************
 //***************************************************************************************
@@ -468,7 +452,7 @@ void nex_switch_play_pausePushCallback(void *ptr)
 void nex_switch_modePushCallback(void *ptr)
 {
   step_mode = !step_mode;
-  Serial2.print("click bt1,1");//CLICK BUTTON
+  Serial2.print("click bt1,1");    //CLICK BUTTON
   send_to_nextion();
 }
 void nex_but_stepbackPushCallback(void *ptr)
