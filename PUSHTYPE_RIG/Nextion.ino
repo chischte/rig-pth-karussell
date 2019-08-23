@@ -5,6 +5,9 @@
  * Michael Wettstein
  * November 2018, Zürich
  * *****************************************************************************
+ * an xls-sheet to generate Nextion events can be found here:
+ * https://github.com/chischte/push-type-rig/PUSHTYPE_NEXTION/
+ * *****************************************************************************
  */
 
 //#include <Cylinder.h>
@@ -18,7 +21,7 @@
 //**************************************************************************************
 // Serial2.print("click bt1,1");//CLICK BUTTON
 // send_to_nextion();
-// A switch (Dual State Button)will be toggled with this command, a Button wil be set permanently pressed)
+// A switch (Dual State Button)will be toggled with this command, a Button will be set permanently pressed)
 // Serial2.print("vis t0,0");//HIDE OBJECT
 // send_to_nextion();
 // Serial2.print("t0.txt=");//WRITE TEXT:
@@ -31,31 +34,31 @@
 //**************************************************************************************
 int CurrentPage;
 String cycle_name[] =
-{ "1 KLEMMEN", "2 FALLENLASSEN", "3 AUSFAHREN", "4 BAND UNTEN", "5 BAND OBEN",
-    "6 PRESSEN", "7 SCHNEIDEN", "8 ZURUECKFAHREN", "9 REVOLVER", "RESET" };
+{ "1 KLEMMEN", "2 FALLENLASSEN", "3 AUSFAHREN", "4 BAND UNTEN", "5 BAND OBEN", "6 PRESSEN",
+    "7 SCHNEIDEN", "8 ZURUECKFAHREN", "9 REVOLVER", "RESET" };
 //***************************************************************************
 //NEXTION SWITCH STATES LIST
 //Every nextion switch button (dualstate) needs a switchstate variable to control switchtoggle
 //Nextion buttons(momentary) need a variable too, to prevent screen flickering
 
-bool nex_state_zyl_gummihalter;
-bool nex_state_zyl_falltuerschieber;
-bool nex_state_zyl_magnetarm;
-bool nex_state_mot_feed_oben;
-bool nex_state_mot_feed_unten;
-bool nex_state_zyl_messer;
-bool nex_state_zyl_revolverschieber;
-bool nex_state_machine_running;
-bool nex_state_seal_available = 1;
+bool nex_state_ZylGummihalter;
+bool nex_state_ZylFalltuerschieber;
+bool nex_state_ZylMagnetarm;
+bool nex_state_MotFeedOben;
+bool nex_state_MotFeedUnten;
+bool nex_state_ZylMesser;
+bool nex_state_ZylRevolverschieber;
+bool nex_state_machineRunning;
+bool nex_state_sealAvailable = 1;
 //***************************************************************************
-bool nex_prev_step_mode = true;
+bool nex_prev_stepMode = true;
 bool stopwatch_running;
 bool reset_stopwatch_active;
-unsigned int nex_prev_upper_feedtime;
-unsigned int nex_prev_lower_feedtime;
+unsigned int nex_prev_upperFeedtime;
+unsigned int nex_prev_lowerFeedtime;
 unsigned int stopped_button_pushtime;
-unsigned long nex_prev_shorttime_counter;
-unsigned long nex_prev_longtime_counter;
+unsigned long nex_prev_shorttimeCounter;
+unsigned long nex_prev_longtimeCounter;
 unsigned long button_push_stopwatch;
 unsigned long counter_reset_stopwatch;
 
@@ -76,13 +79,13 @@ NexDSButton nex_switch_mode = NexDSButton(1, 4, "bt1");
 
 //PAGE 1 - RIGHT SIDE
 NexPage nex_page2 = NexPage(2, 0, "page2");
-NexDSButton nex_zyl_gummihalter = NexDSButton(1, 15, "bt5");
+NexDSButton nex_ZylGummihalter = NexDSButton(1, 15, "bt5");
 NexDSButton nex_zyl_falltuer = NexDSButton(1, 14, "bt4");
-NexDSButton nex_zyl_magnetarm = NexDSButton(1, 13, "bt3");
+NexDSButton nex_ZylMagnetarm = NexDSButton(1, 13, "bt3");
 NexButton nex_mot_band_oben = NexButton(1, 12, "b5");
 NexButton nex_mot_band_unten = NexButton(1, 11, "b4");
-NexDSButton nex_zyl_messer = NexDSButton(1, 10, "bt2");
-NexButton nex_zyl_revolverschieber = NexButton(1, 9, "b3");
+NexDSButton nex_ZylMesser = NexDSButton(1, 10, "bt2");
+NexButton nex_ZylRevolverschieber = NexButton(1, 9, "b3");
 
 //PAGE 2 - LEFT SIDE:
 NexButton nex_but_slider1_left = NexButton(2, 6, "b1");
@@ -91,7 +94,7 @@ NexButton nex_but_slider2_left = NexButton(2, 9, "b0");
 NexButton nex_but_slider2_right = NexButton(2, 11, "b3");
 
 //PAGE 2 - RIGHT SIDE:
-NexButton nex_but_reset_shorttime_counter = NexButton(2, 18, "b4");
+NexButton nex_but_reset_shorttimeCounter = NexButton(2, 18, "b4");
 
 //**************************************************************************************
 //END OF OBJECT DECLARATION
@@ -104,12 +107,11 @@ char buffer[100] =
 //TOUCH EVENT LIST //DECLARATION OF TOUCH EVENTS TO BE MONITORED
 //**************************************************************************************
 NexTouch *nex_listen_list[] =
-{ &nex_but_reset_shorttime_counter, &nex_but_stepback, &nex_but_stepnxt,
-    &nex_but_reset_cycle, &nex_but_slider1_left, &nex_but_slider1_right,
-    &nex_but_slider2_left, &nex_but_slider2_right, &nex_switch_play_pause,
-    &nex_switch_mode, &nex_zyl_messer, &nex_zyl_magnetarm, &nex_page0,
-    &nex_page1, &nex_page2, &nex_zyl_gummihalter, &nex_zyl_falltuer,
-    &nex_mot_band_oben, &nex_mot_band_unten, &nex_zyl_revolverschieber,
+{ &nex_but_reset_shorttimeCounter, &nex_but_stepback, &nex_but_stepnxt, &nex_but_reset_cycle,
+    &nex_but_slider1_left, &nex_but_slider1_right, &nex_but_slider2_left, &nex_but_slider2_right,
+    &nex_switch_play_pause, &nex_switch_mode, &nex_ZylMesser, &nex_ZylMagnetarm, &nex_page0,
+    &nex_page1, &nex_page2, &nex_ZylGummihalter, &nex_zyl_falltuer, &nex_mot_band_oben,
+    &nex_mot_band_unten, &nex_ZylRevolverschieber,
 
     NULL //String terminated
     };
@@ -117,21 +119,17 @@ NexTouch *nex_listen_list[] =
 //END OF TOUCH EVENT LIST
 //**************************************************************************************
 
-//**************************************************************************************
-int send_to_nextion()
+void send_to_nextion()
 {
   Serial2.write(0xff);
   Serial2.write(0xff);
   Serial2.write(0xff);
 }
+
 //**************************************************************************************
+void nextionSetup()
 //**************************************************************************************
-//**************************************************************************************
-void nextion_setup()
-//**************************************************************************************
-//**************************************************************************************
-//**************************************************************************************
-{ //START NEXTION SETUP
+{
   Serial2.begin(9600);  // Start serial comunication at baud=9600
 
   //**************************************************************************************
@@ -149,7 +147,7 @@ void nextion_setup()
   //**************************************************************************************
   nex_but_stepback.attachPush(nex_but_stepbackPushCallback);
   nex_but_stepnxt.attachPush(nex_but_stepnxtPushCallback);
-  nex_zyl_magnetarm.attachPush(nex_zyl_magnetarmPushCallback);
+  nex_ZylMagnetarm.attachPush(nex_ZylMagnetarmPushCallback);
   nex_but_reset_cycle.attachPush(nex_but_reset_cyclePushCallback);
   nex_but_slider1_left.attachPush(nex_but_slider1_leftPushCallback);
   nex_but_slider1_right.attachPush(nex_but_slider1_rightPushCallback);
@@ -162,9 +160,9 @@ void nextion_setup()
   nex_page2.attachPush(nex_page2PushCallback);
   nex_switch_mode.attachPush(nex_switch_modePushCallback);
   nex_switch_play_pause.attachPush(nex_switch_play_pausePushCallback);
-  nex_zyl_magnetarm.attachPush(nex_zyl_magnetarmPushCallback);
-  nex_zyl_messer.attachPush(nex_zyl_messerPushCallback);
-  nex_zyl_gummihalter.attachPush(nex_zyl_gummihalterPushCallback);
+  nex_ZylMagnetarm.attachPush(nex_ZylMagnetarmPushCallback);
+  nex_ZylMesser.attachPush(nex_ZylMesserPushCallback);
+  nex_ZylGummihalter.attachPush(nex_ZylGummihalterPushCallback);
   nex_zyl_falltuer.attachPush(nex_zyl_falltuerPushCallback);
 
   //*****PUSH+POP:
@@ -172,12 +170,10 @@ void nextion_setup()
   nex_mot_band_oben.attachPop(nex_mot_band_obenPopCallback);
   nex_mot_band_unten.attachPush(nex_mot_band_untenPushCallback);
   nex_mot_band_unten.attachPop(nex_mot_band_untenPopCallback);
-  nex_zyl_revolverschieber.attachPush(nex_zyl_revolverschieberPushCallback);
-  nex_zyl_revolverschieber.attachPop(nex_zyl_revolverschieberPopCallback);
-  nex_but_reset_shorttime_counter.attachPush(
-      nex_but_reset_shorttime_counterPushCallback);
-  nex_but_reset_shorttime_counter.attachPop(
-      nex_but_reset_shorttime_counterPopCallback);
+  nex_ZylRevolverschieber.attachPush(nex_ZylRevolverschieberPushCallback);
+  nex_ZylRevolverschieber.attachPop(nex_ZylRevolverschieberPopCallback);
+  nex_but_reset_shorttimeCounter.attachPush(nex_but_reset_shorttimeCounterPushCallback);
+  nex_but_reset_shorttimeCounter.attachPop(nex_but_reset_shorttimeCounterPopCallback);
 
   //**************************************************************************************
   //END OF REGISTER
@@ -189,11 +185,7 @@ void nextion_setup()
 }  //END OF NEXTION SETUP
 
 //**************************************************************************************
-//**************************************************************************************
-//**************************************************************************************
-void nextion_loop()
-//**************************************************************************************
-//**************************************************************************************
+void NextionLoop()
 //**************************************************************************************
 { //START NEXTION LOOP
 
@@ -205,18 +197,18 @@ void nextion_loop()
     //PAGE 1 - LEFT SIDE:
     //*******************
     //UPDATE SWITCHSTATE "PLAY"/"PAUSE"
-    if (nex_state_machine_running != machine_running)
+    if (nex_state_machineRunning != machineRunning)
     {
       Serial2.print("click bt0,1");    //CLICK BUTTON
       send_to_nextion();
-      nex_state_machine_running = !nex_state_machine_running;
+      nex_state_machineRunning = !nex_state_machineRunning;
     }
 
     //UPDATE SWITCHSTATE "STEP"/"AUTO"-MODE
 
-    if (step_mode != nex_prev_step_mode)
+    if (stepMode != nex_prev_stepMode)
     {
-      if (step_mode == true)
+      if (stepMode == true)
       {
         Serial2.print("click bt1,1");    //CLICK BUTTON
         send_to_nextion();
@@ -236,13 +228,13 @@ void nextion_loop()
         Serial2.print("\"");
         send_to_nextion();
       }
-      nex_prev_step_mode = step_mode;
+      nex_prev_stepMode = stepMode;
     }
 
     //DISPLAY IF MAGAZINE IS EMPTY
-    if (nex_state_seal_available != seal_available)
+    if (nex_state_sealAvailable != sealAvailable)
     {
-      if (seal_available == false)
+      if (sealAvailable == false)
       {
         Serial2.print("t4.txt=");
         Serial2.print("\"");
@@ -258,49 +250,49 @@ void nextion_loop()
         Serial2.print("\"");
         send_to_nextion();
       }
-      nex_state_seal_available = seal_available;
+      nex_state_sealAvailable = sealAvailable;
     }
 
     //*******************
     //PAGE 1 - RIGHT SIDE:
     //*******************
     //UPDATE CYCLE NAME
-    if (nex_prev_cycle_step != cycle_step)
+    if (nexPrevCycleStep != cycleStep)
     {
       Serial2.print("t0.txt=");
       Serial2.print("\"");
-      Serial2.print(cycle_name[cycle_step - 1]);
+      Serial2.print(cycle_name[cycleStep - 1]);
       Serial2.print("\"");
       send_to_nextion();
-      nex_prev_cycle_step = cycle_step;
+      nexPrevCycleStep = cycleStep;
     }
     //UPDATE SWITCHBUTTON (dual state):
-    if (zyl_gummihalter.request_state() != nex_state_zyl_gummihalter)
+    if (ZylGummihalter.request_state() != nex_state_ZylGummihalter)
     {
       Serial2.print("click bt5,1");    //CLICK BUTTON
       send_to_nextion();
-      nex_state_zyl_gummihalter = !nex_state_zyl_gummihalter;
+      nex_state_ZylGummihalter = !nex_state_ZylGummihalter;
     }
     //UPDATE SWITCHBUTTON (dual state):
-    if (zyl_falltuerschieber.request_state() != nex_state_zyl_falltuerschieber)
+    if (ZylFalltuerschieber.request_state() != nex_state_ZylFalltuerschieber)
     {
       Serial2.print("click bt4,1");    //CLICK BUTTON
       send_to_nextion();
-      nex_state_zyl_falltuerschieber = !nex_state_zyl_falltuerschieber;
+      nex_state_ZylFalltuerschieber = !nex_state_ZylFalltuerschieber;
     }
     //UPDATE SWITCHBUTTON (dual state):
-    if (zyl_magnetarm.request_state() != nex_state_zyl_magnetarm)
+    if (ZylMagnetarm.request_state() != nex_state_ZylMagnetarm)
     {
       Serial2.print("click bt3,1");    //CLICK BUTTON
       send_to_nextion();
-      nex_state_zyl_magnetarm = !nex_state_zyl_magnetarm;
+      nex_state_ZylMagnetarm = !nex_state_ZylMagnetarm;
     }
 
     //UPDATE BUTTON (momentary)
-    if (mot_feed_oben.request_state() != nex_state_mot_feed_oben)
+    if (MotFeedOben.request_state() != nex_state_MotFeedOben)
     {
 
-      if (mot_feed_oben.request_state() == HIGH)
+      if (MotFeedOben.request_state() == HIGH)
       {
         Serial2.print("click b5,1");    //CLICK BUTTON
         send_to_nextion();
@@ -310,13 +302,13 @@ void nextion_loop()
         Serial2.print("click b5,0");    //CLICK BUTTON
         send_to_nextion();
       }
-      nex_state_mot_feed_oben = mot_feed_oben.request_state();
+      nex_state_MotFeedOben = MotFeedOben.request_state();
     }
 
     //UPDATE BUTTON (momentary)
-    if (mot_feed_unten.request_state() != nex_state_mot_feed_unten)
+    if (MotFeedUnten.request_state() != nex_state_MotFeedUnten)
     {
-      if (mot_feed_unten.request_state() == HIGH)
+      if (MotFeedUnten.request_state() == HIGH)
       {
         Serial2.print("click b4,1");    //CLICK BUTTON
         send_to_nextion();
@@ -326,20 +318,20 @@ void nextion_loop()
         Serial2.print("click b4,0");    //CLICK BUTTON
         send_to_nextion();
       }
-      nex_state_mot_feed_unten = mot_feed_unten.request_state();
+      nex_state_MotFeedUnten = MotFeedUnten.request_state();
     }
 
     //UPDATE SWITCHBUTTON (dual state):
-    if (zyl_messer.request_state() != nex_state_zyl_messer)
+    if (ZylMesser.request_state() != nex_state_ZylMesser)
     {
       Serial2.print("click bt2,1");    //CLICK BUTTON
       send_to_nextion();
-      nex_state_zyl_messer = !nex_state_zyl_messer;
+      nex_state_ZylMesser = !nex_state_ZylMesser;
     }
     //UPDATE BUTTON (momentary)
-    if (zyl_revolverschieber.request_state() != nex_state_zyl_revolverschieber)
+    if (ZylRevolverschieber.request_state() != nex_state_ZylRevolverschieber)
     {
-      if (zyl_revolverschieber.request_state() == HIGH)
+      if (ZylRevolverschieber.request_state() == HIGH)
       {
         Serial2.print("click b3,1");    //CLICK BUTTON
         send_to_nextion();
@@ -349,80 +341,77 @@ void nextion_loop()
         Serial2.print("click b3,0");    //CLICK BUTTON
         send_to_nextion();
       }
-      nex_state_zyl_revolverschieber = zyl_revolverschieber.request_state();
+      nex_state_ZylRevolverschieber = ZylRevolverschieber.request_state();
     }
 
   }    //END PAGE 1
-       //**************************************************************************************
+  //**************************************************************************************
   if (CurrentPage == 2)  //START PAGE 2
   {
     //*******************
     //PAGE 2 - LEFT SIDE
     //*******************
 
-    if (nex_prev_upper_feedtime != upper_feedtime)
+    if (nex_prev_upperFeedtime != upperFeedtime)
     {
       Serial2.print("h0.val=");
-      Serial2.print(upper_feedtime);
+      Serial2.print(upperFeedtime);
       send_to_nextion();
       Serial2.print("t4.txt=");
       Serial2.print("\"");
-      Serial2.print(upper_feedtime);
+      Serial2.print(upperFeedtime);
       Serial2.print(" ms");
       Serial2.print("\"");
       send_to_nextion();
-      nex_prev_upper_feedtime = upper_feedtime;
+      nex_prev_upperFeedtime = upperFeedtime;
     }
 
-    if (nex_prev_lower_feedtime != lower_feedtime)
+    if (nex_prev_lowerFeedtime != lowerFeedtime)
     {
       Serial2.print("h1.val=");
-      Serial2.print(lower_feedtime);
+      Serial2.print(lowerFeedtime);
       send_to_nextion();
 
       Serial2.print("t6.txt=");
       Serial2.print("\"");
-      Serial2.print(lower_feedtime);
+      Serial2.print(lowerFeedtime);
       Serial2.print(" ms");
       Serial2.print("\"");
       send_to_nextion();
-      nex_prev_lower_feedtime = lower_feedtime;
+      nex_prev_lowerFeedtime = lowerFeedtime;
     }
     //*******************
     //PAGE 2 - RIGHT SIDE
     //*******************
-    if (nex_prev_longtime_counter != longtime_counter)
+    if (nex_prev_longtimeCounter != longtimeCounter)
     {
       Serial2.print("t10.txt=");
       Serial2.print("\"");
-      Serial2.print(longtime_counter);
+      Serial2.print(longtimeCounter);
       Serial2.print("\"");
       send_to_nextion();
-      nex_prev_longtime_counter = longtime_counter;
+      nex_prev_longtimeCounter = longtimeCounter;
     }
-    if (nex_prev_shorttime_counter != shorttime_counter)
+    if (nex_prev_shorttimeCounter != shorttimeCounter)
     {
       Serial2.print("t12.txt=");
       Serial2.print("\"");
-      Serial2.print(shorttime_counter);
+      Serial2.print(shorttimeCounter);
       Serial2.print("\"");
       send_to_nextion();
-      nex_prev_shorttime_counter = shorttime_counter;
+      nex_prev_shorttimeCounter = shorttimeCounter;
     }
     if (reset_stopwatch_active == true)
     {
       if (millis() - counter_reset_stopwatch > 5000)
       {
-        shorttime_counter = 0;
-        longtime_counter = 0;
+        shorttimeCounter = 0;
+        longtimeCounter = 0;
       }
     }
   }    //END PAGE 2
 
 }    //END OF NEXTION LOOP
-//**************************************************************************************
-//**************************************************************************************
-//***************************************************************************************
 
 //**************************************************************************************
 //TOUCH EVENT FUNCTIONS //PushCallback = Press event //PopCallback = Release event
@@ -433,77 +422,77 @@ void nextion_loop()
 //*************************************************
 void nex_switch_play_pausePushCallback(void *ptr)
 {
-  machine_running = !machine_running;
-  if (machine_running == true)
+  machineRunning = !machineRunning;
+  if (machineRunning == true)
   {
-    clearance_next_step = true;
+    clearanceNextStep = true;
   }
-  if (machine_running == false)
+  if (machineRunning == false)
   {
     //abort running processes:
-    mot_feed_oben.set(0);
-    mot_feed_unten.set(0);
-    zyl_messer.set(0);
-    zyl_revolverschieber.set(0);
+    MotFeedOben.set(0);
+    MotFeedUnten.set(0);
+    ZylMesser.set(0);
+    ZylRevolverschieber.set(0);
 
   }
-  nex_state_machine_running = !nex_state_machine_running;
+  nex_state_machineRunning = !nex_state_machineRunning;
 }
 void nex_switch_modePushCallback(void *ptr)
 {
-  step_mode = !step_mode;
+  stepMode = !stepMode;
   Serial2.print("click bt1,1");    //CLICK BUTTON
   send_to_nextion();
 }
 void nex_but_stepbackPushCallback(void *ptr)
 {
-  if (cycle_step > 1)
+  if (cycleStep > 1)
   {
-    cycle_step = cycle_step - 1;
+    cycleStep = cycleStep - 1;
   }
 }
 void nex_but_stepnxtPushCallback(void *ptr)
 {
-  if (cycle_step < 10)
+  if (cycleStep < 10)
   {
-    cycle_step++;
+    cycleStep++;
   }
 }
 void nex_but_reset_cyclePushCallback(void *ptr)
 {
-  reset();
+  Reset();
 }
 //*************************************************
 //TOUCH EVENT FUNCTIONS PAGE 1 - RIGHT SIDE
 //*************************************************
-void nex_zyl_gummihalterPushCallback(void *ptr)
+void nex_ZylGummihalterPushCallback(void *ptr)
 {
-  zyl_gummihalter.toggle();
-  nex_state_zyl_gummihalter = !nex_state_zyl_gummihalter;
+  ZylGummihalter.toggle();
+  nex_state_ZylGummihalter = !nex_state_ZylGummihalter;
 }
 
 void nex_zyl_falltuerPushCallback(void *ptr)
 {
-  zyl_falltuerschieber.toggle();
-  nex_state_zyl_falltuerschieber = !nex_state_zyl_falltuerschieber;
+  ZylFalltuerschieber.toggle();
+  nex_state_ZylFalltuerschieber = !nex_state_ZylFalltuerschieber;
 }
 
-void nex_zyl_magnetarmPushCallback(void *ptr)
+void nex_ZylMagnetarmPushCallback(void *ptr)
 {
-  zyl_magnetarm.toggle();
-  nex_state_zyl_magnetarm = !nex_state_zyl_magnetarm;
+  ZylMagnetarm.toggle();
+  nex_state_ZylMagnetarm = !nex_state_ZylMagnetarm;
 }
 
 void nex_mot_band_obenPushCallback(void *ptr)
 {
-  mot_feed_oben.set(1);
+  MotFeedOben.set(1);
   button_push_stopwatch = millis();
   stopwatch_running = true;
 }
 
 void nex_mot_band_obenPopCallback(void *ptr)
 {
-  mot_feed_oben.set(0);
+  MotFeedOben.set(0);
   stopped_button_pushtime = millis() - button_push_stopwatch;
   stopwatch_running = false;
   Serial2.print("t4.txt=");
@@ -516,13 +505,13 @@ void nex_mot_band_obenPopCallback(void *ptr)
 
 void nex_mot_band_untenPushCallback(void *ptr)
 {
-  mot_feed_unten.set(1);
+  MotFeedUnten.set(1);
   button_push_stopwatch = millis();
   stopwatch_running = true;
 }
 void nex_mot_band_untenPopCallback(void *ptr)
 {
-  mot_feed_unten.set(0);
+  MotFeedUnten.set(0);
   stopped_button_pushtime = millis() - button_push_stopwatch;
   stopwatch_running = false;
   Serial2.print("t4.txt=");
@@ -533,19 +522,19 @@ void nex_mot_band_untenPopCallback(void *ptr)
   send_to_nextion();
 }
 
-void nex_zyl_messerPushCallback(void *ptr)
+void nex_ZylMesserPushCallback(void *ptr)
 {
-  zyl_messer.toggle();
-  nex_state_zyl_messer = !nex_state_zyl_messer;
+  ZylMesser.toggle();
+  nex_state_ZylMesser = !nex_state_ZylMesser;
 }
 
-void nex_zyl_revolverschieberPushCallback(void *ptr)
+void nex_ZylRevolverschieberPushCallback(void *ptr)
 {
-  zyl_revolverschieber.set(1);
+  ZylRevolverschieber.set(1);
 }
-void nex_zyl_revolverschieberPopCallback(void *ptr)
+void nex_ZylRevolverschieberPopCallback(void *ptr)
 {
-  zyl_revolverschieber.set(0);
+  ZylRevolverschieber.set(0);
 }
 
 //*************************************************
@@ -554,49 +543,49 @@ void nex_zyl_revolverschieberPopCallback(void *ptr)
 
 void nex_but_slider1_leftPushCallback(void *ptr)
 {
-  upper_feedtime = upper_feedtime - 100;
-  if (upper_feedtime < 0)
+  upperFeedtime = upperFeedtime - 100;
+  if (upperFeedtime < 0)
   {
-    upper_feedtime = 0;
+    upperFeedtime = 0;
   }
 }
 
 void nex_but_slider1_rightPushCallback(void *ptr)
 {
-  upper_feedtime = upper_feedtime + 100;
-  if (upper_feedtime > 5000)
+  upperFeedtime = upperFeedtime + 100;
+  if (upperFeedtime > 5000)
   {
-    upper_feedtime = 5000;
+    upperFeedtime = 5000;
   }
 }
 void nex_but_slider2_leftPushCallback(void *ptr)
 {
-  lower_feedtime = lower_feedtime - 100;
-  if (lower_feedtime < 0)
+  lowerFeedtime = lowerFeedtime - 100;
+  if (lowerFeedtime < 0)
   {
-    lower_feedtime = 0;
+    lowerFeedtime = 0;
   }
 }
 void nex_but_slider2_rightPushCallback(void *ptr)
 {
-  lower_feedtime = lower_feedtime + 100;
-  if (lower_feedtime > 5000)
+  lowerFeedtime = lowerFeedtime + 100;
+  if (lowerFeedtime > 5000)
   {
-    lower_feedtime = 5000;
+    lowerFeedtime = 5000;
   }
 }
 //*************************************************
 //TOUCH EVENT FUNCTIONS PAGE 2 - RIGHT SIDE
 //*************************************************
-void nex_but_reset_shorttime_counterPushCallback(void *ptr)
+void nex_but_reset_shorttimeCounterPushCallback(void *ptr)
 {
-  shorttime_counter = 0;
+  shorttimeCounter = 0;
   //RESET LONGTIME COUNTER IF RESET BUTTON IS PRESSED LONG ENOUGH:
   counter_reset_stopwatch = millis();
   reset_stopwatch_active = true;
 
 }
-void nex_but_reset_shorttime_counterPopCallback(void *ptr)
+void nex_but_reset_shorttimeCounterPopCallback(void *ptr)
 {
   reset_stopwatch_active = false;
 }
@@ -613,28 +602,28 @@ void nex_page1PushCallback(void *ptr)
   CurrentPage = 1;
 
   //REFRESH BUTTON STATES:
-  nex_prev_cycle_step = 0;
-  nex_prev_step_mode = true;
+  nexPrevCycleStep = 0;
+  nex_prev_stepMode = true;
 
-  nex_state_zyl_gummihalter = 0;
-  nex_state_zyl_falltuerschieber = 0;
-  nex_state_zyl_magnetarm = 0;
-  nex_state_mot_feed_oben = 0;
-  nex_state_mot_feed_unten = 0;
-  nex_state_zyl_messer = 0;
-  nex_state_zyl_revolverschieber = 0;
-  nex_state_machine_running = 0;
-  nex_state_seal_available = !seal_available;
+  nex_state_ZylGummihalter = 0;
+  nex_state_ZylFalltuerschieber = 0;
+  nex_state_ZylMagnetarm = 0;
+  nex_state_MotFeedOben = 0;
+  nex_state_MotFeedUnten = 0;
+  nex_state_ZylMesser = 0;
+  nex_state_ZylRevolverschieber = 0;
+  nex_state_machineRunning = 0;
+  nex_state_sealAvailable = !sealAvailable;
 }
 
 void nex_page2PushCallback(void *ptr)
 {
   CurrentPage = 2;
   //REFRESH BUTTON STATES:
-  nex_prev_upper_feedtime = 0;
-  nex_prev_lower_feedtime = 0;
-  nex_prev_shorttime_counter = 0;
-  nex_prev_longtime_counter = 0;
+  nex_prev_upperFeedtime = 0;
+  nex_prev_lowerFeedtime = 0;
+  nex_prev_shorttimeCounter = 0;
+  nex_prev_longtimeCounter = 0;
 }
 
 //**************************************************************************************

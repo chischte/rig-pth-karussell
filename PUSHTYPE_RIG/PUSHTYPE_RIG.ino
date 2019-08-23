@@ -10,36 +10,9 @@
  */
 
 #include <Cylinder.h> // https://github.com/chischte/cylinder-library
-#include <Nextion.h>
+#include <Nextion.h>  // https://github.com/itead/ITEADLIB_Arduino_Nextion
 #include <Controllino.h> 
 
-//*****************************************************************************
-//PRE-SETUP SECTION / PIN LAYOUT
-//*****************************************************************************
-
-//*****************************************************************************
-//KNOBS AND POTENTIOMETERS
-//*****************************************************************************
-#define start_button CONTROLLINO_A1
-#define stop_button CONTROLLINO_A0
-#define  step_mode_button CONTROLLINO_A2
-#define auto_mode_button CONTROLLINO_A4
-#define green_light CONTROLLINO_D12
-#define red_light CONTROLLINO_D11
-//*****************************************************************************
-//SENSORS
-//*****************************************************************************
-#define sensor_plombe CONTROLLINO_A3
-//*****************************************************************************
-//VALVES / MOTORS
-//*****************************************************************************
-Cylinder zyl_gummihalter(CONTROLLINO_D6);
-Cylinder zyl_falltuerschieber(CONTROLLINO_D7);
-Cylinder zyl_magnetarm(CONTROLLINO_D8);
-Cylinder mot_feed_oben(CONTROLLINO_D0);
-Cylinder mot_feed_unten(CONTROLLINO_D1);
-Cylinder zyl_messer(CONTROLLINO_D3);
-Cylinder zyl_revolverschieber(CONTROLLINO_D2);
 //*****************************************************************************
 //DECLARATION OF VARIABLES / DATA TYPES
 //*****************************************************************************
@@ -49,28 +22,50 @@ Cylinder zyl_revolverschieber(CONTROLLINO_D2);
 //long  (-2,147,483,648 to 2,147,483,647)
 //float (6-7 Digits)
 //*****************************************************************************
-boolean machine_running = false;
-boolean step_mode = true;
 
-boolean clearance_play_pause_toggle = true;
-boolean clearance_next_step = false;
-boolean error_blink = false;
-boolean seal_available = false;
+//KNOBS AND POTENTIOMETERS:
+const byte START_BUTTON = CONTROLLINO_A1;
+const byte STOP_BUTTON = CONTROLLINO_A0;
+const byte STEP_MODE_BUTTON = CONTROLLINO_A2;
+const byte AUTO_MODE_BUTTON = CONTROLLINO_A4;
+const byte GREEN_LIGHT_PIN = CONTROLLINO_D12;
+const byte RED_LIGHT_PIN = CONTROLLINO_D11;
 
-byte cycle_step = 1;
-byte nex_prev_cycle_step;
+//SENSORS:
+const byte sensor_plombe = CONTROLLINO_A3;
 
-unsigned long timer_next_step;
+//OTHER VARIABLES:
+boolean machineRunning = false;
+boolean stepMode = true;
+boolean clearancePlayPauseToggle = true;
+boolean clearanceNextStep = false;
+boolean errorBlink = false;
+boolean sealAvailable = false;
 
-long upper_feedtime; //LONG because EEPROM function
-long lower_feedtime; //LONG because EEPROM function
-long shorttime_counter; //LONG because EEPROM function
-long longtime_counter; //LONG because EEPROM function
+byte cycleStep = 1;
+byte nexPrevCycleStep;
 
-unsigned long timer_error_blink;
+long upperFeedtime; //LONG because EEPROM function
+long lowerFeedtime; //LONG because EEPROM function
+long shorttimeCounter; //LONG because EEPROM function
+long longtimeCounter; //LONG because EEPROM function
+
+unsigned long timeNextStep;
+unsigned long timerErrorBlink;
 unsigned long runtime;
-unsigned long runtime_stopwatch;
+unsigned long runtimeStopwatch;
 unsigned long prev_time;
+
+//*****************************************************************************
+//GENERATE INSTANCES OF "Cylinder" FOR VALVES / MOTORS:
+//*****************************************************************************
+Cylinder ZylGummihalter(CONTROLLINO_D6);
+Cylinder ZylFalltuerschieber(CONTROLLINO_D7);
+Cylinder ZylMagnetarm(CONTROLLINO_D8);
+Cylinder MotFeedOben(CONTROLLINO_D0);
+Cylinder MotFeedUnten(CONTROLLINO_D1);
+Cylinder ZylMesser(CONTROLLINO_D3);
+Cylinder ZylRevolverschieber(CONTROLLINO_D2);
 
 //*****************************************************************************
 //******************######**#######*#######*#******#*######********************
@@ -81,21 +76,19 @@ unsigned long prev_time;
 //*****************************************************************************
 void setup()
 {
-
   Serial.begin(500000); //start serial connection
 
-  nextion_setup();
+  nextionSetup();
 
-  pinMode(stop_button, INPUT);
-  pinMode(start_button, INPUT);
-  pinMode(step_mode_button, INPUT);
-  pinMode(auto_mode_button, INPUT);
-  pinMode(green_light, OUTPUT);
-  pinMode(red_light, OUTPUT);
-  reset();
+  pinMode(STOP_BUTTON, INPUT);
+  pinMode(START_BUTTON, INPUT);
+  pinMode(STEP_MODE_BUTTON, INPUT);
+  pinMode(AUTO_MODE_BUTTON, INPUT);
+  pinMode(GREEN_LIGHT_PIN, OUTPUT);
+  pinMode(RED_LIGHT_PIN, OUTPUT);
+  Reset();
   Serial.println("EXIT SETUP");
 }
-//*****************************************************************************
 //*****************************************************************************
 //********************#*********#####***#####***######*************************
 //********************#********#*****#*#*****#**#*****#************************
@@ -103,25 +96,21 @@ void setup()
 //********************#********#*****#*#*****#**#******************************
 //********************#######***#####***#####***#******************************
 //*****************************************************************************
-//*****************************************************************************
 void loop()
 {
 
-  read_n_toggle();
-  lights();
+  ReadNToggle();
+  Lights();
 
-  if (machine_running == true)
+  if (machineRunning == true)
   {
-    run_main_test_cycle();
+    RunMainTestCycle();
   }
-  nextion_loop();
-  eeprom_update();
+  NextionLoop();
+  EEPROM_Update();
 
-  //runtime = millis() - runtime_stopwatch;
+  //runtime = millis() - runtimeStopwatch;
   //Serial.println(runtime);
-  //runtime_stopwatch = millis();
+  //runtimeStopwatch = millis();
 
-}  //END MAIN LOOP
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
+}

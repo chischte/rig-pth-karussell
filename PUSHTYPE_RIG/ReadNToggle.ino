@@ -1,56 +1,56 @@
-void read_n_toggle()
+void ReadNToggle()
 {
   /*
    //*****************************************************************************
    //READ MODE BUTTON (STEP or AUTO-MODE):
 
-   if (digitalRead(step_mode_button) == HIGH)
+   if (digitalRead(STEP_MODE_BUTTON) == HIGH)
    {
-   step_mode = true;
+   stepMode = true;
    }
-   if (digitalRead(auto_mode_button) == HIGH)
+   if (digitalRead(AUTO_MODE_BUTTON) == HIGH)
    {
-   step_mode = false;
+   stepMode = false;
    }
    */
   //*****************************************************************************
   //IN AUTO MODE, MACHINE RUNS FROM STEP TO STEP AUTOMATICALLY:
-  if (step_mode == false)  //=AUTO MODE
+  if (stepMode == false)  //=AUTO MODE
   {
-    clearance_next_step = true;
+    clearanceNextStep = true;
   }
   //*****************************************************************************
   //IN STEP MODE, MACHINE STOPS AFTER EVERY COMPLETED CYCLYE:
 
-  if (step_mode == true && clearance_next_step == false)
+  if (stepMode == true && clearanceNextStep == false)
   {
-    machine_running = false;
+    machineRunning = false;
   }
   //*****************************************************************************
   //START TEST RIG:
 
-  if (digitalRead(start_button) == HIGH)
+  if (digitalRead(START_BUTTON) == HIGH)
   {
-    machine_running = true;
-    clearance_next_step = true;
+    machineRunning = true;
+    clearanceNextStep = true;
   }
   //*****************************************************************************
   //STOP TEST_RIG:
 
-  if (digitalRead(stop_button) == HIGH)
+  if (digitalRead(STOP_BUTTON) == HIGH)
   {
-    machine_running = false;
+    machineRunning = false;
   }
   //*****************************************************************************
   //READ SEAL DETECTION SENSOR:
 
   if (!digitalRead(sensor_plombe) == false)  //=Plombe detektiert
   {
-    seal_available = true;
+    sealAvailable = true;
   }
   else
   {
-    seal_available = false;
+    sealAvailable = false;
   }
   //*****************************************************************************
-}  //END OF READ_N_TOGGLE
+}
