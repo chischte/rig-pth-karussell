@@ -9,8 +9,9 @@
  * *****************************************************************************
  */
 
-#include <Cylinder.h>     // https://github.com/chischte/cylinder-library
-#include <Nextion.h>      // https://github.com/itead/ITEADLIB_Arduino_Nextion
+#include <Cylinder.h>       // https://github.com/chischte/cylinder-library
+#include <EEPROM_Counter.h> // https://github.com/chischte/eeprom-counter-library.git
+#include <Nextion.h>        // https://github.com/itead/ITEADLIB_Arduino_Nextion
 #include <Controllino.h> 
 
 //*****************************************************************************
@@ -76,11 +77,7 @@ Cylinder ZylRevolverschieber(CONTROLLINO_D2);
 //*****************************************************************************
 void setup()
 {
-<<<<<<< HEAD
   Serial.begin(57600); //start serial connection
-=======
-  Serial.begin(115200); //start serial connection
->>>>>>> af6fcaa54218194ed86cc55d26509942398640fa
 
   nextionSetup();
 
