@@ -1,5 +1,4 @@
-void Reset()
-{
+void Reset() {
 
   ZylGummihalter.set(0);
   ZylFalltuerschieber.set(0);

@@ -1,20 +1,15 @@
-void RunMainTestCycle()
-{
-  if (clearanceNextStep == true && millis() - prev_time > timeNextStep)
-  {
-    switch (cycleStep)
-    {
+void RunMainTestCycle() {
+  if (clearanceNextStep == true && millis() - prev_time > timeNextStep) {
+    switch (cycleStep) {
     //***************************************************************************
     case 1: //PLOMBEN WERDEN IM RUTSCH-SCHACHT FIXIERT
       //WENN DER SENSOR KEINE PLOMBE DETEKTIERT MUSS DER REVOLVER NEU GEFÜLLT WERDEN...
       //***************************************************************************
       //Serial.println("Plomben fixieren...");
-      if (sealAvailable == true)
-      {
+      if (sealAvailable == true) {
         errorBlink = false;  //Plomben verfügbar, Fehlerblinken beenden
         ZylGummihalter.set(1);        //obere Plomben werden fixiert
-      }
-      else //MAGAZIN LEER! ROTE SIGNALLEUCHTE BLINKT
+      } else //MAGAZIN LEER! ROTE SIGNALLEUCHTE BLINKT
       {
         machineRunning = false;
         //Serial.println("ABBRUCH, KEINE PLOMBE DETEKTIERT!");
@@ -33,8 +28,7 @@ void RunMainTestCycle()
       //***************************************************************************
       //Serial.println("Plombe fallenlassen...");
       ZylFalltuerschieber.stroke(500, 0); //(push time,release time)
-      if (ZylFalltuerschieber.stroke_completed() == true)
-      {
+      if (ZylFalltuerschieber.stroke_completed() == true) {
         clearanceNextStep = false;
         cycleStep++;
       }
@@ -56,8 +50,7 @@ void RunMainTestCycle()
       //Serial.println("Bandvorschub unten...");
       ZylGummihalter.set(0); //Plomben für nächsten Zyklus können nachrutschen
       MotFeedUnten.stroke(lowerFeedtime, 0); //vorschub läuft
-      if (MotFeedUnten.stroke_completed() == true)
-      {
+      if (MotFeedUnten.stroke_completed() == true) {
         clearanceNextStep = false;
         cycleStep++;
       }
@@ -69,8 +62,7 @@ void RunMainTestCycle()
       ZylMesser.set(0);      //sicherstellen das Messer zurückgezogen ist
       MotFeedOben.stroke(upperFeedtime, 0);
 
-      if (MotFeedOben.stroke_completed() == true)
-      {
+      if (MotFeedOben.stroke_completed() == true) {
         clearanceNextStep = false;
         cycleStep++;
       }
@@ -88,13 +80,11 @@ void RunMainTestCycle()
       //***************************************************************************
     case 7:        //DAS BAND WIRD ABGESCHNITTEN
       //***************************************************************************
-      if (ZylMesser.stroke_completed() == true)
-      {
+      if (ZylMesser.stroke_completed() == true) {
         //Serial.println("Band schneiden...");
       }
       ZylMesser.stroke(1500, 0); //(push time,release time)
-      if (ZylMesser.stroke_completed() == true)
-      {
+      if (ZylMesser.stroke_completed() == true) {
         clearanceNextStep = false;
         cycleStep++;
       }
@@ -102,8 +92,7 @@ void RunMainTestCycle()
       //***************************************************************************
     case 8: //DER ZUFUHRZYLINDER FÄHRT ZURÜCK
       //***************************************************************************
-      if (ZylMagnetarm.stroke_completed() == true)
-      {
+      if (ZylMagnetarm.stroke_completed() == true) {
         //Serial.println("Mangetarm zurückfahren...");
       }
       ZylMagnetarm.set(0);
@@ -118,21 +107,17 @@ void RunMainTestCycle()
       //***************************************************************************
       //Serial.print("Check Plombensensor");
       if (sealAvailable == false) //keine Plombe detektiert
-      {
-        if (ZylRevolverschieber.stroke_completed() == true)
-        {
+              {
+        if (ZylRevolverschieber.stroke_completed() == true) {
           //Serial.println("   ... keine Plombe detektiert Revolver vorschieben ********");
         }
         ZylRevolverschieber.stroke(5000, 5000);
-      }
-      else
-      {
+      } else {
         //Serial.println(" ... i.O. Plombe detektiert");
       }
       prev_time = millis();
       timeNextStep = 500;
-      if (ZylRevolverschieber.stroke_completed() == true)
-      {
+      if (ZylRevolverschieber.stroke_completed() == true) {
         clearanceNextStep = true;
         cycleStep++;
       }

@@ -21,8 +21,7 @@ int valuecounter;
 long EEPROM_WriteCounter;
 //*****************************************************************************
 
-void EEPROM_Update()
-{
+void EEPROM_Update() {
   valuecounter = 0; //resets the storage location for the first value
   upperFeedtime = eeprom_updateroutine(upperFeedtime);
   lowerFeedtime = eeprom_updateroutine(lowerFeedtime);
@@ -38,10 +37,8 @@ bool eeprom_setupflag[STORESLOTS - 1]; //0=value not initialized 1=initial value
 //PREVIOUS VALUES:
 long eeprom_value; //to check if value changed
 
-long eeprom_updateroutine(long current_value)
-{
-  if (initial_setup == false)
-  {
+long eeprom_updateroutine(long current_value) {
+  if (initial_setup == false) {
     //FIND OUT WHERE THE VALUES ARE STORED:
     eeprom_read_block((void*) &storeLocation, (void*) 0, sizeof(2)); // destination / source / size
     //READ EEPROM WRITECOUNTER:
@@ -57,13 +54,11 @@ long eeprom_updateroutine(long current_value)
   eeprom_read_block((void*) &eeprom_value, (void*) current_storelocation, 4); // destination / source / size
 
   //IN THE FIRST RUN SET VALUE SAVED ON EEPROM AS CURRENT VALUE:
-  if (eeprom_setupflag[valuecounter] == 0)
-  {
+  if (eeprom_setupflag[valuecounter] == 0) {
     current_value = eeprom_value;
     eeprom_setupflag[valuecounter] = 1;
-  }
-  else if (current_value != eeprom_value) //write value to EEPROM if it changed
-  {
+  } else if (current_value != eeprom_value) //write value to EEPROM if it changed
+          {
     eeprom_write_block((void*) &current_value, (void*) (current_storelocation), 4); // source / destination / size
     EEPROM_WriteCounter++;
     eeprom_write_block((void*) &EEPROM_WriteCounter, (void*) (storeLocation), 4); // source / destination / size
@@ -71,12 +66,10 @@ long eeprom_updateroutine(long current_value)
   }
 
   //IF STORELOCATION IS AT THE END OF LIFECYCLE, ASSIGN A NEW STORELOCATION
-  if (EEPROM_WriteCounter >= 100000)
-  {
+  if (EEPROM_WriteCounter >= 100000) {
     //ASSIGN A NEW STORELOCATION:
     storeLocation = storeLocation + 4 + (4 * STORESLOTS); // 4 bytes for the write_counter + 4 bytes for each store slot
-    if (storeLocation >= (4095 - 40))
-    {
+    if (storeLocation >= (4095 - 40)) {
       storeLocation = 2;
     }
     eeprom_write_block((void*) &storeLocation, (void*) 0, 2); // source / destination / size
