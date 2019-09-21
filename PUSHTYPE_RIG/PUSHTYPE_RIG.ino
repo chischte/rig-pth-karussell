@@ -58,7 +58,7 @@ unsigned long runtimeStopwatch;
 unsigned long prev_time;
 
 //*****************************************************************************
-// GENERATE INSTANCES OF "Cylinder" FOR VALVES / MOTORS:
+// GENERATE INSTANCES OF CLASS "Cylinder" FOR VALVES / MOTORS:
 //*****************************************************************************
 Cylinder ZylGummihalter(CONTROLLINO_D6);
 Cylinder ZylFalltuerschieber(CONTROLLINO_D7);
