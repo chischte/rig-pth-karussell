@@ -76,7 +76,7 @@ Cylinder ZylRevolverschieber(CONTROLLINO_D2);
 //*****************************************************************************
 void setup()
 {
-  Serial.begin(500000); //start serial connection
+  Serial.begin(57600); //start serial connection
 
   nextionSetup();
 

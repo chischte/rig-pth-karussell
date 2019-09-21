@@ -48,19 +48,19 @@ bool nex_state_MotFeedOben;
 bool nex_state_MotFeedUnten;
 bool nex_state_ZylMesser;
 bool nex_state_ZylRevolverschieber;
-bool nex_state_machineRunning;
+bool nexStateMachineRunning;
 bool nex_state_sealAvailable = 1;
 //***************************************************************************
 bool nex_prev_stepMode = true;
 bool stopwatch_running;
-bool reset_stopwatch_active;
+bool resetStopwatchActive;
 unsigned int nex_prev_upperFeedtime;
 unsigned int nex_prev_lowerFeedtime;
 unsigned int stopped_button_pushtime;
 unsigned long nex_prev_shorttimeCounter;
 unsigned long nex_prev_longtimeCounter;
 unsigned long button_push_stopwatch;
-unsigned long counter_reset_stopwatch;
+unsigned long counterResetStopwatch;
 
 //**************************************************************************************
 //DECLARATION OF OBJECTS TO BE READ FROM NEXTION
@@ -197,11 +197,11 @@ void NextionLoop()
     //PAGE 1 - LEFT SIDE:
     //*******************
     //UPDATE SWITCHSTATE "PLAY"/"PAUSE"
-    if (nex_state_machineRunning != machineRunning)
+    if (nexStateMachineRunning != machineRunning)
     {
       Serial2.print("click bt0,1");    //CLICK BUTTON
       send_to_nextion();
-      nex_state_machineRunning = !nex_state_machineRunning;
+      nexStateMachineRunning = !nexStateMachineRunning;
     }
 
     //UPDATE SWITCHSTATE "STEP"/"AUTO"-MODE
@@ -401,9 +401,9 @@ void NextionLoop()
       send_to_nextion();
       nex_prev_shorttimeCounter = shorttimeCounter;
     }
-    if (reset_stopwatch_active == true)
+    if (resetStopwatchActive == true)
     {
-      if (millis() - counter_reset_stopwatch > 5000)
+      if (millis() - counterResetStopwatch > 5000)
       {
         shorttimeCounter = 0;
         longtimeCounter = 0;
@@ -436,7 +436,7 @@ void nex_switch_play_pausePushCallback(void *ptr)
     ZylRevolverschieber.set(0);
 
   }
-  nex_state_machineRunning = !nex_state_machineRunning;
+  nexStateMachineRunning = !nexStateMachineRunning;
 }
 void nex_switch_modePushCallback(void *ptr)
 {
@@ -581,13 +581,13 @@ void nex_but_reset_shorttimeCounterPushCallback(void *ptr)
 {
   shorttimeCounter = 0;
   //RESET LONGTIME COUNTER IF RESET BUTTON IS PRESSED LONG ENOUGH:
-  counter_reset_stopwatch = millis();
-  reset_stopwatch_active = true;
+  counterResetStopwatch = millis();
+  resetStopwatchActive = true;
 
 }
 void nex_but_reset_shorttimeCounterPopCallback(void *ptr)
 {
-  reset_stopwatch_active = false;
+  resetStopwatchActive = false;
 }
 //*************************************************
 //TOUCH EVENT FUNCTIONS PAGE CHANGES
@@ -612,7 +612,7 @@ void nex_page1PushCallback(void *ptr)
   nex_state_MotFeedUnten = 0;
   nex_state_ZylMesser = 0;
   nex_state_ZylRevolverschieber = 0;
-  nex_state_machineRunning = 0;
+  nexStateMachineRunning = 0;
   nex_state_sealAvailable = !sealAvailable;
 }
 
