@@ -9,21 +9,21 @@
  * *****************************************************************************
  */
 
-#include <Cylinder.h> // https://github.com/chischte/cylinder-library
-#include <Nextion.h>  // https://github.com/itead/ITEADLIB_Arduino_Nextion
+#include <Cylinder.h>     // https://github.com/chischte/cylinder-library
+#include <Nextion.h>      // https://github.com/itead/ITEADLIB_Arduino_Nextion
 #include <Controllino.h> 
 
 //*****************************************************************************
-//DECLARATION OF VARIABLES / DATA TYPES
+// DECLARATION OF VARIABLES / DATA TYPES
 //*****************************************************************************
-//boolean (true/false)
-//byte (0-255)
-//int   (-32,768 to 32,767) / unsigned int: 0 to 65,535
-//long  (-2,147,483,648 to 2,147,483,647)
-//float (6-7 Digits)
+// boolean (true/false)
+// byte (0-255)
+// int   (-32,768 to 32,767) / unsigned int: 0 to 65,535
+// long  (-2,147,483,648 to 2,147,483,647)
+// float (6-7 Digits)
 //*****************************************************************************
 
-//KNOBS AND POTENTIOMETERS:
+// KNOBS AND POTENTIOMETERS:
 const byte START_BUTTON = CONTROLLINO_A1;
 const byte STOP_BUTTON = CONTROLLINO_A0;
 const byte STEP_MODE_BUTTON = CONTROLLINO_A2;
@@ -31,7 +31,7 @@ const byte AUTO_MODE_BUTTON = CONTROLLINO_A4;
 const byte GREEN_LIGHT_PIN = CONTROLLINO_D12;
 const byte RED_LIGHT_PIN = CONTROLLINO_D11;
 
-//SENSORS:
+// SENSORS:
 const byte sensor_plombe = CONTROLLINO_A3;
 
 //OTHER VARIABLES:
@@ -57,7 +57,7 @@ unsigned long runtimeStopwatch;
 unsigned long prev_time;
 
 //*****************************************************************************
-//GENERATE INSTANCES OF "Cylinder" FOR VALVES / MOTORS:
+// GENERATE INSTANCES OF "Cylinder" FOR VALVES / MOTORS:
 //*****************************************************************************
 Cylinder ZylGummihalter(CONTROLLINO_D6);
 Cylinder ZylFalltuerschieber(CONTROLLINO_D7);
@@ -76,7 +76,11 @@ Cylinder ZylRevolverschieber(CONTROLLINO_D2);
 //*****************************************************************************
 void setup()
 {
+<<<<<<< HEAD
   Serial.begin(57600); //start serial connection
+=======
+  Serial.begin(115200); //start serial connection
+>>>>>>> af6fcaa54218194ed86cc55d26509942398640fa
 
   nextionSetup();
 
