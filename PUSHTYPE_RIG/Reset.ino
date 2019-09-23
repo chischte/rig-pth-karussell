@@ -1,5 +1,5 @@
 void TestRigReset() {
-
+  ToolReset();
   ZylGummihalter.set(0);
   ZylFalltuerschieber.set(0);
   ZylMagnetarm.set(0);

@@ -18,9 +18,10 @@
  */
 
 #include <Cylinder.h>       // https://github.com/chischte/cylinder-library
+#include <Debounce.h>       // https://github.com/chischte/debounce-library.git
 #include <EEPROM_Counter.h> // https://github.com/chischte/eeprom-counter-library.git
 #include <Nextion.h>        // https://github.com/itead/ITEADLIB_Arduino_Nextion
-#include <Insomnia.h>    // https://github.com/chischte/insomnia-delay-library.git
+#include <Insomnia.h>       // https://github.com/chischte/insomnia-delay-library.git
 #include <Controllino.h> 
 
 //*****************************************************************************
@@ -109,7 +110,7 @@ bool previousEndSwitchState;
 void CheckToolEndSwitchDetected() {
   bool endSwitchState = (digitalRead(TOOL_END_SWITCH_PIN));
   if (endSwitchState != previousEndSwitchState) {
-    if (endSwitchState == HIGH) {
+    if (endSwitchState == LOW) {
       toolMotorState = LOW;
       Serial.println("END SWITCH DETECTED");
     }
@@ -134,6 +135,7 @@ void CheckMotorStartButton() {
 
 void RunToolMotor() {
   digitalWrite(TOOL_MOTOR_RELAY, toolMotorState);
+  //digitalWrite(TOOL_MOTOR_RELAY, toolMotorState);
 }
 //*****************************************************************************
 //******************######**#######*#######*#******#*######********************
