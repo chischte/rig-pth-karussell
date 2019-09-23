@@ -12,6 +12,7 @@
 #include <Cylinder.h>       // https://github.com/chischte/cylinder-library
 #include <EEPROM_Counter.h> // https://github.com/chischte/eeprom-counter-library.git
 #include <Nextion.h>        // https://github.com/itead/ITEADLIB_Arduino_Nextion
+#include <Insomnia.h>    // https://github.com/chischte/insomnia-delay-library.git
 #include <Controllino.h> 
 
 //*****************************************************************************
