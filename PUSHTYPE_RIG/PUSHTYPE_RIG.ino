@@ -8,6 +8,7 @@
  * Dezember 2018, Zürich
  * *****************************************************************************
  * TODO:
+ * ENDSCHALTER DEBOUNCEN!
  * Timer durch insomniatimer ersetzen
  * bool==true und ==false in der Regel entfernen
  * Globale Variablen minimieren
