@@ -19,6 +19,7 @@ void RunMainTestCycle() {
       }
       ZylMagnetarm.set(0); //Um ein Verklemmen nach Reset zu verhindern
       prev_time = millis();
+      ToolReset(); //reset tool "Wippenhebel Ziehen"
       timeNextStep = 500;
       clearanceNextStep = false;
       cycleStep++;
@@ -125,8 +126,8 @@ void RunMainTestCycle() {
       //***************************************************************************
     case 10: //RESET FÜR NÄCHSTEN ZYKLUS
       //***************************************************************************
-        eepromCounter.countOneUp(shorttimeCounter);
-        eepromCounter.countOneUp(longtimeCounter);
+      eepromCounter.countOneUp(shorttimeCounter);
+      eepromCounter.countOneUp(longtimeCounter);
       //Serial.println("*** Zyklus beendet ***");
       cycleStep = 1;
       clearanceNextStep = false;

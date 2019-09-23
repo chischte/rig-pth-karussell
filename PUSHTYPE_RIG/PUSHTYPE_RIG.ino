@@ -8,13 +8,12 @@
  * Dezember 2018, Zürich
  * *****************************************************************************
  * TODO:
- * Variablen umbenennen
  * Timer durch insomniatimer ersetzen
- * EEPROM.ino durch EEPROM-counter library ersetzen
  * bool==true und ==false in der Regel entfernen
  * Globale Variablen minimieren
- * Kommentare und Anmerkungen an Style Guide anpassen und vereinheitlichen
  * Compiler Warnungen anschauen
+ * Tool Reset timer erhöhen
+ * Fix green light
  * *****************************************************************************
  */
 
@@ -39,19 +38,21 @@ const byte START_BUTTON = CONTROLLINO_A1;
 const byte STOP_BUTTON = CONTROLLINO_A0;
 const byte STEP_MODE_BUTTON = CONTROLLINO_A2;
 const byte AUTO_MODE_BUTTON = CONTROLLINO_A4;
-const byte GREEN_LIGHT_PIN = CONTROLLINO_D12;
+const byte GREEN_LIGHT_PIN = 42; //CONTROLLINO_D12 alias did not work 42
 const byte RED_LIGHT_PIN = CONTROLLINO_D11;
+const byte TOOL_MOTOR_RELAY = CONTROLLINO_R5;
+const byte TOOL_END_SWITCH_PIN = CONTROLLINO_A4;
 
 // SENSORS:
 const byte sensor_plombe = CONTROLLINO_A3;
 
 //OTHER VARIABLES:
-boolean machineRunning = false;
-boolean stepMode = true;
-boolean clearancePlayPauseToggle = true;
-boolean clearanceNextStep = false;
-boolean errorBlink = false;
-boolean sealAvailable = false;
+bool machineRunning = false;
+bool stepMode = true;
+bool clearancePlayPauseToggle = true;
+bool clearanceNextStep = false;
+bool errorBlink = false;
+bool sealAvailable = false;
 
 byte cycleStep = 1;
 byte nexPrevCycleStep;
@@ -69,11 +70,7 @@ unsigned long prev_time;
 
 // SET UP EEPROM COUNTER:
 enum counter {
-    upperFeedtime,
-    lowerFeedtime,
-    shorttimeCounter,
-    longtimeCounter,
-    endOfEnum
+  upperFeedtime, lowerFeedtime, shorttimeCounter, longtimeCounter, endOfEnum
 };
 
 int numberOfValues = endOfEnum;
@@ -81,7 +78,7 @@ int eepromSize = 4096;
 EEPROM_Counter eepromCounter(eepromSize, numberOfValues);
 
 //*****************************************************************************
-// GENERATE INSTANCES OF CLASS "Cylinder" FOR VALVES / MOTORS:
+// GENERATE INSTANCES OF CLASSES:
 //*****************************************************************************
 Cylinder ZylGummihalter(CONTROLLINO_D6);
 Cylinder ZylFalltuerschieber(CONTROLLINO_D7);
@@ -91,6 +88,53 @@ Cylinder MotFeedUnten(CONTROLLINO_D1);
 Cylinder ZylMesser(CONTROLLINO_D3);
 Cylinder ZylRevolverschieber(CONTROLLINO_D2);
 
+Insomnia ToolResetTimer(60000); //reset the tool every 60 seconds
+//*****************************************************************************
+void ToolReset() {
+  // SIMULIERE WIPPENHEBEL ZIEHEN:
+  digitalWrite(CONTROLLINO_RELAY_08, LOW);  //WIPPENSCHALTER WHITE CABLE (NO)
+  delay(50);
+  digitalWrite(CONTROLLINO_RELAY_09, HIGH); //WIPPENSCHALTER RED   CABLE (NC)
+  delay(200);
+  // SIMULIERE WIPPENHEBEL LOSLASEN:
+  digitalWrite(CONTROLLINO_RELAY_09, LOW);  //WIPPENSCHALTER RED   CABLE (NC)
+  delay(50);
+  digitalWrite(CONTROLLINO_RELAY_08, HIGH); //WIPPENSCHALTER WHITE CABLE (NO)
+  delay(100);
+}
+
+bool toolMotorState = LOW;
+bool previousEndSwitchState;
+
+void CheckToolEndSwitchDetected() {
+  bool endSwitchState = (digitalRead(TOOL_END_SWITCH_PIN));
+  if (endSwitchState != previousEndSwitchState) {
+    if (endSwitchState == HIGH) {
+      toolMotorState = LOW;
+      Serial.println("END SWITCH DETECTED");
+    }
+  }
+  previousEndSwitchState = endSwitchState;
+}
+
+bool previousMotorButtonState;
+
+void CheckMotorStartButton() {
+  bool motorButtonState = (digitalRead(START_BUTTON));
+  if (motorButtonState != previousMotorButtonState) {
+    if (motorButtonState == HIGH) { // BUTTON PUSHED
+      toolMotorState = HIGH;
+    }
+    if (motorButtonState == LOW) { // BUTTON RELEASED
+      toolMotorState = LOW;
+    }
+  }
+  previousMotorButtonState = motorButtonState;
+}
+
+void RunToolMotor() {
+  digitalWrite(TOOL_MOTOR_RELAY, toolMotorState);
+}
 //*****************************************************************************
 //******************######**#######*#######*#******#*######********************
 //*****************#********#**********#****#******#*#*****#*******************
@@ -99,18 +143,21 @@ Cylinder ZylRevolverschieber(CONTROLLINO_D2);
 //*****************######***######*****#*****######**#*************************
 //*****************************************************************************
 void setup() {
-    Serial.begin(115200); //start serial connection
+  Serial.begin(115200); //start serial connection
 
-    nextionSetup();
+  nextionSetup();
 
-    pinMode(STOP_BUTTON, INPUT);
-    pinMode(START_BUTTON, INPUT);
-    pinMode(STEP_MODE_BUTTON, INPUT);
-    pinMode(AUTO_MODE_BUTTON, INPUT);
-    pinMode(GREEN_LIGHT_PIN, OUTPUT);
-    pinMode(RED_LIGHT_PIN, OUTPUT);
-    Reset();
-    Serial.println("EXIT SETUP");
+  pinMode(STOP_BUTTON, INPUT);
+  pinMode(START_BUTTON, INPUT);
+  pinMode(STEP_MODE_BUTTON, INPUT);
+  pinMode(AUTO_MODE_BUTTON, INPUT);
+  pinMode(TOOL_MOTOR_RELAY, INPUT);
+  pinMode(GREEN_LIGHT_PIN, OUTPUT);
+  pinMode(RED_LIGHT_PIN, OUTPUT);
+  TestRigReset();
+  ToolReset();
+  //digitalWrite(GREEN_LIGHT_PIN,HIGH);
+  Serial.println("EXIT SETUP");
 }
 //*****************************************************************************
 //********************#*********#####***#####***######*************************
@@ -121,17 +168,23 @@ void setup() {
 //*****************************************************************************
 void loop() {
 
-    ReadNToggle();
-    Lights();
+  ReadNToggle();
+  Lights();
 
-    if (machineRunning == true) {
-        RunMainTestCycle();
-    }
-    NextionLoop();
-    //EEPROM_Update();
+  if (machineRunning) {
+    RunMainTestCycle();
+  } else if (ToolResetTimer.timedOut() && toolMotorState == LOW) {
+    ToolReset(); //restart the timeout countdown
+    ToolResetTimer.resetTime();
+  }
+  NextionLoop();
 
-    //runtime = millis() - runtimeStopwatch;
-    //Serial.println(runtime);
-    //runtimeStopwatch = millis();
+  CheckMotorStartButton();
+  CheckToolEndSwitchDetected();
+  RunToolMotor();
+
+//runtime = millis() - runtimeStopwatch;
+//Serial.println(runtime);
+//runtimeStopwatch = millis();
 
 }

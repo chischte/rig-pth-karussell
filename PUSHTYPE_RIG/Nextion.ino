@@ -414,7 +414,7 @@ void nex_but_stepnxtPushCallback(void *ptr) {
     }
 }
 void nex_but_reset_cyclePushCallback(void *ptr) {
-    Reset();
+    TestRigReset();
 }
 //*************************************************
 //TOUCH EVENT FUNCTIONS PAGE 1 - RIGHT SIDE

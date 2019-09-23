@@ -24,6 +24,7 @@ void ReadNToggle() {
   if (stepMode == true && clearanceNextStep == false) {
     machineRunning = false;
   }
+  /*
   //*****************************************************************************
   //START TEST RIG:
 
@@ -31,7 +32,8 @@ void ReadNToggle() {
     machineRunning = true;
     clearanceNextStep = true;
   }
-  //*****************************************************************************
+  */
+    //*****************************************************************************
   //STOP TEST_RIG:
 
   if (digitalRead(STOP_BUTTON) == HIGH) {
@@ -47,4 +49,5 @@ void ReadNToggle() {
     sealAvailable = false;
   }
   //*****************************************************************************
+
 }

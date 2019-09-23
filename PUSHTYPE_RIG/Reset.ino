@@ -1,4 +1,4 @@
-void Reset() {
+void TestRigReset() {
 
   ZylGummihalter.set(0);
   ZylFalltuerschieber.set(0);
