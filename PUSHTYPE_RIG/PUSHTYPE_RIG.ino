@@ -8,22 +8,21 @@
  * Dezember 2018, Zürich
  * *****************************************************************************
  * TODO:
- * ENDSCHALTER DEBOUNCEN!
+ * Tool Reset Delays durch tool reset no-sleep-delays ersetzen!
+ * Reset darf dann immer durchgeführt werden wenn der motor nicht läuft
+ * Maxon parameter für tool sleep time erhöhen auf maximum.
  * Timer durch insomniatimer ersetzen
  * bool==true und ==false in der Regel entfernen
  * Globale Variablen minimieren
- * Compiler Warnungen anschauen
- * Tool Reset timer erhöhen
- * Fix green light
  * *****************************************************************************
  */
 
+#include <Controllino.h>
+#include <Nextion.h>        // https://github.com/itead/ITEADLIB_Arduino_Nextion
 #include <Cylinder.h>       // https://github.com/chischte/cylinder-library
 #include <Debounce.h>       // https://github.com/chischte/debounce-library.git
 #include <EEPROM_Counter.h> // https://github.com/chischte/eeprom-counter-library.git
-#include <Nextion.h>        // https://github.com/itead/ITEADLIB_Arduino_Nextion
 #include <Insomnia.h>       // https://github.com/chischte/insomnia-delay-library.git
-#include <Controllino.h> 
 
 //*****************************************************************************
 // DECLARATION OF VARIABLES / DATA TYPES
@@ -40,7 +39,7 @@ const byte START_BUTTON = CONTROLLINO_A1;
 const byte STOP_BUTTON = CONTROLLINO_A0;
 const byte STEP_MODE_BUTTON = CONTROLLINO_A2;
 const byte AUTO_MODE_BUTTON = CONTROLLINO_A4;
-const byte GREEN_LIGHT_PIN = 42; //CONTROLLINO_D12 alias did not work 42
+const byte GREEN_LIGHT_PIN = 42; //CONTROLLINO_D12 alias did not work
 const byte RED_LIGHT_PIN = CONTROLLINO_D11;
 const byte TOOL_MOTOR_RELAY = CONTROLLINO_R5;
 const byte TOOL_END_SWITCH_PIN = CONTROLLINO_A4;
@@ -58,11 +57,6 @@ bool sealAvailable = false;
 
 byte cycleStep = 1;
 byte nexPrevCycleStep;
-
-//long upperFeedtime; //LONG because EEPROM function
-//long lowerFeedtime; //LONG because EEPROM function
-//long shorttimeCounter; //LONG because EEPROM function
-//long longtimeCounter; //LONG because EEPROM function
 
 unsigned long timeNextStep;
 unsigned long timerErrorBlink;
@@ -90,7 +84,10 @@ Cylinder MotFeedUnten(CONTROLLINO_D1);
 Cylinder ZylMesser(CONTROLLINO_D3);
 Cylinder ZylRevolverschieber(CONTROLLINO_D2);
 
-Insomnia ToolResetTimer(60000); //reset the tool every 60 seconds
+Insomnia toolResetTimer(60000); //reset the tool every 60 seconds
+
+Debounce motorStartButton(START_BUTTON);
+Debounce endSwitch(TOOL_END_SWITCH_PIN);
 //*****************************************************************************
 void ToolReset() {
   // SIMULIERE WIPPENHEBEL ZIEHEN:
@@ -105,38 +102,24 @@ void ToolReset() {
   delay(100);
 }
 
-bool toolMotorState = LOW;
-bool previousEndSwitchState;
-
-void CheckToolEndSwitchDetected() {
-  bool endSwitchState = (digitalRead(TOOL_END_SWITCH_PIN));
-  if (endSwitchState != previousEndSwitchState) {
-    if (endSwitchState == LOW) {
-      toolMotorState = LOW;
-      Serial.println("END SWITCH DETECTED");
-    }
-  }
-  previousEndSwitchState = endSwitchState;
-}
-
-bool previousMotorButtonState;
-
-void CheckMotorStartButton() {
-  bool motorButtonState = (digitalRead(START_BUTTON));
-  if (motorButtonState != previousMotorButtonState) {
-    if (motorButtonState == HIGH) { // BUTTON PUSHED
-      toolMotorState = HIGH;
-    }
-    if (motorButtonState == LOW) { // BUTTON RELEASED
-      toolMotorState = LOW;
-    }
-  }
-  previousMotorButtonState = motorButtonState;
-}
-
 void RunToolMotor() {
-  digitalWrite(TOOL_MOTOR_RELAY, toolMotorState);
-  //digitalWrite(TOOL_MOTOR_RELAY, toolMotorState);
+  // Not the state of the motor-start-push-button is essential, but the state-change!
+  // Like this it is easily possible to deactivate the motor, even when
+  // the motor button is still being pushed.
+
+  // ACTIVATE THE MOTOR IF THE START BUTTON HAS BEEN PUSHED:
+  if (motorStartButton.switchedHigh()) { // button pushed
+    digitalWrite(TOOL_MOTOR_RELAY, HIGH);
+  }
+  // DEACTIVATE THE MOTOR IF THE BUTTON HAS  BEEN RELEASED:
+  if (motorStartButton.switchedLow()) { // button released
+    digitalWrite(TOOL_MOTOR_RELAY, LOW);
+  }
+  // DEACTIVATE THE MOTOR IF THE END SWITCH HAS BEEN DETECTED
+  if (endSwitch.switchedLow()) {
+    digitalWrite(TOOL_MOTOR_RELAY, LOW);
+    Serial.println("END SWITCH DETECTED");
+  }
 }
 //*****************************************************************************
 //******************######**#######*#######*#******#*######********************
@@ -147,9 +130,7 @@ void RunToolMotor() {
 //*****************************************************************************
 void setup() {
   Serial.begin(115200); //start serial connection
-
   nextionSetup();
-
   pinMode(STOP_BUTTON, INPUT);
   pinMode(START_BUTTON, INPUT);
   pinMode(STEP_MODE_BUTTON, INPUT);
@@ -159,7 +140,8 @@ void setup() {
   pinMode(RED_LIGHT_PIN, OUTPUT);
   TestRigReset();
   ToolReset();
-  //digitalWrite(GREEN_LIGHT_PIN,HIGH);
+  motorStartButton.setDebounceTime(10);
+  endSwitch.setDebounceTime(10);
   Serial.println("EXIT SETUP");
 }
 //*****************************************************************************
@@ -176,18 +158,16 @@ void loop() {
 
   if (machineRunning) {
     RunMainTestCycle();
-  } else if (ToolResetTimer.timedOut() && toolMotorState == LOW) {
+  } else if (toolResetTimer.timedOut() && digitalRead(TOOL_MOTOR_RELAY) == LOW) {
     ToolReset(); //restart the timeout countdown
-    ToolResetTimer.resetTime();
+    toolResetTimer.resetTime();
   }
+
   NextionLoop();
 
-  CheckMotorStartButton();
-  CheckToolEndSwitchDetected();
-  RunToolMotor();
+  RunToolMotor(); // if the right conditions apply
 
 //runtime = millis() - runtimeStopwatch;
 //Serial.println(runtime);
 //runtimeStopwatch = millis();
-
 }
