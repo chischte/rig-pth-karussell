@@ -125,8 +125,8 @@ void RunMainTestCycle() {
       //***************************************************************************
     case 10: //RESET FÜR NÄCHSTEN ZYKLUS
       //***************************************************************************
-      shorttimeCounter++;
-      longtimeCounter++;
+        eepromCounter.countOneUp(shorttimeCounter);
+        eepromCounter.countOneUp(longtimeCounter);
       //Serial.println("*** Zyklus beendet ***");
       cycleStep = 1;
       clearanceNextStep = false;

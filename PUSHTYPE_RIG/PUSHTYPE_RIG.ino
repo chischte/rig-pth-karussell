@@ -7,6 +7,15 @@
  * Michael Wettstein
  * Dezember 2018, Zürich
  * *****************************************************************************
+ * TODO:
+ * Variablen umbenennen
+ * Timer durch insomniatimer ersetzen
+ * EEPROM.ino durch EEPROM-counter library ersetzen
+ * bool==true und ==false in der Regel entfernen
+ * Globale Variablen minimieren
+ * Kommentare und Anmerkungen an Style Guide anpassen und vereinheitlichen
+ * Compiler Warnungen anschauen
+ * *****************************************************************************
  */
 
 #include <Cylinder.h>       // https://github.com/chischte/cylinder-library
@@ -47,16 +56,29 @@ boolean sealAvailable = false;
 byte cycleStep = 1;
 byte nexPrevCycleStep;
 
-long upperFeedtime; //LONG because EEPROM function
-long lowerFeedtime; //LONG because EEPROM function
-long shorttimeCounter; //LONG because EEPROM function
-long longtimeCounter; //LONG because EEPROM function
+//long upperFeedtime; //LONG because EEPROM function
+//long lowerFeedtime; //LONG because EEPROM function
+//long shorttimeCounter; //LONG because EEPROM function
+//long longtimeCounter; //LONG because EEPROM function
 
 unsigned long timeNextStep;
 unsigned long timerErrorBlink;
 unsigned long runtime;
 unsigned long runtimeStopwatch;
 unsigned long prev_time;
+
+// SET UP EEPROM COUNTER:
+enum counter {
+    upperFeedtime,
+    lowerFeedtime,
+    shorttimeCounter,
+    longtimeCounter,
+    endOfEnum
+};
+
+int numberOfValues = endOfEnum;
+int eepromSize = 4096;
+EEPROM_Counter eepromCounter(eepromSize, numberOfValues);
 
 //*****************************************************************************
 // GENERATE INSTANCES OF CLASS "Cylinder" FOR VALVES / MOTORS:
@@ -77,18 +99,18 @@ Cylinder ZylRevolverschieber(CONTROLLINO_D2);
 //*****************######***######*****#*****######**#*************************
 //*****************************************************************************
 void setup() {
-  Serial.begin(57600); //start serial connection
+    Serial.begin(115200); //start serial connection
 
-  nextionSetup();
+    nextionSetup();
 
-  pinMode(STOP_BUTTON, INPUT);
-  pinMode(START_BUTTON, INPUT);
-  pinMode(STEP_MODE_BUTTON, INPUT);
-  pinMode(AUTO_MODE_BUTTON, INPUT);
-  pinMode(GREEN_LIGHT_PIN, OUTPUT);
-  pinMode(RED_LIGHT_PIN, OUTPUT);
-  Reset();
-  Serial.println("EXIT SETUP");
+    pinMode(STOP_BUTTON, INPUT);
+    pinMode(START_BUTTON, INPUT);
+    pinMode(STEP_MODE_BUTTON, INPUT);
+    pinMode(AUTO_MODE_BUTTON, INPUT);
+    pinMode(GREEN_LIGHT_PIN, OUTPUT);
+    pinMode(RED_LIGHT_PIN, OUTPUT);
+    Reset();
+    Serial.println("EXIT SETUP");
 }
 //*****************************************************************************
 //********************#*********#####***#####***######*************************
@@ -99,17 +121,17 @@ void setup() {
 //*****************************************************************************
 void loop() {
 
-  ReadNToggle();
-  Lights();
+    ReadNToggle();
+    Lights();
 
-  if (machineRunning == true) {
-    RunMainTestCycle();
-  }
-  NextionLoop();
-  EEPROM_Update();
+    if (machineRunning == true) {
+        RunMainTestCycle();
+    }
+    NextionLoop();
+    //EEPROM_Update();
 
-  //runtime = millis() - runtimeStopwatch;
-  //Serial.println(runtime);
-  //runtimeStopwatch = millis();
+    //runtime = millis() - runtimeStopwatch;
+    //Serial.println(runtime);
+    //runtimeStopwatch = millis();
 
 }
