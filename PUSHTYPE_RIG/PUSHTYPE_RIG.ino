@@ -29,12 +29,12 @@
 // KNOBS AND POTENTIOMETERS:
 const byte START_BUTTON = CONTROLLINO_A1;
 const byte STOP_BUTTON = CONTROLLINO_A0;
-//const byte STEP_MODE_BUTTON = CONTROLLINO_A2;
-//const byte AUTO_MODE_BUTTON = CONTROLLINO_A4;
 const byte GREEN_LIGHT_PIN = 42; //CONTROLLINO_D12 alias did not work
 const byte RED_LIGHT_PIN = CONTROLLINO_D11;
 const byte TOOL_MOTOR_RELAY = CONTROLLINO_R5;
 const byte TOOL_END_SWITCH_PIN = CONTROLLINO_A4;
+//const byte STEP_MODE_BUTTON = CONTROLLINO_A2;
+//const byte AUTO_MODE_BUTTON = CONTROLLINO_A4;
 
 // SENSORS:
 const byte SENSOR_PLOMBE = CONTROLLINO_A3;
@@ -52,7 +52,6 @@ byte nexPrevCycleStep;
 
 unsigned long runtime;
 unsigned long runtimeStopwatch;
-//unsigned long prev_time;
 
 // SET UP EEPROM COUNTER:
 enum counter {
@@ -74,7 +73,6 @@ Cylinder MotFeedUnten(CONTROLLINO_D1);
 Cylinder ZylMesser(CONTROLLINO_D3);
 Cylinder ZylRevolverschieber(CONTROLLINO_D2);
 
-Insomnia toolResetTimer(60000); //reset the tool every 60 seconds
 Insomnia nextStepTimer;
 Insomnia errorBlinkTimer;
 
@@ -130,7 +128,7 @@ void RunToolMotor() {
 //*****************######***######*****#*****######**#*************************
 //*****************************************************************************
 void setup() {
-  Serial.begin(115200); //start serial connection
+  Serial.begin(115200);
   nextionSetup();
   pinMode(STOP_BUTTON, INPUT);
   pinMode(START_BUTTON, INPUT);
@@ -152,17 +150,8 @@ void setup() {
 //*****************************************************************************
 void loop() {
 
-  Lights();
-  if (machineRunning) {
-    RunMainTestCycle();
-  }
-
-  NextionLoop();
-
-  RunToolMotor(); // if the right conditions apply
-
   // IN AUTO MODE, MACHINE RUNS FROM STEP TO STEP AUTOMATICALLY:
-  if (!stepMode) {  // =AUTO MODE
+  if (!stepMode) {  // = AUTO MODE
     clearanceNextStep = true;
   }
 
@@ -171,7 +160,13 @@ void loop() {
     machineRunning = false;
   }
 
-  // READ SEAL DETECTION SENSOR:
+  if (machineRunning) {
+    RunMainTestCycle();
+  }
+
+  NextionLoop();
+  RunToolMotor(); // if the right conditions apply
+  Lights();
   sealAvailable = digitalRead(SENSOR_PLOMBE);
 
   //runtime = millis() - runtimeStopwatch;
