@@ -45,7 +45,7 @@ void RunMainTestCycle() {
       cycleStep++;
       break;
       //***************************************************************************
-    case 4:        //DAS UNTERE BAND WIRD VORGESCHOBEN
+    case 4: // DAS UNTERE BAND WIRD VORGESCHOBEN
       //PLOMBENFIXIERUNG IM RUTSCHSCHACHT WIRD AUFGEHOBEN
       //***************************************************************************
       //Serial.println("Bandvorschub unten...");
@@ -57,7 +57,7 @@ void RunMainTestCycle() {
       }
       break;
       //***************************************************************************
-    case 5: //DAS OBERE BAND WIRD VORGESCHOBEN
+    case 5: // DAS OBERE BAND WIRD VORGESCHOBEN
       //***************************************************************************
       //Serial.println("Bandvorschub oben...");
       ZylMesser.set(0);      //sicherstellen das Messer zurückgezogen ist
@@ -69,12 +69,12 @@ void RunMainTestCycle() {
       }
       break;
       //***************************************************************************
-    case 6:        //DAS KLAUENSYSTEM WIRD AKTIVIERT
+    case 6: // DAS KLAUENSYSTEM WIRD AKTIVIERT
       //***************************************************************************
       //Serial.println("PRESSEN");
       digitalWrite(TOOL_MOTOR_RELAY, HIGH);
       prev_time = millis();
-      timeNextStep = 100;
+      timeNextStep = 1500;
       clearanceNextStep = false;
       cycleStep++;
       break;

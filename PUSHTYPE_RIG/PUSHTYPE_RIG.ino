@@ -109,7 +109,7 @@ void ToolReset() {
   // SIMULIERE WIPPENHEBEL LOSLASEN:
   digitalWrite(CONTROLLINO_RELAY_09, LOW);  //WIPPENSCHALTER RED   CABLE (NC)
   digitalWrite(CONTROLLINO_RELAY_08, HIGH); //WIPPENSCHALTER WHITE CABLE (NO)delay(200);
-  }
+}
 void RunToolMotor() {
   // Not the state of the motor-start-push-button is essential, but the state-change!
   // Like this it is easily possible to deactivate the motor, even when
@@ -163,13 +163,13 @@ void loop() {
 
   ReadNToggle();
   Lights();
-
   if (machineRunning) {
     RunMainTestCycle();
-  } else if (toolResetTimer.timedOut() && digitalRead(TOOL_MOTOR_RELAY) == LOW) {
-    ToolReset(); //restart the timeout countdown
-    toolResetTimer.resetTime();
   }
+//  else if (toolResetTimer.timedOut() && digitalRead(TOOL_MOTOR_RELAY) == LOW) {
+//  ToolReset(); //restart the timeout countdown
+//  toolResetTimer.resetTime();
+//  }
 
   NextionLoop();
 
