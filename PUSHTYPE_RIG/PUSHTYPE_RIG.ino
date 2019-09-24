@@ -37,8 +37,8 @@
 // KNOBS AND POTENTIOMETERS:
 const byte START_BUTTON = CONTROLLINO_A1;
 const byte STOP_BUTTON = CONTROLLINO_A0;
-const byte STEP_MODE_BUTTON = CONTROLLINO_A2;
-const byte AUTO_MODE_BUTTON = CONTROLLINO_A4;
+//const byte STEP_MODE_BUTTON = CONTROLLINO_A2;
+//const byte AUTO_MODE_BUTTON = CONTROLLINO_A4;
 const byte GREEN_LIGHT_PIN = 42; //CONTROLLINO_D12 alias did not work
 const byte RED_LIGHT_PIN = CONTROLLINO_D11;
 const byte TOOL_MOTOR_RELAY = CONTROLLINO_R5;
@@ -89,19 +89,27 @@ Insomnia toolResetTimer(60000); //reset the tool every 60 seconds
 Debounce motorStartButton(START_BUTTON);
 Debounce endSwitch(TOOL_END_SWITCH_PIN);
 //*****************************************************************************
+//void ToolReset() {
+//  // SIMULIERE WIPPENHEBEL ZIEHEN:
+//  digitalWrite(CONTROLLINO_RELAY_08, LOW);  //WIPPENSCHALTER WHITE CABLE (NO)
+//  delay(50);
+//  digitalWrite(CONTROLLINO_RELAY_09, HIGH); //WIPPENSCHALTER RED   CABLE (NC)
+//  delay(200);
+//  // SIMULIERE WIPPENHEBEL LOSLASEN:
+//  digitalWrite(CONTROLLINO_RELAY_09, LOW);  //WIPPENSCHALTER RED   CABLE (NC)
+//  delay(50);
+//  digitalWrite(CONTROLLINO_RELAY_08, HIGH); //WIPPENSCHALTER WHITE CABLE (NO)
+//  delay(100);
+//}
 void ToolReset() {
   // SIMULIERE WIPPENHEBEL ZIEHEN:
   digitalWrite(CONTROLLINO_RELAY_08, LOW);  //WIPPENSCHALTER WHITE CABLE (NO)
-  delay(50);
   digitalWrite(CONTROLLINO_RELAY_09, HIGH); //WIPPENSCHALTER RED   CABLE (NC)
-  delay(200);
+  delay(100);
   // SIMULIERE WIPPENHEBEL LOSLASEN:
   digitalWrite(CONTROLLINO_RELAY_09, LOW);  //WIPPENSCHALTER RED   CABLE (NC)
-  delay(50);
-  digitalWrite(CONTROLLINO_RELAY_08, HIGH); //WIPPENSCHALTER WHITE CABLE (NO)
-  delay(100);
-}
-
+  digitalWrite(CONTROLLINO_RELAY_08, HIGH); //WIPPENSCHALTER WHITE CABLE (NO)delay(200);
+  }
 void RunToolMotor() {
   // Not the state of the motor-start-push-button is essential, but the state-change!
   // Like this it is easily possible to deactivate the motor, even when
@@ -133,8 +141,8 @@ void setup() {
   nextionSetup();
   pinMode(STOP_BUTTON, INPUT);
   pinMode(START_BUTTON, INPUT);
-  pinMode(STEP_MODE_BUTTON, INPUT);
-  pinMode(AUTO_MODE_BUTTON, INPUT);
+  //pinMode(STEP_MODE_BUTTON, INPUT);
+  //pinMode(AUTO_MODE_BUTTON, INPUT);
   pinMode(TOOL_MOTOR_RELAY, INPUT);
   pinMode(GREEN_LIGHT_PIN, OUTPUT);
   pinMode(RED_LIGHT_PIN, OUTPUT);

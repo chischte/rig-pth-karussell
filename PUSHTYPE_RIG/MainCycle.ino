@@ -50,7 +50,7 @@ void RunMainTestCycle() {
       //***************************************************************************
       //Serial.println("Bandvorschub unten...");
       ZylGummihalter.set(0); //Plomben für nächsten Zyklus können nachrutschen
-      MotFeedUnten.stroke(lowerFeedtime, 0); //vorschub läuft
+      MotFeedUnten.stroke(eepromCounter.getValue(lowerFeedtime), 0); //vorschub läuft
       if (MotFeedUnten.stroke_completed() == true) {
         clearanceNextStep = false;
         cycleStep++;
@@ -61,7 +61,7 @@ void RunMainTestCycle() {
       //***************************************************************************
       //Serial.println("Bandvorschub oben...");
       ZylMesser.set(0);      //sicherstellen das Messer zurückgezogen ist
-      MotFeedOben.stroke(upperFeedtime, 0);
+      MotFeedOben.stroke(eepromCounter.getValue(upperFeedtime), 0);
 
       if (MotFeedOben.stroke_completed() == true) {
         clearanceNextStep = false;
@@ -72,9 +72,9 @@ void RunMainTestCycle() {
     case 6:        //DAS KLAUENSYSTEM WIRD AKTIVIERT
       //***************************************************************************
       //Serial.println("PRESSEN");
-      //mot_pressmechanik.stroke(3000);
-      timeNextStep = 500;
-      //if(stroke completed)
+      digitalWrite(TOOL_MOTOR_RELAY, HIGH);
+      prev_time = millis();
+      timeNextStep = 100;
       clearanceNextStep = false;
       cycleStep++;
       break;

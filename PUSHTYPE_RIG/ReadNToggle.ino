@@ -11,7 +11,7 @@ void ReadNToggle() {
   }
 
   // STOP TEST_RIG:
-  machineRunning = !digitalRead(STOP_BUTTON);
+  //machineRunning = digitalRead(STOP_BUTTON);
 
   // READ SEAL DETECTION SENSOR:
   sealAvailable = digitalRead(sensor_plombe);
