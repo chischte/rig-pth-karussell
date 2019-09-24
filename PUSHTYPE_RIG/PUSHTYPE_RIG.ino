@@ -9,8 +9,7 @@
  * *****************************************************************************
  * TODO:
  * Tool Reset Delays durch tool reset no-sleep-delays ersetzen!
- * Reset darf dann immer durchgeführt werden wenn der motor nicht läuft
- * Maxon parameter für tool sleep time erhöhen auf maximum.
+ * Reset darf dann immer durchgeführt werden, wenn der Motor nicht läuft
  * Timer durch insomniatimer ersetzen
  * bool==true und ==false in der Regel entfernen
  * Globale Variablen minimieren
