@@ -54,12 +54,12 @@ bool nex_prev_stepMode = true;
 bool stopwatch_running;
 bool resetStopwatchActive;
 unsigned int stopped_button_pushtime;
-unsigned long nex_prev_upperFeedtime;
-unsigned long nex_prev_lowerFeedtime;
-unsigned long nex_prev_shorttimeCounter;
-unsigned long nex_prev_longtimeCounter;
-unsigned long button_push_stopwatch;
-unsigned long counterResetStopwatch;
+long nex_prev_upperFeedtime;
+long nex_prev_lowerFeedtime;
+long nex_prev_shorttimeCounter;
+long nex_prev_longtimeCounter;
+long button_push_stopwatch;
+long counterResetStopwatch;
 
 //**************************************************************************************
 //DECLARATION OF OBJECTS TO BE READ FROM NEXTION
@@ -414,7 +414,7 @@ void nex_but_stepnxtPushCallback(void *ptr) {
     }
 }
 void nex_but_reset_cyclePushCallback(void *ptr) {
-    Reset();
+    TestRigReset();
 }
 //*************************************************
 //TOUCH EVENT FUNCTIONS PAGE 1 - RIGHT SIDE
@@ -561,3 +561,5 @@ void nex_page2PushCallback(void *ptr) {
 //**************************************************************************************
 //END OF TOUCH EVENT FUNCTIONS
 //**************************************************************************************
+
+
