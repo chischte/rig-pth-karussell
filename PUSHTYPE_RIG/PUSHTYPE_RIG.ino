@@ -45,7 +45,7 @@ const byte TOOL_MOTOR_RELAY = CONTROLLINO_R5;
 const byte TOOL_END_SWITCH_PIN = CONTROLLINO_A4;
 
 // SENSORS:
-const byte sensor_plombe = CONTROLLINO_A3;
+const byte SENSOR_PLOMBE = CONTROLLINO_A3;
 
 //OTHER VARIABLES:
 bool machineRunning = false;
@@ -89,18 +89,19 @@ Insomnia toolResetTimer(60000); //reset the tool every 60 seconds
 Debounce motorStartButton(START_BUTTON);
 Debounce endSwitch(TOOL_END_SWITCH_PIN);
 //*****************************************************************************
-//void ToolReset() {
-//  // SIMULIERE WIPPENHEBEL ZIEHEN:
-//  digitalWrite(CONTROLLINO_RELAY_08, LOW);  //WIPPENSCHALTER WHITE CABLE (NO)
-//  delay(50);
-//  digitalWrite(CONTROLLINO_RELAY_09, HIGH); //WIPPENSCHALTER RED   CABLE (NC)
-//  delay(200);
-//  // SIMULIERE WIPPENHEBEL LOSLASEN:
-//  digitalWrite(CONTROLLINO_RELAY_09, LOW);  //WIPPENSCHALTER RED   CABLE (NC)
-//  delay(50);
-//  digitalWrite(CONTROLLINO_RELAY_08, HIGH); //WIPPENSCHALTER WHITE CABLE (NO)
-//  delay(100);
-//}
+void TestRigReset() {
+  ToolReset();
+  ZylGummihalter.set(0);
+  ZylFalltuerschieber.set(0);
+  ZylMagnetarm.set(0);
+  MotFeedOben.set(0);
+  MotFeedUnten.set(0);
+  ZylMesser.set(0);
+  ZylRevolverschieber.set(0);
+  machineRunning = false;
+  stepMode = true;
+  cycleStep = 1;
+}
 void ToolReset() {
   // SIMULIERE WIPPENHEBEL ZIEHEN:
   digitalWrite(CONTROLLINO_RELAY_08, LOW);  //WIPPENSCHALTER WHITE CABLE (NO)
