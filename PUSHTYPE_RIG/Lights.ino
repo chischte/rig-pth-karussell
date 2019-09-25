@@ -1,9 +1,10 @@
 void Lights() {
-  //GREEN LIGHT
+
+  // GREEN LIGHT
   //*****************************************************************************
   //in automatic mode the green light is on permanently:
-  if (stepMode == false) {
-    if (machineRunning == true) {
+  if (!stepMode) {
+    if (machineRunning) {
       digitalWrite((GREEN_LIGHT_PIN), HIGH);
     } else {
       digitalWrite((GREEN_LIGHT_PIN), LOW);
@@ -11,24 +12,21 @@ void Lights() {
   }
 
   //in step mode the green is off between steps:
-  if (stepMode == true) {
-    if (machineRunning == true && clearanceNextStep == true) {
+  if (stepMode) {
+    if (machineRunning && clearanceNextStep) {
       digitalWrite((GREEN_LIGHT_PIN), HIGH);
     } else {
       digitalWrite((GREEN_LIGHT_PIN), LOW);
     }
   }
 
-  //RED LIGHT / ERROR BLINKER
+  // RED LIGHT / ERROR BLINKER
   //*****************************************************************************
-  if (errorBlink == true) {
-
-    if (millis() >= timerErrorBlink) {
+  if (errorBlink) {
+    if (errorBlinkTimer.delayTimeUp(700)) {
       digitalWrite((RED_LIGHT_PIN), !(digitalRead(RED_LIGHT_PIN)));
-      timerErrorBlink = millis() + 700;
     }
-  }
-  if (errorBlink == false) {
+  } else {
     digitalWrite((RED_LIGHT_PIN), LOW);
   }
 }
