@@ -47,11 +47,12 @@ bool clearanceNextStep = false;
 bool errorBlink = false;
 bool sealAvailable = false;
 
-byte cycleStep = 1;
-byte nexPrevCycleStep;
+byte cycleStep = 0;
+byte nexPrevCycleStep=0;
 
 unsigned long runtime;
 unsigned long runtimeStopwatch;
+//String cycleName;
 
 // SET UP EEPROM COUNTER:
 enum counter {
@@ -72,6 +73,7 @@ Cylinder MotFeedOben(CONTROLLINO_D0);
 Cylinder MotFeedUnten(CONTROLLINO_D1);
 Cylinder ZylMesser(CONTROLLINO_D3);
 Cylinder ZylRevolverschieber(CONTROLLINO_D2);
+Cylinder Pressmotor(TOOL_MOTOR_RELAY);
 
 Insomnia nextStepTimer;
 Insomnia errorBlinkTimer;
@@ -90,7 +92,8 @@ void TestRigReset() {
   ZylRevolverschieber.set(0);
   machineRunning = false;
   stepMode = true;
-  cycleStep = 1;
+  cycleStep = 0;
+  //cycleName="KLEMMEN";
 }
 void ToolReset() {
   // SIMULIERE WIPPENHEBEL ZIEHEN:
