@@ -7,13 +7,6 @@
  * Michael Wettstein
  * Dezember 2018, Zürich
  * *****************************************************************************
- * TODO:
- * Tool Reset Delays durch tool reset no-sleep-delays ersetzen!
- * Reset darf dann immer durchgeführt werden, wenn der Motor nicht läuft
- * Timer durch insomniatimer ersetzen
- * bool==true und ==false in der Regel entfernen
- * Globale Variablen minimieren
- * *****************************************************************************
  */
 
 #include <Controllino.h>
@@ -36,12 +29,12 @@
 // KNOBS AND POTENTIOMETERS:
 const byte START_BUTTON = CONTROLLINO_A1;
 const byte STOP_BUTTON = CONTROLLINO_A0;
-//const byte STEP_MODE_BUTTON = CONTROLLINO_A2;
-//const byte AUTO_MODE_BUTTON = CONTROLLINO_A4;
 const byte GREEN_LIGHT_PIN = 42; //CONTROLLINO_D12 alias did not work
 const byte RED_LIGHT_PIN = CONTROLLINO_D11;
 const byte TOOL_MOTOR_RELAY = CONTROLLINO_R5;
 const byte TOOL_END_SWITCH_PIN = CONTROLLINO_A4;
+//const byte STEP_MODE_BUTTON = CONTROLLINO_A2;
+//const byte AUTO_MODE_BUTTON = CONTROLLINO_A4;
 
 // SENSORS:
 const byte SENSOR_PLOMBE = CONTROLLINO_A3;
@@ -57,11 +50,8 @@ bool sealAvailable = false;
 byte cycleStep = 1;
 byte nexPrevCycleStep;
 
-unsigned long timeNextStep;
-unsigned long timerErrorBlink;
 unsigned long runtime;
 unsigned long runtimeStopwatch;
-unsigned long prev_time;
 
 // SET UP EEPROM COUNTER:
 enum counter {
@@ -83,7 +73,8 @@ Cylinder MotFeedUnten(CONTROLLINO_D1);
 Cylinder ZylMesser(CONTROLLINO_D3);
 Cylinder ZylRevolverschieber(CONTROLLINO_D2);
 
-Insomnia toolResetTimer(60000); //reset the tool every 60 seconds
+Insomnia nextStepTimer;
+Insomnia errorBlinkTimer;
 
 Debounce motorStartButton(START_BUTTON);
 Debounce endSwitch(TOOL_END_SWITCH_PIN);
@@ -105,7 +96,7 @@ void ToolReset() {
   // SIMULIERE WIPPENHEBEL ZIEHEN:
   digitalWrite(CONTROLLINO_RELAY_08, LOW);  //WIPPENSCHALTER WHITE CABLE (NO)
   digitalWrite(CONTROLLINO_RELAY_09, HIGH); //WIPPENSCHALTER RED   CABLE (NC)
-  delay(100);
+  delay(200);
   // SIMULIERE WIPPENHEBEL LOSLASEN:
   digitalWrite(CONTROLLINO_RELAY_09, LOW);  //WIPPENSCHALTER RED   CABLE (NC)
   digitalWrite(CONTROLLINO_RELAY_08, HIGH); //WIPPENSCHALTER WHITE CABLE (NO)delay(200);
@@ -137,12 +128,10 @@ void RunToolMotor() {
 //*****************######***######*****#*****######**#*************************
 //*****************************************************************************
 void setup() {
-  Serial.begin(115200); //start serial connection
+  Serial.begin(115200);
   nextionSetup();
   pinMode(STOP_BUTTON, INPUT);
   pinMode(START_BUTTON, INPUT);
-  //pinMode(STEP_MODE_BUTTON, INPUT);
-  //pinMode(AUTO_MODE_BUTTON, INPUT);
   pinMode(TOOL_MOTOR_RELAY, INPUT);
   pinMode(GREEN_LIGHT_PIN, OUTPUT);
   pinMode(RED_LIGHT_PIN, OUTPUT);
@@ -161,21 +150,26 @@ void setup() {
 //*****************************************************************************
 void loop() {
 
-  ReadNToggle();
-  Lights();
+  // IN AUTO MODE, MACHINE RUNS FROM STEP TO STEP AUTOMATICALLY:
+  if (!stepMode) {  // = AUTO MODE
+    clearanceNextStep = true;
+  }
+
+  // IN STEP MODE, MACHINE STOPS AFTER EVERY COMPLETED CYCLYE:
+  if (stepMode && !clearanceNextStep) {
+    machineRunning = false;
+  }
+
   if (machineRunning) {
     RunMainTestCycle();
   }
-//  else if (toolResetTimer.timedOut() && digitalRead(TOOL_MOTOR_RELAY) == LOW) {
-//  ToolReset(); //restart the timeout countdown
-//  toolResetTimer.resetTime();
-//  }
 
   NextionLoop();
-
   RunToolMotor(); // if the right conditions apply
+  Lights();
+  sealAvailable = digitalRead(SENSOR_PLOMBE);
 
-//runtime = millis() - runtimeStopwatch;
-//Serial.println(runtime);
-//runtimeStopwatch = millis();
+  //runtime = millis() - runtimeStopwatch;
+  //Serial.println(runtime);
+  //runtimeStopwatch = millis();
 }
