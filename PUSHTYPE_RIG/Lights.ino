@@ -30,3 +30,4 @@ void Lights() {
     digitalWrite((RED_LIGHT_PIN), LOW);
   }
 }
+
