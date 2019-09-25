@@ -8,12 +8,11 @@ void RunMainTestCycle() {
       //WENN DER SENSOR KEINE PLOMBE DETEKTIERT MUSS DER REVOLVER NEU GEFÜLLT WERDEN...
       //***************************************************************************
       // PLOMBEN FIXIEREN:
+      errorBlink = !sealAvailable;
       if (sealAvailable) {
-        errorBlink = false;
         ZylGummihalter.set(1); // Plomben fixieren
       } else { // MAGAZIN LEER!
         machineRunning = false;
-        errorBlink = true;
         ZylGummihalter.set(0); // Gummihalter zum Befüllen zurückziehen
         cycleStep = 0; //reset für Neustart nach dem Befüllen
       }
@@ -93,7 +92,6 @@ void RunMainTestCycle() {
       nextStepTimer.setTime(500);
       clearanceNextStep = false;
       cycleStep++;
-
       break;
       //***************************************************************************
     case 9: // WENN DER SENSOR KEINE PLOMBE DETEKTIERT DREHT DER REVOLVERKOPF
