@@ -3,7 +3,7 @@
 //FIND OUT HOW TO DETECT CORRECT USB SLOT!
 
 void RunMainTestCycle() {
-
+// DEFINE NAMES AND SEQUENCE OF STEPS FOR THE MAIN CYCLE:
   enum mainCycleSteps {
     KLEMMEN,
     FALLENLASSEN,
@@ -15,8 +15,10 @@ void RunMainTestCycle() {
     ZURUECKFAHREN,
     SCHNEIDEN,
     REVOLVER,
-    RESET
+    RESET,
+    endOfEnum
   };
+  int numberOfValues = endOfEnum;
 
   if (clearanceNextStep && nextStepTimer.timedOut()) {
 
