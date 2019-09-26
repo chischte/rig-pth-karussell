@@ -9,7 +9,6 @@
  * https://github.com/chischte/push-type-rig/PUSHTYPE_NEXTION/
  * *****************************************************************************
  */
-
 //#include <Cylinder.h>
 //#include <Nextion.h>
 // Include the nextion library (the official one) https://github.com/itead/ITEADLIB_Arduino_Nextion
@@ -33,15 +32,10 @@
 //DECLARATION OF VARIABLES
 //**************************************************************************************
 int CurrentPage;
-String cycleName[] = { "1 KLEMMEN", "2 FALLENLASSEN", "3 AUSFAHREN", "4 ZENTRIEREN",
-    "5 BAND UNTEN", "6 BAND OBEN", "7 PRESSEN", "8 ZURUECKFAHREN", "9 SCHNEIDEN", "10 REVOLVER",
-    "11 RESET" };
-
 //***************************************************************************
 //NEXTION SWITCH STATES LIST
 //Every nextion switch button (dualstate) needs a switchstate variable to control switchtoggle
 //Nextion buttons(momentary) need a variable too, to prevent screen flickering
-
 bool nex_state_ZylGummihalter;
 bool nex_state_ZylFalltuerschieber;
 bool nex_state_ZylMagnetarm;
@@ -62,14 +56,11 @@ long nex_prev_shorttimeCounter;
 long nex_prev_longtimeCounter;
 long button_push_stopwatch;
 long counterResetStopwatch;
-
 //**************************************************************************************
 //DECLARATION OF OBJECTS TO BE READ FROM NEXTION
 //**************************************************************************************
-
 //PAGE 0:
 NexPage nex_page0 = NexPage(0, 0, "page0");
-
 //PAGE 1 - LEFT SIDE:
 NexPage nex_page1 = NexPage(1, 0, "page1");
 NexButton nex_but_stepback = NexButton(1, 6, "b1");
@@ -77,7 +68,6 @@ NexButton nex_but_stepnxt = NexButton(1, 7, "b2");
 NexButton nex_but_reset_cycle = NexButton(1, 5, "b0");
 NexDSButton nex_switch_play_pause = NexDSButton(1, 2, "bt0");
 NexDSButton nex_switch_mode = NexDSButton(1, 4, "bt1");
-
 //PAGE 1 - RIGHT SIDE
 NexPage nex_page2 = NexPage(2, 0, "page2");
 NexDSButton nex_ZylGummihalter = NexDSButton(1, 15, "bt5");
@@ -87,22 +77,17 @@ NexButton nex_mot_band_oben = NexButton(1, 12, "b5");
 NexButton nex_mot_band_unten = NexButton(1, 11, "b4");
 NexDSButton nex_ZylMesser = NexDSButton(1, 10, "bt2");
 NexButton nex_ZylRevolverschieber = NexButton(1, 9, "b3");
-
 //PAGE 2 - LEFT SIDE:
 NexButton nex_but_slider1_left = NexButton(2, 6, "b1");
 NexButton nex_but_slider1_right = NexButton(2, 7, "b2");
 NexButton nex_but_slider2_left = NexButton(2, 9, "b0");
 NexButton nex_but_slider2_right = NexButton(2, 11, "b3");
-
 //PAGE 2 - RIGHT SIDE:
 NexButton nex_but_reset_shorttimeCounter = NexButton(2, 18, "b4");
-
 //**************************************************************************************
 //END OF OBJECT DECLARATION
 //**************************************************************************************
-
 char buffer[100] = { 0 }; // This is needed only if you are going to receive a text from the display. You can remove it otherwise.
-
 //**************************************************************************************
 //TOUCH EVENT LIST //DECLARATION OF TOUCH EVENTS TO BE MONITORED
 //**************************************************************************************
@@ -111,19 +96,16 @@ NexTouch *nex_listen_list[] = { &nex_but_reset_shorttimeCounter, &nex_but_stepba
     &nex_but_slider2_left, &nex_but_slider2_right, &nex_switch_play_pause, &nex_switch_mode,
     &nex_ZylMesser, &nex_ZylMagnetarm, &nex_page0, &nex_page1, &nex_page2, &nex_ZylGummihalter,
     &nex_zyl_falltuer, &nex_mot_band_oben, &nex_mot_band_unten, &nex_ZylRevolverschieber,
-
     NULL //String terminated
         };
 //**************************************************************************************
 //END OF TOUCH EVENT LIST
 //**************************************************************************************
-
 void send_to_nextion() {
   Serial2.write(0xff);
   Serial2.write(0xff);
   Serial2.write(0xff);
 }
-
 //**************************************************************************************
 void nextionSetup()
 //**************************************************************************************
@@ -181,7 +163,6 @@ void nextionSetup()
   send_to_nextion();
 
 }  //END OF NEXTION SETUP
-
 //**************************************************************************************
 void NextionLoop()
 //**************************************************************************************
@@ -249,6 +230,8 @@ void NextionLoop()
     if (nexPrevCycleStep != cycleStep) {
       Serial2.print("t0.txt=");
       Serial2.print("\"");
+      Serial2.print(cycleStep+1);
+      Serial2.print(" ");
       Serial2.print(cycleName[cycleStep]);
       Serial2.print("\"");
       send_to_nextion();
@@ -377,11 +360,9 @@ void NextionLoop()
   }    //END PAGE 2
 
 }    //END OF NEXTION LOOP
-
 //**************************************************************************************
 //TOUCH EVENT FUNCTIONS //PushCallback = Press event //PopCallback = Release event
 //**************************************************************************************
-
 //*************************************************
 //TOUCH EVENT FUNCTIONS PAGE 1 - LEFT SIDE
 //*************************************************
@@ -411,7 +392,7 @@ void nex_but_stepbackPushCallback(void *ptr) {
   }
 }
 void nex_but_stepnxtPushCallback(void *ptr) {
-  if (cycleStep < 10) {
+  if (cycleStep < numberOfMainCycleSteps-1) {
     cycleStep++;
   }
 }
@@ -425,23 +406,19 @@ void nex_ZylGummihalterPushCallback(void *ptr) {
   ZylGummihalter.toggle();
   nex_state_ZylGummihalter = !nex_state_ZylGummihalter;
 }
-
 void nex_zyl_falltuerPushCallback(void *ptr) {
   ZylFalltuerschieber.toggle();
   nex_state_ZylFalltuerschieber = !nex_state_ZylFalltuerschieber;
 }
-
 void nex_ZylMagnetarmPushCallback(void *ptr) {
   ZylMagnetarm.toggle();
   nex_state_ZylMagnetarm = !nex_state_ZylMagnetarm;
 }
-
 void nex_mot_band_obenPushCallback(void *ptr) {
   MotFeedOben.set(1);
   button_push_stopwatch = millis();
   stopwatch_running = true;
 }
-
 void nex_mot_band_obenPopCallback(void *ptr) {
   MotFeedOben.set(0);
   stopped_button_pushtime = millis() - button_push_stopwatch;
@@ -453,7 +430,6 @@ void nex_mot_band_obenPopCallback(void *ptr) {
   Serial2.print("\"");
   send_to_nextion();
 }
-
 void nex_mot_band_untenPushCallback(void *ptr) {
   MotFeedUnten.set(1);
   button_push_stopwatch = millis();
@@ -470,37 +446,31 @@ void nex_mot_band_untenPopCallback(void *ptr) {
   Serial2.print("\"");
   send_to_nextion();
 }
-
 void nex_ZylMesserPushCallback(void *ptr) {
   ZylMesser.toggle();
   nex_state_ZylMesser = !nex_state_ZylMesser;
 }
-
 void nex_ZylRevolverschieberPushCallback(void *ptr) {
   ZylRevolverschieber.set(1);
 }
 void nex_ZylRevolverschieberPopCallback(void *ptr) {
   ZylRevolverschieber.set(0);
 }
-
 //*************************************************
 //TOUCH EVENT FUNCTIONS PAGE 2 - LEFT SIDE
 //*************************************************
-
 void nex_but_slider1_leftPushCallback(void *ptr) {
   eepromCounter.set(upperFeedtime, eepromCounter.getValue(upperFeedtime) - 100);
   if (eepromCounter.getValue(upperFeedtime) < 0) {
     eepromCounter.set(upperFeedtime, 0);
   }
 }
-
 void nex_but_slider1_rightPushCallback(void *ptr) {
   eepromCounter.set(upperFeedtime, eepromCounter.getValue(upperFeedtime) + 100);
   if (eepromCounter.getValue(upperFeedtime) > 5000) {
     eepromCounter.set(upperFeedtime, 5000);
   }
 }
-
 void nex_but_slider2_leftPushCallback(void *ptr) {
   eepromCounter.set(lowerFeedtime, eepromCounter.getValue(lowerFeedtime) - 100);
   if (eepromCounter.getValue(lowerFeedtime) < 0) {
@@ -550,7 +520,6 @@ void nex_page1PushCallback(void *ptr) {
   nexStateMachineRunning = 0;
   nex_state_sealAvailable = !sealAvailable;
 }
-
 void nex_page2PushCallback(void *ptr) {
   CurrentPage = 2;
   //REFRESH BUTTON STATES:
@@ -559,8 +528,6 @@ void nex_page2PushCallback(void *ptr) {
   nex_prev_shorttimeCounter = 0;
   nex_prev_longtimeCounter = 0;
 }
-
 //**************************************************************************************
 //END OF TOUCH EVENT FUNCTIONS
 //**************************************************************************************
-

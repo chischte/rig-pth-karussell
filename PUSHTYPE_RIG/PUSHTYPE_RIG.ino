@@ -47,21 +47,20 @@ bool clearanceNextStep = false;
 bool errorBlink = false;
 bool sealAvailable = false;
 
-byte cycleStep = 0;
-byte nexPrevCycleStep=0;
+int cycleStep = 0;
+byte nexPrevCycleStep = 0;
 
 unsigned long runtime;
 unsigned long runtimeStopwatch;
 //String cycleName;
 
 // SET UP EEPROM COUNTER:
-enum counter {
-  upperFeedtime, lowerFeedtime, shorttimeCounter, longtimeCounter, endOfEnum
+enum eepromCounter {
+  upperFeedtime, lowerFeedtime, shorttimeCounter, longtimeCounter, endOfEepromEnum
 };
-
-int numberOfValues = endOfEnum;
+int numberOfEepromValues = endOfEepromEnum;
 int eepromSize = 4096;
-EEPROM_Counter eepromCounter(eepromSize, numberOfValues);
+EEPROM_Counter eepromCounter(eepromSize, numberOfEepromValues);
 
 //*****************************************************************************
 // GENERATE INSTANCES OF CLASSES:
@@ -81,6 +80,27 @@ Insomnia errorBlinkTimer;
 Debounce motorStartButton(START_BUTTON);
 Debounce endSwitch(TOOL_END_SWITCH_PIN);
 //*****************************************************************************
+// DEFINE NAMES AND SEQUENCE OF STEPS FOR THE MAIN CYCLE:
+enum mainCycleSteps {
+  KLEMMEN,
+  FALLENLASSEN,
+  MAGNETARM_AUSFAHREN,
+  BAND_UNTEN,
+  ZENTRIEREN,
+  BAND_OBEN,
+  PRESSEN,
+  ZURUECKFAHREN,
+  SCHNEIDEN,
+  REVOLVER,
+  RESET,
+  endOfMainCycleEnum
+};
+
+int numberOfMainCycleSteps = endOfMainCycleEnum;
+// DEFINE NAMES TO DISPLAY ON THE TOUCH SCREE:
+String cycleName[] = { "KLEMMEN", "FALLENLASSEN", "AUSFAHREN", "BAND UNTEN", "ZENTRIEREN",
+    "BAND OBEN", "PRESSEN", "ZURUECKFAHREN", "SCHNEIDEN", "REVOLVER", "RESET" };
+
 void TestRigReset() {
   ToolReset();
   ZylGummihalter.set(0);
@@ -110,15 +130,15 @@ void RunToolMotor() {
 
   // ACTIVATE THE MOTOR IF THE START BUTTON HAS BEEN PUSHED:
   if (motorStartButton.switchedHigh()) { // button pushed
-    digitalWrite(TOOL_MOTOR_RELAY, HIGH);
+    Pressmotor.set(1);
   }
   // DEACTIVATE THE MOTOR IF THE BUTTON HAS  BEEN RELEASED:
   if (motorStartButton.switchedLow()) { // button released
-    digitalWrite(TOOL_MOTOR_RELAY, LOW);
+    Pressmotor.set(0);
   }
   // DEACTIVATE THE MOTOR IF THE END SWITCH HAS BEEN DETECTED
   if (endSwitch.switchedLow()) {
-    digitalWrite(TOOL_MOTOR_RELAY, LOW);
+    Pressmotor.set(0);
     Serial.println("END SWITCH DETECTED");
   }
 }
@@ -138,7 +158,6 @@ void setup() {
   pinMode(GREEN_LIGHT_PIN, OUTPUT);
   pinMode(RED_LIGHT_PIN, OUTPUT);
   TestRigReset();
-  ToolReset();
   motorStartButton.setDebounceTime(10);
   endSwitch.setDebounceTime(10);
   Serial.println("EXIT SETUP");
