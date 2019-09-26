@@ -1,138 +1,157 @@
+//TODO:
+//SYNCHRONIZE CYCLE NAMESCYCLE STEPS, CYCLE ORDER OF NEXTION AND MAIN CYCLE!
+//FIND OUT HOW TO DETECT CORRECT USB SLOT!
+
 void RunMainTestCycle() {
-  if (clearanceNextStep == true && millis() - prev_time > timeNextStep) {
+
+  enum mainCycleSteps {
+    KLEMMEN,
+    FALLENLASSEN,
+    MAGNETARM_AUSFAHREN,
+    ZENTRIEREN,
+    BAND_UNTEN,
+    BAND_OBEN,
+    PRESSEN,
+    ZURUECKFAHREN,
+    SCHNEIDEN,
+    REVOLVER,
+    RESET
+  };
+
+  if (clearanceNextStep && nextStepTimer.timedOut()) {
+
     switch (cycleStep) {
     //***************************************************************************
-    case 1: //PLOMBEN WERDEN IM RUTSCH-SCHACHT FIXIERT
+    case KLEMMEN: // PLOMBEN WERDEN IM RUTSCH-SCHACHT FIXIERT
       //WENN DER SENSOR KEINE PLOMBE DETEKTIERT MUSS DER REVOLVER NEU GEFÜLLT WERDEN...
       //***************************************************************************
-      //Serial.println("Plomben fixieren...");
-      if (sealAvailable == true) {
-        errorBlink = false;  //Plomben verfügbar, Fehlerblinken beenden
-        ZylGummihalter.set(1);        //obere Plomben werden fixiert
-      } else //MAGAZIN LEER! ROTE SIGNALLEUCHTE BLINKT
-      {
+      //cycleName = "KLEMMEN";
+      // PLOMBEN FIXIEREN:
+      errorBlink = !sealAvailable;
+      if (sealAvailable) {
+        ZylGummihalter.set(1); // Plomben fixieren
+      } else { // MAGAZIN LEER!
         machineRunning = false;
-        //Serial.println("ABBRUCH, KEINE PLOMBE DETEKTIERT!");
-        ZylGummihalter.set(0); //SCHACHT ÖFFNET SICH WIEDER ZUM BEFÜLLEN
-        cycleStep = 0; //RESET FÜR NEUSTART NACH DEM BEFÜLLEN
-        errorBlink = true;
+        ZylGummihalter.set(0); // Gummihalter zum Befüllen zurückziehen
+        cycleStep = 0; //reset für Neustart nach dem Befüllen
       }
-      ZylMagnetarm.set(0); //Um ein Verklemmen nach Reset zu verhindern
-      prev_time = millis();
-      ToolReset(); //reset tool "Wippenhebel Ziehen"
-      timeNextStep = 500;
+      ZylMagnetarm.set(0); // Um ein Verklemmen nach Reset zu verhindern
       clearanceNextStep = false;
+      nextStepTimer.setTime(500);
       cycleStep++;
       break;
       //***************************************************************************
-    case 2: //EINE PLOMBE WIRD FALLENGELASSEN
+    case FALLENLASSEN: // EINE PLOMBE WIRD FALLENGELASSEN
       //***************************************************************************
-      //Serial.println("Plombe fallenlassen...");
-      ZylFalltuerschieber.stroke(500, 0); //(push time,release time)
-      if (ZylFalltuerschieber.stroke_completed() == true) {
+      //cycleName = "FALLENLASSEN";
+      ZylFalltuerschieber.stroke(700, 0);    //(push time,release time)
+      if (ZylFalltuerschieber.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
       }
       break;
       //***************************************************************************
-    case 3: //EINE PLOMBE WIRD ZUM ZANGENPAKET GEFAHREN
+    case MAGNETARM_AUSFAHREN: // EINE PLOMBE WIRD ZUM ZANGENPAKET GEFAHREN
       //***************************************************************************
-      //Serial.println("Plombe ausfahren...");
+      //cycleName = "AUSFAHREN";
       ZylMagnetarm.set(1);
-      prev_time = millis();
-      timeNextStep = 500;
+      ToolReset();    //reset tool "Wippenhebel ziehen"
+      nextStepTimer.setTime(500);
       clearanceNextStep = false;
       cycleStep++;
       break;
       //***************************************************************************
-    case 4: // DAS UNTERE BAND WIRD VORGESCHOBEN
+    case ZENTRIEREN: // DIE PLOMBE WIRD ZENTRIERT
+      //***************************************************************************
+      //cycleName = "ZENTRIEREN";
+      Pressmotor.stroke(100, 0);
+      if (Pressmotor.stroke_completed()) {
+        clearanceNextStep = false;
+        cycleStep++;
+      }
+      break;
+      //***************************************************************************
+    case BAND_UNTEN:        // DAS UNTERE BAND WIRD VORGESCHOBEN
       //PLOMBENFIXIERUNG IM RUTSCHSCHACHT WIRD AUFGEHOBEN
       //***************************************************************************
-      //Serial.println("Bandvorschub unten...");
-      ZylGummihalter.set(0); //Plomben für nächsten Zyklus können nachrutschen
-      MotFeedUnten.stroke(eepromCounter.getValue(lowerFeedtime), 0); //vorschub läuft
-      if (MotFeedUnten.stroke_completed() == true) {
+      //cycleName = "BAND UNTEN";
+      ZylGummihalter.set(0);    //Plomben für nächsten Zyklus können nachrutschen
+      MotFeedUnten.stroke(eepromCounter.getValue(lowerFeedtime), 0);
+      if (MotFeedUnten.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
       }
       break;
       //***************************************************************************
-    case 5: // DAS OBERE BAND WIRD VORGESCHOBEN
+    case BAND_OBEN:    // DAS OBERE BAND WIRD VORGESCHOBEN
       //***************************************************************************
-      //Serial.println("Bandvorschub oben...");
-      ZylMesser.set(0);      //sicherstellen das Messer zurückgezogen ist
+      //cycleName = "BAND OBEN";
+      ZylMesser.set(0);    // sicherstellen dass das Messer zurückgezogen ist
       MotFeedOben.stroke(eepromCounter.getValue(upperFeedtime), 0);
 
-      if (MotFeedOben.stroke_completed() == true) {
+      if (MotFeedOben.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
       }
       break;
       //***************************************************************************
-    case 6: // DAS KLAUENSYSTEM WIRD AKTIVIERT
+    case PRESSEN:    // DAS KLAUENSYSTEM WIRD AKTIVIERT
       //***************************************************************************
-      //Serial.println("PRESSEN");
+      //cycleName = "PRESSEN";
       digitalWrite(TOOL_MOTOR_RELAY, HIGH);
-      prev_time = millis();
-      timeNextStep = 1500;
+      nextStepTimer.setTime(1500);
       clearanceNextStep = false;
       cycleStep++;
       break;
       //***************************************************************************
-    case 7:        //DAS BAND WIRD ABGESCHNITTEN
+    case ZURUECKFAHREN: // DER ZUFUHRZYLINDER FÄHRT ZURÜCK
       //***************************************************************************
-      if (ZylMesser.stroke_completed() == true) {
-        //Serial.println("Band schneiden...");
-      }
-      ZylMesser.stroke(1500, 0); //(push time,release time)
-      if (ZylMesser.stroke_completed() == true) {
-        clearanceNextStep = false;
-        cycleStep++;
-      }
-      break;
-      //***************************************************************************
-    case 8: //DER ZUFUHRZYLINDER FÄHRT ZURÜCK
-      //***************************************************************************
-      if (ZylMagnetarm.stroke_completed() == true) {
+      //cycleName = "ZURUECKFAHREN";
+      if (ZylMagnetarm.stroke_completed()) {
         //Serial.println("Mangetarm zurückfahren...");
       }
       ZylMagnetarm.set(0);
-      prev_time = millis();
-      timeNextStep = 500;
+      nextStepTimer.setTime(500);
       clearanceNextStep = false;
       cycleStep++;
-
       break;
       //***************************************************************************
-    case 9: //WENN DER SENSOR KEINE PLOMBE DETEKTIERT DREHT DER REVOLVERKOPF
+    case SCHNEIDEN:    // DAS BAND WIRD ABGESCHNITTEN
       //***************************************************************************
-      //Serial.print("Check Plombensensor");
-      if (sealAvailable == false) //keine Plombe detektiert
-              {
-        if (ZylRevolverschieber.stroke_completed() == true) {
-          //Serial.println("   ... keine Plombe detektiert Revolver vorschieben ********");
-        }
-        ZylRevolverschieber.stroke(5000, 5000);
-      } else {
-        //Serial.println(" ... i.O. Plombe detektiert");
+      //cycleName = "SCHNEIDEN";
+      if (ZylMesser.stroke_completed()) {
+        //Serial.println("SCHNEIDEN");
       }
-      prev_time = millis();
-      timeNextStep = 500;
-      if (ZylRevolverschieber.stroke_completed() == true) {
+      ZylMesser.stroke(1500, 0); //(push time,release time)
+      if (ZylMesser.stroke_completed()) {
+        clearanceNextStep = false;
+        cycleStep++;
+      }
+      break;
+      //***************************************************************************
+    case REVOLVER:    // WENN DER SENSOR KEINE PLOMBE DETEKTIERT DREHT DER REVOLVERKOPF
+      //***************************************************************************
+      //cycleName = "KARUSSELL";
+      if (!sealAvailable) { // keine Plombe detektiert
+        ZylRevolverschieber.stroke(5000, 5000);
+      }
+      if (ZylRevolverschieber.stroke_completed()) {
+        nextStepTimer.setTime(500);
         clearanceNextStep = true;
         cycleStep++;
       }
       break;
       //***************************************************************************
-    case 10: //RESET FÜR NÄCHSTEN ZYKLUS
+    case RESET: // RESET FÜR NÄCHSTEN ZYKLUS
       //***************************************************************************
+      //cycleName = "RESET";
       eepromCounter.countOneUp(shorttimeCounter);
       eepromCounter.countOneUp(longtimeCounter);
-      //Serial.println("*** Zyklus beendet ***");
-      cycleStep = 1;
+      cycleStep = 0;
       clearanceNextStep = false;
       break;
       //***************************************************************************
     } //END switch (cycleStep)
   }
 } //END MAIN TEST CYCLE
+
