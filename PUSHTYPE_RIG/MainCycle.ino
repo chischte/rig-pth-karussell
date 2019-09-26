@@ -34,17 +34,17 @@ void RunMainTestCycle() {
       clearanceNextStep = false;
       cycleStep++;
       break;
-    case ZENTRIEREN: // PLOMBE DURCH PRESSMECHANIK ZENTRIEREN
-      Pressmotor.stroke(100, 0);
-      if (Pressmotor.stroke_completed()) {
-        clearanceNextStep = false;
-        cycleStep++;
-      }
-      break;
     case BAND_UNTEN: // UNTERES BAND VORSCHIEBEN
       ZylGummihalter.set(0);    //Plomben für nächsten Zyklus können nachrutschen
       MotFeedUnten.stroke(eepromCounter.getValue(lowerFeedtime), 0);
       if (MotFeedUnten.stroke_completed()) {
+        clearanceNextStep = false;
+        cycleStep++;
+      }
+      break;
+    case ZENTRIEREN: // PLOMBE DURCH PRESSMECHANIK ZENTRIEREN
+      Pressmotor.stroke(100, 0);
+      if (Pressmotor.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
       }
@@ -75,7 +75,7 @@ void RunMainTestCycle() {
     case SCHNEIDEN: // BAND ABSCHNEIDEN
       if (ZylMesser.stroke_completed()) {
       }
-      ZylMesser.stroke(1500, 0); // push,release [ms]
+      ZylMesser.stroke(1000, 0); // push,release [ms]
       if (ZylMesser.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;

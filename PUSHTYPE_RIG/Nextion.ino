@@ -230,6 +230,8 @@ void NextionLoop()
     if (nexPrevCycleStep != cycleStep) {
       Serial2.print("t0.txt=");
       Serial2.print("\"");
+      Serial2.print(cycleStep+1);
+      Serial2.print(" ");
       Serial2.print(cycleName[cycleStep]);
       Serial2.print("\"");
       send_to_nextion();
@@ -390,7 +392,7 @@ void nex_but_stepbackPushCallback(void *ptr) {
   }
 }
 void nex_but_stepnxtPushCallback(void *ptr) {
-  if (cycleStep < numberOfMainCycleSteps-2) {
+  if (cycleStep < numberOfMainCycleSteps-1) {
     cycleStep++;
   }
 }
