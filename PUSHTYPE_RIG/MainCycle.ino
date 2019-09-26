@@ -21,8 +21,9 @@ void RunMainTestCycle() {
       cycleStep++;
       break;
     case FALLENLASSEN: // PLOMBE FALLENLASSEN
-      ZylFalltuerschieber.stroke(700, 0);    //(push time,release time)
+      ZylFalltuerschieber.stroke(700, 200);    //(push time,release time)
       if (ZylFalltuerschieber.stroke_completed()) {
+        ZylGummihalter.set(0); // Plombenfixieren lösen
         clearanceNextStep = false;
         cycleStep++;
       }
@@ -43,7 +44,7 @@ void RunMainTestCycle() {
       }
       break;
     case ZENTRIEREN: // PLOMBE DURCH PRESSMECHANIK ZENTRIEREN
-      Pressmotor.stroke(100, 0);
+      Pressmotor.stroke(200, 0);
       if (Pressmotor.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
@@ -57,11 +58,12 @@ void RunMainTestCycle() {
         cycleStep++;
       }
       break;
-    case PRESSEN: // CRIMPVORGANG STARTEN
-      digitalWrite(TOOL_MOTOR_RELAY, HIGH);
-      nextStepTimer.setTime(1500);
-      clearanceNextStep = false;
-      cycleStep++;
+    case VORPRESSEN: // PLOMBE DURCH PRESSMECHANIK ZENTRIEREN
+      Pressmotor.stroke(300, 0);
+      if (Pressmotor.stroke_completed()) {
+        clearanceNextStep = false;
+        cycleStep++;
+      }
       break;
     case ZURUECKFAHREN: // MAGNETARM ZURÜCKZIEHEN
       if (ZylMagnetarm.stroke_completed()) {
@@ -80,6 +82,12 @@ void RunMainTestCycle() {
         clearanceNextStep = false;
         cycleStep++;
       }
+      break;
+    case PRESSEN: // CRIMPVORGANG STARTEN
+      digitalWrite(TOOL_MOTOR_RELAY, HIGH);
+      nextStepTimer.setTime(1500);
+      clearanceNextStep = false;
+      cycleStep++;
       break;
     case REVOLVER: // KARUSSELL DREHEN FALLS KEINE PLOMBE DETEKTIERT
       if (!sealAvailable) { // keine Plombe detektiert

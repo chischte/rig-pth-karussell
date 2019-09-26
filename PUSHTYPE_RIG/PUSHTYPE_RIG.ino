@@ -88,9 +88,10 @@ enum mainCycleSteps {
   BAND_UNTEN,
   ZENTRIEREN,
   BAND_OBEN,
-  PRESSEN,
+  VORPRESSEN,
   ZURUECKFAHREN,
   SCHNEIDEN,
+  PRESSEN,
   REVOLVER,
   RESET,
   endOfMainCycleEnum
@@ -99,7 +100,7 @@ enum mainCycleSteps {
 int numberOfMainCycleSteps = endOfMainCycleEnum;
 // DEFINE NAMES TO DISPLAY ON THE TOUCH SCREE:
 String cycleName[] = { "KLEMMEN", "FALLENLASSEN", "AUSFAHREN", "BAND UNTEN", "ZENTRIEREN",
-    "BAND OBEN", "PRESSEN", "ZURUECKFAHREN", "SCHNEIDEN", "REVOLVER", "RESET" };
+    "BAND OBEN", "VORPRESSEN", "ZURUECKFAHREN", "SCHNEIDEN","PRESSEN", "REVOLVER", "RESET" };
 
 void TestRigReset() {
   ToolReset();
@@ -170,7 +171,6 @@ void setup() {
 //********************#######***#####***#####***#******************************
 //*****************************************************************************
 void loop() {
-
   // IN AUTO MODE, MACHINE RUNS FROM STEP TO STEP AUTOMATICALLY:
   if (!stepMode) {  // = AUTO MODE
     clearanceNextStep = true;
