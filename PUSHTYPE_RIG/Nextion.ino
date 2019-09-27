@@ -36,6 +36,8 @@ int CurrentPage;
 //NEXTION SWITCH STATES LIST
 //Every nextion switch button (dualstate) needs a switchstate variable to control switchtoggle
 //Nextion buttons(momentary) need a variable too, to prevent screen flickering
+
+byte nexPrevCycleStep = 1; //!=0 to update after PLC reset
 bool nex_state_ZylGummihalter;
 bool nex_state_ZylFalltuerschieber;
 bool nex_state_ZylMagnetarm;
@@ -45,8 +47,8 @@ bool nex_state_ZylMesser;
 bool nex_state_ZylRevolverschieber;
 bool nexStateMachineRunning;
 bool nex_state_sealAvailable = 1;
-//***************************************************************************
 bool nex_prev_stepMode = true;
+//***************************************************************************
 bool stopwatch_running;
 bool resetStopwatchActive;
 unsigned int stopped_button_pushtime;
@@ -92,11 +94,10 @@ char buffer[100] = { 0 }; // This is needed only if you are going to receive a t
 //TOUCH EVENT LIST //DECLARATION OF TOUCH EVENTS TO BE MONITORED
 //**************************************************************************************
 NexTouch *nex_listen_list[] = { &nex_but_reset_shorttimeCounter, &nex_but_stepback,
-    &nex_but_stepnxt, &nex_but_reset_cycle, &nex_but_slider1_left, &nex_but_slider1_right,
-    &nex_but_slider2_left, &nex_but_slider2_right, &nex_switch_play_pause, &nex_switch_mode,
-    &nex_ZylMesser, &nex_ZylMagnetarm, &nex_page0, &nex_page1, &nex_page2, &nex_ZylGummihalter,
-    &nex_zyl_falltuer, &nex_mot_band_oben, &nex_mot_band_unten, &nex_ZylRevolverschieber,
-    NULL //String terminated
+        &nex_but_stepnxt, &nex_but_reset_cycle, &nex_but_slider1_left, &nex_but_slider1_right,
+        &nex_but_slider2_left, &nex_but_slider2_right, &nex_switch_play_pause, &nex_switch_mode,
+        &nex_ZylMesser, &nex_ZylMagnetarm, &nex_page0, &nex_page1, &nex_page2, &nex_ZylGummihalter,
+        &nex_zyl_falltuer, &nex_mot_band_oben, &nex_mot_band_unten, &nex_ZylRevolverschieber, NULL //String terminated
         };
 //**************************************************************************************
 //END OF TOUCH EVENT LIST
@@ -111,6 +112,9 @@ void nextionSetup()
 //**************************************************************************************
 {
   Serial2.begin(9600);  // Start serial comunication at baud=9600
+  // RESET NEXTION DISPLAY: (refresh display after PLC restart)
+  Serial2.print("rest");
+  send_to_nextion();
 
   //**************************************************************************************
   //INCREASE BAUD RATE
@@ -185,7 +189,7 @@ void NextionLoop()
     //UPDATE SWITCHSTATE "STEP"/"AUTO"-MODE
 
     if (stepMode != nex_prev_stepMode) {
-      if (stepMode == true) {
+      if (stepMode) {
         Serial2.print("click bt1,1");    //CLICK BUTTON
         send_to_nextion();
         Serial2.print("bt1.txt=");
@@ -207,7 +211,7 @@ void NextionLoop()
 
     //DISPLAY IF MAGAZINE IS EMPTY
     if (nex_state_sealAvailable != sealAvailable) {
-      if (sealAvailable == false) {
+      if (!sealAvailable) {
         Serial2.print("t4.txt=");
         Serial2.print("\"");
         Serial2.print("MAGAZIN LEER!");
@@ -230,9 +234,9 @@ void NextionLoop()
     if (nexPrevCycleStep != cycleStep) {
       Serial2.print("t0.txt=");
       Serial2.print("\"");
-      Serial2.print(cycleStep+1);
+      Serial2.print(cycleStep + 1); // write the number of the step
       Serial2.print(" ");
-      Serial2.print(cycleName[cycleStep]);
+      Serial2.print(cycleName[cycleStep]); // write the name of the step
       Serial2.print("\"");
       send_to_nextion();
       nexPrevCycleStep = cycleStep;
@@ -352,7 +356,7 @@ void NextionLoop()
       send_to_nextion();
       nex_prev_shorttimeCounter = eepromCounter.getValue(shorttimeCounter);
     }
-    if (resetStopwatchActive == true) {
+    if (resetStopwatchActive) {
       if (millis() - counterResetStopwatch > 5000) {
         eepromCounter.set(longtimeCounter, 0);
       }
@@ -392,7 +396,7 @@ void nex_but_stepbackPushCallback(void *ptr) {
   }
 }
 void nex_but_stepnxtPushCallback(void *ptr) {
-  if (cycleStep < numberOfMainCycleSteps-1) {
+  if (cycleStep < numberOfMainCycleSteps - 1) {
     cycleStep++;
   }
 }

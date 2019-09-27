@@ -47,8 +47,8 @@ bool clearanceNextStep = false;
 bool errorBlink = false;
 bool sealAvailable = false;
 
-int cycleStep = 0;
-byte nexPrevCycleStep = 0;
+byte cycleStep = 0;
+
 
 unsigned long runtime;
 unsigned long runtimeStopwatch;
