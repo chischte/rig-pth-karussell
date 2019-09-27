@@ -90,8 +90,8 @@ enum mainCycleSteps {
   BAND_OBEN,
   VORPRESSEN,
   ZURUECKFAHREN,
-  SCHNEIDEN,
   PRESSEN,
+  SCHNEIDEN,
   REVOLVER,
   RESET,
   endOfMainCycleEnum
@@ -100,7 +100,7 @@ enum mainCycleSteps {
 int numberOfMainCycleSteps = endOfMainCycleEnum;
 // DEFINE NAMES TO DISPLAY ON THE TOUCH SCREE:
 String cycleName[] = { "KLEMMEN", "FALLENLASSEN", "AUSFAHREN", "BAND UNTEN", "ZENTRIEREN",
-    "BAND OBEN", "VORPRESSEN", "ZURUECKFAHREN", "SCHNEIDEN","PRESSEN", "REVOLVER", "RESET" };
+    "BAND OBEN", "VORPRESSEN", "ZURUECKFAHREN", "PRESSEN","SCHNEIDEN", "REVOLVER", "RESET" };
 
 void TestRigReset() {
   ToolReset();

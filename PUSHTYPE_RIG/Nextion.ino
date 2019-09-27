@@ -460,25 +460,25 @@ void nex_ZylRevolverschieberPopCallback(void *ptr) {
 //TOUCH EVENT FUNCTIONS PAGE 2 - LEFT SIDE
 //*************************************************
 void nex_but_slider1_leftPushCallback(void *ptr) {
-  eepromCounter.set(upperFeedtime, eepromCounter.getValue(upperFeedtime) - 100);
+  eepromCounter.set(upperFeedtime, eepromCounter.getValue(upperFeedtime) - 50);
   if (eepromCounter.getValue(upperFeedtime) < 0) {
     eepromCounter.set(upperFeedtime, 0);
   }
 }
 void nex_but_slider1_rightPushCallback(void *ptr) {
-  eepromCounter.set(upperFeedtime, eepromCounter.getValue(upperFeedtime) + 100);
+  eepromCounter.set(upperFeedtime, eepromCounter.getValue(upperFeedtime) + 50);
   if (eepromCounter.getValue(upperFeedtime) > 5000) {
     eepromCounter.set(upperFeedtime, 5000);
   }
 }
 void nex_but_slider2_leftPushCallback(void *ptr) {
-  eepromCounter.set(lowerFeedtime, eepromCounter.getValue(lowerFeedtime) - 100);
+  eepromCounter.set(lowerFeedtime, eepromCounter.getValue(lowerFeedtime) - 50);
   if (eepromCounter.getValue(lowerFeedtime) < 0) {
     eepromCounter.set(lowerFeedtime, 0);
   }
 }
 void nex_but_slider2_rightPushCallback(void *ptr) {
-  eepromCounter.set(lowerFeedtime, eepromCounter.getValue(lowerFeedtime) + 100);
+  eepromCounter.set(lowerFeedtime, eepromCounter.getValue(lowerFeedtime) + 50);
   if (eepromCounter.getValue(lowerFeedtime) > 5000) {
     eepromCounter.set(lowerFeedtime, 5000);
   }
