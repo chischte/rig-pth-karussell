@@ -46,6 +46,7 @@ bool clearancePlayPauseToggle = true;
 bool clearanceNextStep = false;
 bool errorBlink = false;
 bool sealAvailable = false;
+bool plcReseted=true;
 
 byte cycleStep = 0;
 
@@ -114,6 +115,7 @@ void TestRigReset() {
   machineRunning = false;
   stepMode = true;
   cycleStep = 0;
+  plcReseted=true;
 }
 void ToolReset() {
   // SIMULIERE WIPPENHEBEL ZIEHEN:

@@ -37,7 +37,7 @@ int CurrentPage;
 //Every nextion switch button (dualstate) needs a switchstate variable to control switchtoggle
 //Nextion buttons(momentary) need a variable too, to prevent screen flickering
 
-byte nexPrevCycleStep = 1; //!=0 to update after PLC reset
+byte nexPrevCycleStep;
 bool nex_state_ZylGummihalter;
 bool nex_state_ZylFalltuerschieber;
 bool nex_state_ZylMagnetarm;
@@ -46,7 +46,7 @@ bool nex_state_MotFeedUnten;
 bool nex_state_ZylMesser;
 bool nex_state_ZylRevolverschieber;
 bool nexStateMachineRunning;
-bool nex_state_sealAvailable = 1;
+bool nex_state_sealAvailable;
 bool nex_prev_stepMode = true;
 //***************************************************************************
 bool stopwatch_running;
@@ -112,6 +112,7 @@ void nextionSetup()
 //**************************************************************************************
 {
   Serial2.begin(9600);  // Start serial comunication at baud=9600
+
   // RESET NEXTION DISPLAY: (refresh display after PLC restart)
   Serial2.print("rest");
   send_to_nextion();
@@ -210,7 +211,7 @@ void NextionLoop()
     }
 
     //DISPLAY IF MAGAZINE IS EMPTY
-    if (nex_state_sealAvailable != sealAvailable) {
+    if (nex_state_sealAvailable != sealAvailable || plcReseted) {
       if (!sealAvailable) {
         Serial2.print("t4.txt=");
         Serial2.print("\"");
@@ -231,7 +232,7 @@ void NextionLoop()
     //PAGE 1 - RIGHT SIDE:
     //*******************
     //UPDATE CYCLE NAME
-    if (nexPrevCycleStep != cycleStep) {
+    if (nexPrevCycleStep != cycleStep || plcReseted) {
       Serial2.print("t0.txt=");
       Serial2.print("\"");
       Serial2.print(cycleStep + 1); // write the number of the step
@@ -302,7 +303,7 @@ void NextionLoop()
       }
       nex_state_ZylRevolverschieber = ZylRevolverschieber.request_state();
     }
-
+    plcReseted = false;
   }    //END PAGE 1
   //**************************************************************************************
   if (CurrentPage == 2)  //START PAGE 2
