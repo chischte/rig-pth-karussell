@@ -164,7 +164,7 @@ void nextionSetup()
   sendCommand("page 1");  //SWITCH NEXTION TO PAGE X
   send_to_nextion();
 
-}  //END OF NEXTION SETUP
+}  // END OF NEXTION SETUP
 //*****************************************************************************
 void NextionLoop()
 //*****************************************************************************
@@ -174,20 +174,20 @@ void NextionLoop()
   if (CurrentPage == 1)  //START PAGE 1
           {
     //*******************
-    //PAGE 1 - LEFT SIDE:
+    // PAGE 1 - LEFT SIDE:
     //*******************
-    //UPDATE SWITCHSTATE "PLAY"/"PAUSE"
+    // UPDATE SWITCHSTATE "PLAY"/"PAUSE":
     if (nexStateMachineRunning != machineRunning) {
-      Serial2.print("click bt0,1");    //CLICK BUTTON
+      Serial2.print("click bt0,1");
       send_to_nextion();
       nexStateMachineRunning = !nexStateMachineRunning;
     }
 
-    //UPDATE SWITCHSTATE "STEP"/"AUTO"-MODE
+    // UPDATE SWITCHSTATE "STEP"/"AUTO"-MODE:
 
     if (stepMode != nex_prev_stepMode) {
       if (stepMode) {
-        Serial2.print("click bt1,1");    //CLICK BUTTON
+        Serial2.print("click bt1,1");
         send_to_nextion();
         Serial2.print("bt1.txt=");
         Serial2.print("\"");
@@ -195,7 +195,7 @@ void NextionLoop()
         Serial2.print("\"");
         send_to_nextion();
       } else {
-        Serial2.print("click bt1,1");    //CLICK BUTTON
+        Serial2.print("click bt1,1");
         send_to_nextion();
         Serial2.print("bt1.txt=");
         Serial2.print("\"");
@@ -206,7 +206,7 @@ void NextionLoop()
       nex_prev_stepMode = stepMode;
     }
 
-    //DISPLAY IF MAGAZINE IS EMPTY
+    // DISPLAY IF MAGAZINE IS EMPTY:
     if (nex_state_sealAvailable != sealAvailable) {
       if (!sealAvailable) {
         Serial2.print("t4.txt=");
@@ -217,7 +217,7 @@ void NextionLoop()
       } else {
         Serial2.print("t4.txt=");
         Serial2.print("\"");
-        Serial2.print("");    //ERASE TEXT
+        Serial2.print("");    // erase text
         Serial2.print("\"");
         send_to_nextion();
       }
@@ -227,7 +227,7 @@ void NextionLoop()
     //*******************
     // PAGE 1 - RIGHT SIDE:
     //*******************
-    //UPDATE CYCLE NAME
+    // UPDATE CYCLE NAME:
     if (nexPrevCycleStep != cycleStep) {
       Serial2.print("t0.txt=");
       Serial2.print("\"");
@@ -238,63 +238,63 @@ void NextionLoop()
       send_to_nextion();
       nexPrevCycleStep = cycleStep;
     }
-    //UPDATE SWITCHBUTTON (dual state):
+    // UPDATE SWITCHBUTTON (dual state):
     if (ZylGummihalter.request_state() != nex_state_ZylGummihalter) {
-      Serial2.print("click bt5,1");    //CLICK BUTTON
+      Serial2.print("click bt5,1");
       send_to_nextion();
       nex_state_ZylGummihalter = !nex_state_ZylGummihalter;
     }
-    //UPDATE SWITCHBUTTON (dual state):
+    // UPDATE SWITCHBUTTON (dual state):
     if (ZylFalltuerschieber.request_state() != nex_state_ZylFalltuerschieber) {
-      Serial2.print("click bt4,1");    //CLICK BUTTON
+      Serial2.print("click bt4,1");
       send_to_nextion();
       nex_state_ZylFalltuerschieber = !nex_state_ZylFalltuerschieber;
     }
-    //UPDATE SWITCHBUTTON (dual state):
+    // UPDATE SWITCHBUTTON (dual state):
     if (ZylMagnetarm.request_state() != nex_state_ZylMagnetarm) {
-      Serial2.print("click bt3,1");    //CLICK BUTTON
+      Serial2.print("click bt3,1");
       send_to_nextion();
       nex_state_ZylMagnetarm = !nex_state_ZylMagnetarm;
     }
 
-    //UPDATE BUTTON (momentary)
+    // UPDATE BUTTON (momentary):
     if (MotFeedOben.request_state() != nex_state_MotFeedOben) {
 
-      if (MotFeedOben.request_state() == HIGH) {
-        Serial2.print("click b5,1");    //CLICK BUTTON
+      if (MotFeedOben.request_state()) {
+        Serial2.print("click b5,1");
         send_to_nextion();
       } else {
-        Serial2.print("click b5,0");    //CLICK BUTTON
+        Serial2.print("click b5,0");
         send_to_nextion();
       }
       nex_state_MotFeedOben = MotFeedOben.request_state();
     }
 
-    //UPDATE BUTTON (momentary)
+    // UPDATE BUTTON (momentary):
     if (MotFeedUnten.request_state() != nex_state_MotFeedUnten) {
       if (MotFeedUnten.request_state() == HIGH) {
-        Serial2.print("click b4,1");    //CLICK BUTTON
+        Serial2.print("click b4,1");
         send_to_nextion();
       } else {
-        Serial2.print("click b4,0");    //CLICK BUTTON
+        Serial2.print("click b4,0");
         send_to_nextion();
       }
       nex_state_MotFeedUnten = MotFeedUnten.request_state();
     }
 
-    //UPDATE SWITCHBUTTON (dual state):
+    // UPDATE SWITCHBUTTON (dual state):
     if (ZylMesser.request_state() != nex_state_ZylMesser) {
-      Serial2.print("click bt2,1");    //CLICK BUTTON
+      Serial2.print("click bt2,1");
       send_to_nextion();
       nex_state_ZylMesser = !nex_state_ZylMesser;
     }
-    //UPDATE BUTTON (momentary)
+    // UPDATE BUTTON (momentary):
     if (ZylRevolverschieber.request_state() != nex_state_ZylRevolverschieber) {
       if (ZylRevolverschieber.request_state() == HIGH) {
-        Serial2.print("click b3,1");    //CLICK BUTTON
+        Serial2.print("click b3,1");
         send_to_nextion();
       } else {
-        Serial2.print("click b3,0");    //CLICK BUTTON
+        Serial2.print("click b3,0");
         send_to_nextion();
       }
       nex_state_ZylRevolverschieber = ZylRevolverschieber.request_state();
@@ -304,7 +304,7 @@ void NextionLoop()
   if (CurrentPage == 2)  //START PAGE 2
           {
     //*******************
-    //PAGE 2 - LEFT SIDE
+    // PAGE 2 - LEFT SIDE
     //*******************
 
     if (nex_prev_upperFeedtime != eepromCounter.getValue(upperFeedtime)) {
@@ -334,7 +334,7 @@ void NextionLoop()
       nex_prev_lowerFeedtime = eepromCounter.getValue(lowerFeedtime);
     }
     //*******************
-    //PAGE 2 - RIGHT SIDE
+    // PAGE 2 - RIGHT SIDE
     //*******************
     if (nex_prev_longtimeCounter != eepromCounter.getValue(longtimeCounter)) {
       Serial2.print("t10.txt=");
@@ -357,14 +357,14 @@ void NextionLoop()
         eepromCounter.set(longtimeCounter, 0);
       }
     }
-  }    //END PAGE 2
+  }    // END PAGE 2
 
 }    //END OF NEXTION LOOP
 //*****************************************************************************
-//TOUCH EVENT FUNCTIONS //PushCallback = Press event //PopCallback = Release event
+// TOUCH EVENT FUNCTIONS //PushCallback = Press event //PopCallback = Release event
 //*****************************************************************************
 //*************************************************
-//TOUCH EVENT FUNCTIONS PAGE 1 - LEFT SIDE
+// TOUCH EVENT FUNCTIONS PAGE 1 - LEFT SIDE
 //*************************************************
 void nex_switch_play_pausePushCallback(void *ptr) {
   machineRunning = !machineRunning;
@@ -383,7 +383,7 @@ void nex_switch_play_pausePushCallback(void *ptr) {
 }
 void nex_switch_modePushCallback(void *ptr) {
   stepMode = !stepMode;
-  Serial2.print("click bt1,1");    //CLICK BUTTON
+  Serial2.print("click bt1,1");
   send_to_nextion();
 }
 void nex_but_stepbackPushCallback(void *ptr) {
@@ -400,7 +400,7 @@ void nex_but_reset_cyclePushCallback(void *ptr) {
   TestRigReset();
 }
 //*************************************************
-//TOUCH EVENT FUNCTIONS PAGE 1 - RIGHT SIDE
+// TOUCH EVENT FUNCTIONS PAGE 1 - RIGHT SIDE
 //*************************************************
 void nex_ZylGummihalterPushCallback(void *ptr) {
   ZylGummihalter.toggle();
@@ -457,7 +457,7 @@ void nex_ZylRevolverschieberPopCallback(void *ptr) {
   ZylRevolverschieber.set(0);
 }
 //*************************************************
-//TOUCH EVENT FUNCTIONS PAGE 2 - LEFT SIDE
+// TOUCH EVENT FUNCTIONS PAGE 2 - LEFT SIDE
 //*************************************************
 void nex_but_slider1_leftPushCallback(void *ptr) {
   eepromCounter.set(upperFeedtime, eepromCounter.getValue(upperFeedtime) - 50);
@@ -484,11 +484,11 @@ void nex_but_slider2_rightPushCallback(void *ptr) {
   }
 }
 //*************************************************
-//TOUCH EVENT FUNCTIONS PAGE 2 - RIGHT SIDE
+// TOUCH EVENT FUNCTIONS PAGE 2 - RIGHT SIDE
 //*************************************************
 void nex_but_reset_shorttimeCounterPushCallback(void *ptr) {
   eepromCounter.set(shorttimeCounter, 0);
-  //RESET LONGTIME COUNTER IF RESET BUTTON IS PRESSED LONG ENOUGH:
+  // RESET LONGTIME COUNTER IF RESET BUTTON IS PRESSED LONG ENOUGH:
   counterResetStopwatch = millis();
   resetStopwatchActive = true;
 
@@ -497,7 +497,7 @@ void nex_but_reset_shorttimeCounterPopCallback(void *ptr) {
   resetStopwatchActive = false;
 }
 //*************************************************
-//TOUCH EVENT FUNCTIONS PAGE CHANGES
+// TOUCH EVENT FUNCTIONS PAGE CHANGES
 //*************************************************
 void nex_page0PushCallback(void *ptr) {
   CurrentPage = 0;
@@ -506,7 +506,7 @@ void nex_page0PushCallback(void *ptr) {
 void nex_page1PushCallback(void *ptr) {
   CurrentPage = 1;
 
-  //REFRESH BUTTON STATES:
+  // REFRESH BUTTON STATES:
   nexPrevCycleStep = !cycleStep;
   nex_prev_stepMode = true;
   nex_state_ZylGummihalter = 0;
@@ -521,7 +521,7 @@ void nex_page1PushCallback(void *ptr) {
 }
 void nex_page2PushCallback(void *ptr) {
   CurrentPage = 2;
-  //REFRESH BUTTON STATES:
+  // REFRESH BUTTON STATES:
   nex_prev_upperFeedtime = 0;
   nex_prev_lowerFeedtime = 0;
   nex_prev_shorttimeCounter = 0;
