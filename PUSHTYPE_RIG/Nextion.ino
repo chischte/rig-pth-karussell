@@ -8,36 +8,33 @@
  * an xls-sheet to generate Nextion events can be found here:
  * https://github.com/chischte/push-type-rig/PUSHTYPE_NEXTION/
  * *****************************************************************************
+ * CONFIGURING THE LIBRARY:
+ * Include the nextion library (the official one) https://github.com/itead/ITEADLIB_Arduino_Nextion
+ * Make sure you edit the NexConfig.h file on the library folder to set the correct serial port for the display.
+ * By default it's set to Serial1, which most arduino boards don't have.
+ * Change "#define nexSerial Serial1" to "#define nexSerial Serial" if you are using arduino uno, nano, etc.
+ * *****************************************************************************
+ * NEXTION SWITCH STATES LIST
+ * Every nextion switch button (dualstate) needs a switchstate variable (bool)
+ * to control switchtoggle and to update the screen after a page change.
+ * Nextion buttons(momentary) need a variable too, to prevent screen flickering
+ * *****************************************************************************
+ * VARIOUS COMMANDS:
+ * Serial2.print("click bt1,1");//CLICK BUTTON
+ * send_to_nextion();
+ * A switch (Dual State Button)will be toggled with this command, a Button will be set permanently pressed)
+ * Serial2.print("vis t0,0");//HIDE OBJECT
+ * send_to_nextion();
+ * *****************************************************************************
  */
-//#include <Cylinder.h>
-//#include <Nextion.h>
-// Include the nextion library (the official one) https://github.com/itead/ITEADLIB_Arduino_Nextion
-// Make sure you edit the NexConfig.h file on the library folder to set the correct serial port for the display.
-// By default it's set to Serial1, which most arduino boards don't have.
-// Change "#define nexSerial Serial1" to "#define nexSerial Serial" if you are using arduino uno, nano, etc.
-//**************************************************************************************
-//VARIOUS COMMANDS:
-//**************************************************************************************
-// Serial2.print("click bt1,1");//CLICK BUTTON
-// send_to_nextion();
-// A switch (Dual State Button)will be toggled with this command, a Button will be set permanently pressed)
-// Serial2.print("vis t0,0");//HIDE OBJECT
-// send_to_nextion();
-// Serial2.print("t0.txt=");//WRITE TEXT:
-// Serial2.print("\"");
-// Serial2.print("SCHNEIDEN");
-// Serial2.print("\"");
-// send_to_nextion();
-//**************************************************************************************
-//DECLARATION OF VARIABLES
-//**************************************************************************************
-int CurrentPage;
-//***************************************************************************
-//NEXTION SWITCH STATES LIST
-//Every nextion switch button (dualstate) needs a switchstate variable to control switchtoggle
-//Nextion buttons(momentary) need a variable too, to prevent screen flickering
 
+//******************************************************************************
+// DECLARATION OF VARIABLES:
+//******************************************************************************
+int CurrentPage;
 byte nexPrevCycleStep;
+
+// SWITCHSTATES:
 bool nex_state_ZylGummihalter;
 bool nex_state_ZylFalltuerschieber;
 bool nex_state_ZylMagnetarm;
@@ -48,7 +45,7 @@ bool nex_state_ZylRevolverschieber;
 bool nexStateMachineRunning;
 bool nex_state_sealAvailable;
 bool nex_prev_stepMode = true;
-//***************************************************************************
+//******************************************************************************
 bool stopwatch_running;
 bool resetStopwatchActive;
 unsigned int stopped_button_pushtime;
@@ -58,9 +55,9 @@ long nex_prev_shorttimeCounter;
 long nex_prev_longtimeCounter;
 long button_push_stopwatch;
 long counterResetStopwatch;
-//**************************************************************************************
-//DECLARATION OF OBJECTS TO BE READ FROM NEXTION
-//**************************************************************************************
+//******************************************************************************
+// DECLARATION OF OBJECTS TO BE READ FROM NEXTION
+//******************************************************************************
 //PAGE 0:
 NexPage nex_page0 = NexPage(0, 0, "page0");
 //PAGE 1 - LEFT SIDE:
@@ -86,30 +83,30 @@ NexButton nex_but_slider2_left = NexButton(2, 9, "b0");
 NexButton nex_but_slider2_right = NexButton(2, 11, "b3");
 //PAGE 2 - RIGHT SIDE:
 NexButton nex_but_reset_shorttimeCounter = NexButton(2, 18, "b4");
-//**************************************************************************************
-//END OF OBJECT DECLARATION
-//**************************************************************************************
+//*****************************************************************************
+// END OF OBJECT DECLARATION
+//*****************************************************************************
 char buffer[100] = { 0 }; // This is needed only if you are going to receive a text from the display. You can remove it otherwise.
-//**************************************************************************************
-//TOUCH EVENT LIST //DECLARATION OF TOUCH EVENTS TO BE MONITORED
-//**************************************************************************************
+//*****************************************************************************
+// TOUCH EVENT LIST //DECLARATION OF TOUCH EVENTS TO BE MONITORED
+//*****************************************************************************
 NexTouch *nex_listen_list[] = { &nex_but_reset_shorttimeCounter, &nex_but_stepback,
-        &nex_but_stepnxt, &nex_but_reset_cycle, &nex_but_slider1_left, &nex_but_slider1_right,
-        &nex_but_slider2_left, &nex_but_slider2_right, &nex_switch_play_pause, &nex_switch_mode,
-        &nex_ZylMesser, &nex_ZylMagnetarm, &nex_page0, &nex_page1, &nex_page2, &nex_ZylGummihalter,
-        &nex_zyl_falltuer, &nex_mot_band_oben, &nex_mot_band_unten, &nex_ZylRevolverschieber, NULL //String terminated
+    &nex_but_stepnxt, &nex_but_reset_cycle, &nex_but_slider1_left, &nex_but_slider1_right,
+    &nex_but_slider2_left, &nex_but_slider2_right, &nex_switch_play_pause, &nex_switch_mode,
+    &nex_ZylMesser, &nex_ZylMagnetarm, &nex_page0, &nex_page1, &nex_page2, &nex_ZylGummihalter,
+    &nex_zyl_falltuer, &nex_mot_band_oben, &nex_mot_band_unten, &nex_ZylRevolverschieber, NULL //String terminated
         };
-//**************************************************************************************
-//END OF TOUCH EVENT LIST
-//**************************************************************************************
+//*****************************************************************************
+// END OF TOUCH EVENT LIST
+//*****************************************************************************
 void send_to_nextion() {
   Serial2.write(0xff);
   Serial2.write(0xff);
   Serial2.write(0xff);
 }
-//**************************************************************************************
+//*****************************************************************************
 void nextionSetup()
-//**************************************************************************************
+//*****************************************************************************
 {
   Serial2.begin(9600);  // Start serial comunication at baud=9600
 
@@ -117,9 +114,9 @@ void nextionSetup()
   Serial2.print("rest");
   send_to_nextion();
 
-  //**************************************************************************************
-  //INCREASE BAUD RATE
-  //**************************************************************************************
+  //*****************************************************************************
+  // INCREASE BAUD RATE
+  //*****************************************************************************
   /*
    delay(500);
    Serial2.print("baud=38400");
@@ -127,9 +124,9 @@ void nextionSetup()
    Serial2.end();
    Serial2.begin(38400);
    */
-  //**************************************************************************************
-  //REGISTER THE EVENT CALLBACK FUNCTIONS
-  //**************************************************************************************
+  //*****************************************************************************
+  // REGISTER THE EVENT CALLBACK FUNCTIONS
+  //*****************************************************************************
   nex_but_stepback.attachPush(nex_but_stepbackPushCallback);
   nex_but_stepnxt.attachPush(nex_but_stepnxtPushCallback);
   nex_ZylMagnetarm.attachPush(nex_ZylMagnetarmPushCallback);
@@ -160,21 +157,20 @@ void nextionSetup()
   nex_but_reset_shorttimeCounter.attachPush(nex_but_reset_shorttimeCounterPushCallback);
   nex_but_reset_shorttimeCounter.attachPop(nex_but_reset_shorttimeCounterPopCallback);
 
-  //**************************************************************************************
-  //END OF REGISTER
-  //**************************************************************************************
+  //*****************************************************************************
+  // END OF REGISTER
+  //*****************************************************************************
   delay(2000);
   sendCommand("page 1");  //SWITCH NEXTION TO PAGE X
   send_to_nextion();
 
 }  //END OF NEXTION SETUP
-//**************************************************************************************
+//*****************************************************************************
 void NextionLoop()
-//**************************************************************************************
-{ //START NEXTION LOOP
-
+//*****************************************************************************
+{
   nexLoop(nex_listen_list); //check for any touch event
-  //**************************************************************************************
+  //*****************************************************************************
   if (CurrentPage == 1)  //START PAGE 1
           {
     //*******************
@@ -211,7 +207,7 @@ void NextionLoop()
     }
 
     //DISPLAY IF MAGAZINE IS EMPTY
-    if (nex_state_sealAvailable != sealAvailable || plcReseted) {
+    if (nex_state_sealAvailable != sealAvailable) {
       if (!sealAvailable) {
         Serial2.print("t4.txt=");
         Serial2.print("\"");
@@ -229,10 +225,10 @@ void NextionLoop()
     }
 
     //*******************
-    //PAGE 1 - RIGHT SIDE:
+    // PAGE 1 - RIGHT SIDE:
     //*******************
     //UPDATE CYCLE NAME
-    if (nexPrevCycleStep != cycleStep || plcReseted) {
+    if (nexPrevCycleStep != cycleStep) {
       Serial2.print("t0.txt=");
       Serial2.print("\"");
       Serial2.print(cycleStep + 1); // write the number of the step
@@ -303,9 +299,8 @@ void NextionLoop()
       }
       nex_state_ZylRevolverschieber = ZylRevolverschieber.request_state();
     }
-    plcReseted = false;
   }    //END PAGE 1
-  //**************************************************************************************
+  //*****************************************************************************
   if (CurrentPage == 2)  //START PAGE 2
           {
     //*******************
@@ -365,9 +360,9 @@ void NextionLoop()
   }    //END PAGE 2
 
 }    //END OF NEXTION LOOP
-//**************************************************************************************
+//*****************************************************************************
 //TOUCH EVENT FUNCTIONS //PushCallback = Press event //PopCallback = Release event
-//**************************************************************************************
+//*****************************************************************************
 //*************************************************
 //TOUCH EVENT FUNCTIONS PAGE 1 - LEFT SIDE
 //*************************************************
@@ -512,9 +507,8 @@ void nex_page1PushCallback(void *ptr) {
   CurrentPage = 1;
 
   //REFRESH BUTTON STATES:
-  nexPrevCycleStep = 111;
+  nexPrevCycleStep = !cycleStep;
   nex_prev_stepMode = true;
-
   nex_state_ZylGummihalter = 0;
   nex_state_ZylFalltuerschieber = 0;
   nex_state_ZylMagnetarm = 0;
@@ -533,6 +527,6 @@ void nex_page2PushCallback(void *ptr) {
   nex_prev_shorttimeCounter = 0;
   nex_prev_longtimeCounter = 0;
 }
-//**************************************************************************************
+//*****************************************************************************
 //END OF TOUCH EVENT FUNCTIONS
-//**************************************************************************************
+//*****************************************************************************

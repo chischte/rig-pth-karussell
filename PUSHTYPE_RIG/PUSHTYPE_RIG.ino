@@ -115,7 +115,6 @@ void TestRigReset() {
   machineRunning = false;
   stepMode = true;
   cycleStep = 0;
-  plcReseted=true;
 }
 void ToolReset() {
   // SIMULIERE WIPPENHEBEL ZIEHEN:
