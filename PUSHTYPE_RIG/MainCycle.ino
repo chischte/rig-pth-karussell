@@ -1,7 +1,3 @@
-//TODO:
-//SYNCHRONIZE CYCLE NAMESCYCLE STEPS, CYCLE ORDER OF NEXTION AND MAIN CYCLE!
-//FIND OUT HOW TO DETECT CORRECT USB SLOT!
-
 void RunMainTestCycle() {
   if (clearanceNextStep && nextStepTimer.timedOut()) {
 

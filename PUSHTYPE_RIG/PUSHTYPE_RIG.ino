@@ -47,8 +47,7 @@ bool clearanceNextStep = false;
 bool errorBlink = false;
 bool sealAvailable = false;
 
-int cycleStep = 0;
-byte nexPrevCycleStep = 0;
+byte cycleStep = 0;
 
 unsigned long runtime;
 unsigned long runtimeStopwatch;
@@ -100,7 +99,7 @@ enum mainCycleSteps {
 int numberOfMainCycleSteps = endOfMainCycleEnum;
 // DEFINE NAMES TO DISPLAY ON THE TOUCH SCREE:
 String cycleName[] = { "KLEMMEN", "FALLENLASSEN", "AUSFAHREN", "BAND UNTEN", "ZENTRIEREN",
-    "BAND OBEN", "VORPRESSEN", "ZURUECKFAHREN", "PRESSEN","SCHNEIDEN", "REVOLVER", "RESET" };
+    "BAND OBEN", "VORPRESSEN", "ZURUECKFAHREN", "PRESSEN", "SCHNEIDEN", "REVOLVER", "RESET" };
 
 void TestRigReset() {
   ToolReset();
@@ -112,6 +111,7 @@ void TestRigReset() {
   ZylMesser.set(0);
   ZylRevolverschieber.set(0);
   machineRunning = false;
+  errorBlink = false;
   stepMode = true;
   cycleStep = 0;
 }
