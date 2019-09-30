@@ -147,7 +147,7 @@ void nextionSetup()
   nex_switch_mode.attachPush(nex_switch_modePushCallback);
   nex_switch_play_pause.attachPush(nex_switch_play_pausePushCallback);
   nex_ZylMagnetarm.attachPush(nex_ZylMagnetarmPushCallback);
-  
+
   nex_ZylGummihalter.attachPush(nex_ZylGummihalterPushCallback);
   nex_zyl_falltuer.attachPush(nex_zyl_falltuerPushCallback);
 
@@ -162,7 +162,6 @@ void nextionSetup()
   nex_ZylRevolverschieber.attachPop(nex_ZylRevolverschieberPopCallback);
   nex_but_reset_shorttimeCounter.attachPush(nex_but_reset_shorttimeCounterPushCallback);
   nex_but_reset_shorttimeCounter.attachPop(nex_but_reset_shorttimeCounterPopCallback);
-
 
   //*****************************************************************************
   // END OF REGISTER
@@ -200,7 +199,6 @@ void NextionLoop()
         Serial2.print("\"");
         Serial2.print("STEP MODE");
         Serial2.print("\"");
-        send_to_nextion();
       } else {
         Serial2.print("click bt1,1");
         send_to_nextion();
@@ -208,8 +206,8 @@ void NextionLoop()
         Serial2.print("\"");
         Serial2.print("AUTO MODE");
         Serial2.print("\"");
-        send_to_nextion();
       }
+      send_to_nextion();
       nex_prev_stepMode = stepMode;
     }
 
@@ -220,14 +218,13 @@ void NextionLoop()
         Serial2.print("\"");
         Serial2.print("MAGAZIN LEER!");
         Serial2.print("\"");
-        send_to_nextion();
       } else {
         Serial2.print("t4.txt=");
         Serial2.print("\"");
         Serial2.print("");    // erase text
         Serial2.print("\"");
-        send_to_nextion();
       }
+      send_to_nextion();
       nex_state_sealAvailable = sealAvailable;
     }
 
@@ -269,11 +266,10 @@ void NextionLoop()
 
       if (MotFeedOben.request_state()) {
         Serial2.print("click b5,1");
-        send_to_nextion();
       } else {
         Serial2.print("click b5,0");
-        send_to_nextion();
       }
+      send_to_nextion();
       nex_state_MotFeedOben = MotFeedOben.request_state();
     }
 
@@ -281,36 +277,32 @@ void NextionLoop()
     if (MotFeedUnten.request_state() != nex_state_MotFeedUnten) {
       if (MotFeedUnten.request_state() == HIGH) {
         Serial2.print("click b4,1");
-        send_to_nextion();
       } else {
         Serial2.print("click b4,0");
-        send_to_nextion();
       }
+      send_to_nextion();
       nex_state_MotFeedUnten = MotFeedUnten.request_state();
     }
 
     // UPDATE BUTTON (momentary):
     if (ZylMesser.request_state() != nex_state_ZylMesser) {
-      if(ZylMesser.request_state()){
-	    Serial2.print("click b6,1");
-        send_to_nextion();
-	  } else {
-	    Serial2.print("click b6,0");
-      send_to_nextion();}
-	  }
-	  
+      if (ZylMesser.request_state()) {
+        Serial2.print("click b6,1");
+      } else {
+        Serial2.print("click b6,0");
+      }
+      send_to_nextion();
       nex_state_ZylMesser = !nex_state_ZylMesser;
     }
-	
+
     // UPDATE BUTTON (momentary):
     if (ZylRevolverschieber.request_state() != nex_state_ZylRevolverschieber) {
       if (ZylRevolverschieber.request_state() == HIGH) {
         Serial2.print("click b3,1");
-        send_to_nextion();
       } else {
         Serial2.print("click b3,0");
-        send_to_nextion();
       }
+      send_to_nextion();
       nex_state_ZylRevolverschieber = ZylRevolverschieber.request_state();
     }
   }    //END PAGE 1
