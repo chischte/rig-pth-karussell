@@ -23,6 +23,8 @@
  * Serial2.print("click bt1,1");//CLICK BUTTON
  * send_to_nextion();
  * A switch (Dual State Button)will be toggled with this command, a Button will be set permanently pressed)
+ * Serial2.print("click b3,0"); releases a push button again, has no effect on a Dual State Button
+ * send_to_nextion();
  * Serial2.print("vis t0,0");//HIDE OBJECT
  * send_to_nextion();
  * *****************************************************************************
@@ -68,15 +70,15 @@ NexButton nex_but_reset_cycle = NexButton(1, 5, "b0");
 NexDSButton nex_switch_play_pause = NexDSButton(1, 2, "bt0");
 NexDSButton nex_switch_mode = NexDSButton(1, 4, "bt1");
 //PAGE 1 - RIGHT SIDE
-NexPage nex_page2 = NexPage(2, 0, "page2");
-NexDSButton nex_ZylGummihalter = NexDSButton(1, 15, "bt5");
-NexDSButton nex_zyl_falltuer = NexDSButton(1, 14, "bt4");
-NexDSButton nex_ZylMagnetarm = NexDSButton(1, 13, "bt3");
-NexButton nex_mot_band_oben = NexButton(1, 12, "b5");
-NexButton nex_mot_band_unten = NexButton(1, 11, "b4");
-NexDSButton nex_ZylMesser = NexDSButton(1, 10, "bt2");
-NexButton nex_ZylRevolverschieber = NexButton(1, 9, "b3");
+NexDSButton nex_ZylGummihalter = NexDSButton(1, 13, "bt5");
+NexDSButton nex_zyl_falltuer = NexDSButton(1, 12, "bt4");
+NexDSButton nex_ZylMagnetarm = NexDSButton(1, 11, "bt3");
+NexButton nex_mot_band_oben = NexButton(1, 10, "b5");
+NexButton nex_mot_band_unten = NexButton(1, 9, "b4");
+NexButton nex_ZylMesser = NexButton(1, 15, "b6");
+NexButton nex_ZylRevolverschieber = NexButton(1, 8, "b3");
 //PAGE 2 - LEFT SIDE:
+NexPage nex_page2 = NexPage(2, 0, "page2");
 NexButton nex_but_slider1_left = NexButton(2, 6, "b1");
 NexButton nex_but_slider1_right = NexButton(2, 7, "b2");
 NexButton nex_but_slider2_left = NexButton(2, 9, "b0");
@@ -128,6 +130,7 @@ void nextionSetup()
   //*****************************************************************************
   // REGISTER THE EVENT CALLBACK FUNCTIONS
   //*****************************************************************************
+  //*****PUSH ONLY
   nex_but_stepback.attachPush(nex_but_stepbackPushCallback);
   nex_but_stepnxt.attachPush(nex_but_stepnxtPushCallback);
   nex_ZylMagnetarm.attachPush(nex_ZylMagnetarmPushCallback);
@@ -144,7 +147,7 @@ void nextionSetup()
   nex_switch_mode.attachPush(nex_switch_modePushCallback);
   nex_switch_play_pause.attachPush(nex_switch_play_pausePushCallback);
   nex_ZylMagnetarm.attachPush(nex_ZylMagnetarmPushCallback);
-  nex_ZylMesser.attachPush(nex_ZylMesserPushCallback);
+  
   nex_ZylGummihalter.attachPush(nex_ZylGummihalterPushCallback);
   nex_zyl_falltuer.attachPush(nex_zyl_falltuerPushCallback);
 
@@ -153,10 +156,13 @@ void nextionSetup()
   nex_mot_band_oben.attachPop(nex_mot_band_obenPopCallback);
   nex_mot_band_unten.attachPush(nex_mot_band_untenPushCallback);
   nex_mot_band_unten.attachPop(nex_mot_band_untenPopCallback);
+  nex_ZylMesser.attachPush(nex_ZylMesserPushCallback);
+  nex_ZylMesser.attachPop(nex_ZylMesserPopCallback);
   nex_ZylRevolverschieber.attachPush(nex_ZylRevolverschieberPushCallback);
   nex_ZylRevolverschieber.attachPop(nex_ZylRevolverschieberPopCallback);
   nex_but_reset_shorttimeCounter.attachPush(nex_but_reset_shorttimeCounterPushCallback);
   nex_but_reset_shorttimeCounter.attachPop(nex_but_reset_shorttimeCounterPopCallback);
+
 
   //*****************************************************************************
   // END OF REGISTER
@@ -283,12 +289,19 @@ void NextionLoop()
       nex_state_MotFeedUnten = MotFeedUnten.request_state();
     }
 
-    // UPDATE SWITCHBUTTON (dual state):
+    // UPDATE BUTTON (momentary):
     if (ZylMesser.request_state() != nex_state_ZylMesser) {
-      Serial2.print("click bt2,1");
-      send_to_nextion();
+      if(ZylMesser.request_state()){
+	    Serial2.print("click b6,1");
+        send_to_nextion();
+	  } else {
+	    Serial2.print("click b6,0");
+      send_to_nextion();}
+	  }
+	  
       nex_state_ZylMesser = !nex_state_ZylMesser;
     }
+	
     // UPDATE BUTTON (momentary):
     if (ZylRevolverschieber.request_state() != nex_state_ZylRevolverschieber) {
       if (ZylRevolverschieber.request_state() == HIGH) {
@@ -448,7 +461,11 @@ void nex_mot_band_untenPopCallback(void *ptr) {
   send_to_nextion();
 }
 void nex_ZylMesserPushCallback(void *ptr) {
-  ZylMesser.toggle();
+  ZylMesser.set(1);
+  nex_state_ZylMesser = !nex_state_ZylMesser;
+}
+void nex_ZylMesserPopCallback(void *ptr) {
+  ZylMesser.set(0);
   nex_state_ZylMesser = !nex_state_ZylMesser;
 }
 void nex_ZylRevolverschieberPushCallback(void *ptr) {
