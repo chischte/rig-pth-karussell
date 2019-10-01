@@ -33,6 +33,8 @@ const byte GREEN_LIGHT_PIN = CONTROLLINO_D12;
 const byte RED_LIGHT_PIN = CONTROLLINO_D11;
 const byte TOOL_MOTOR_RELAY = CONTROLLINO_R5;
 const byte TOOL_END_SWITCH_PIN = CONTROLLINO_A4;
+const byte BANDSENSOR_OBEN = CONTROLLINO_A5;
+const byte BANDSENOR_UNTEN = CONTROLLINO_A6;
 //const byte STEP_MODE_BUTTON = CONTROLLINO_A2;
 //const byte AUTO_MODE_BUTTON = CONTROLLINO_A4;
 
@@ -46,6 +48,8 @@ bool clearancePlayPauseToggle = true;
 bool clearanceNextStep = false;
 bool errorBlink = false;
 bool sealAvailable = false;
+bool upperStrapAvailable = false;
+bool lowerStrapAvailable = false;
 
 byte cycleStep = 0;
 
@@ -171,6 +175,15 @@ void setup() {
 //********************#######***#####***#####***#******************************
 //*****************************************************************************
 void loop() {
+  upperStrapAvailable = digitalRead(BANDSENSOR_OBEN);
+  if (!upperStrapAvailable) {
+    MotFeedOben.set(0);
+  }
+  lowerStrapAvailable = digitalRead(BANDSENOR_UNTEN);
+  if (!lowerStrapAvailable) {
+    MotFeedUnten.set(0);
+  }
+
   // IN AUTO MODE, MACHINE RUNS FROM STEP TO STEP AUTOMATICALLY:
   if (!stepMode) {  // = AUTO MODE
     clearanceNextStep = true;

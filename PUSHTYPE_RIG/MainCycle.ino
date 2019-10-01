@@ -33,7 +33,9 @@ void RunMainTestCycle() {
       break;
     case BAND_UNTEN: // UNTERES BAND VORSCHIEBEN
       ZylGummihalter.set(0);    //Plomben für nächsten Zyklus können nachrutschen
-      MotFeedUnten.stroke(eepromCounter.getValue(lowerFeedtime), 0);
+      if (lowerStrapAvailable) {
+        MotFeedUnten.stroke(eepromCounter.getValue(lowerFeedtime), 0);
+      }
       if (MotFeedUnten.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
@@ -48,7 +50,9 @@ void RunMainTestCycle() {
       break;
     case BAND_OBEN: // OBERES BAND VORSCHIEBEN
       ZylMesser.set(0); // Messer muss zurückgezogen sein
+      if(upperStrapAvailable){
       MotFeedOben.stroke(eepromCounter.getValue(upperFeedtime), 0);
+      }
       if (MotFeedOben.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;

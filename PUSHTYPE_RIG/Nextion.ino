@@ -421,9 +421,11 @@ void nex_ZylMagnetarmPushCallback(void *ptr) {
   nex_state_ZylMagnetarm = !nex_state_ZylMagnetarm;
 }
 void nex_mot_band_obenPushCallback(void *ptr) {
-  MotFeedOben.set(1);
-  button_push_stopwatch = millis();
-  stopwatch_running = true;
+  if (upperStrapAvailable) {
+    MotFeedOben.set(1);
+    button_push_stopwatch = millis();
+    stopwatch_running = true;
+  }
 }
 void nex_mot_band_obenPopCallback(void *ptr) {
   MotFeedOben.set(0);
@@ -437,9 +439,11 @@ void nex_mot_band_obenPopCallback(void *ptr) {
   send_to_nextion();
 }
 void nex_mot_band_untenPushCallback(void *ptr) {
-  MotFeedUnten.set(1);
-  button_push_stopwatch = millis();
-  stopwatch_running = true;
+  if (lowerStrapAvailable) {
+    MotFeedUnten.set(1);
+    button_push_stopwatch = millis();
+    stopwatch_running = true;
+  }
 }
 void nex_mot_band_untenPopCallback(void *ptr) {
   MotFeedUnten.set(0);
