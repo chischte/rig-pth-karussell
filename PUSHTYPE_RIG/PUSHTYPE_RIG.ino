@@ -7,6 +7,9 @@
  * Michael Wettstein
  * Dezember 2018, Zürich
  * *****************************************************************************
+ * TODO:
+ * ADD ERROR BLINK AND MESSAGE IF NO STRAP IS DETECTED AT THE BEGINNING OF THE
+ * FEED CYCLE.
  */
 
 #include <Controllino.h>
@@ -85,6 +88,7 @@ Debounce endSwitch(TOOL_END_SWITCH_PIN);
 //*****************************************************************************
 // DEFINE NAMES AND SEQUENCE OF STEPS FOR THE MAIN CYCLE:
 enum mainCycleSteps {
+  VIBRIEREN,
   KLEMMEN,
   FALLENLASSEN,
   MAGNETARM_AUSFAHREN,
@@ -95,6 +99,7 @@ enum mainCycleSteps {
   ZURUECKFAHREN,
   PRESSEN,
   SCHNEIDEN,
+  LEERLAUF,
   REVOLVER,
   RESET,
   endOfMainCycleEnum
@@ -102,8 +107,8 @@ enum mainCycleSteps {
 
 int numberOfMainCycleSteps = endOfMainCycleEnum;
 // DEFINE NAMES TO DISPLAY ON THE TOUCH SCREE:
-String cycleName[] = { "KLEMMEN", "FALLENLASSEN", "AUSFAHREN", "BAND UNTEN", "ZENTRIEREN",
-    "BAND OBEN", "VORPRESSEN", "ZURUECKFAHREN", "PRESSEN", "SCHNEIDEN", "REVOLVER", "RESET" };
+String cycleName[] = { "VIBRIEREN","KLEMMEN", "FALLENLASSEN", "AUSFAHREN", "BAND UNTEN", "ZENTRIEREN",
+    "BAND OBEN", "VORPRESSEN", "ZURUECKFAHREN", "PRESSEN", "SCHNEIDEN", "LEERLAUF", "REVOLVER", "RESET" };
 
 void TestRigReset() {
   ToolReset();
