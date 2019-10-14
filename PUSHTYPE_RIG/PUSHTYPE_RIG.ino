@@ -15,9 +15,9 @@
 #include <Controllino.h>
 #include <Nextion.h>        // https://github.com/itead/ITEADLIB_Arduino_Nextion
 #include <Cylinder.h>       // https://github.com/chischte/cylinder-library
-#include <Debounce.h>       // https://github.com/chischte/debounce-library.git
-#include <EEPROM_Counter.h> // https://github.com/chischte/eeprom-counter-library.git
-#include <Insomnia.h>       // https://github.com/chischte/insomnia-delay-library.git
+#include <Debounce.h>       // https://github.com/chischte/debounce-library
+#include <EEPROM_Counter.h> // https://github.com/chischte/eeprom-counter-library
+#include <Insomnia.h>       // https://github.com/chischte/insomnia-delay-library
 
 //*****************************************************************************
 // DECLARATION OF VARIABLES / DATA TYPES
@@ -48,7 +48,7 @@ const byte SENSOR_PLOMBE = CONTROLLINO_A3;
 bool machineRunning = false;
 bool stepMode = true;
 bool clearancePlayPauseToggle = true;
-bool clearanceNextStep = false;
+bool stepCompleted = false;
 bool errorBlink = false;
 bool sealAvailable = false;
 bool upperStrapAvailable = false;
@@ -192,11 +192,11 @@ void loop() {
 
   // IN AUTO MODE, MACHINE RUNS FROM STEP TO STEP AUTOMATICALLY:
   if (!stepMode) {  // = AUTO MODE
-    clearanceNextStep = true;
+    stepCompleted = true;
   }
 
   // IN STEP MODE, MACHINE STOPS AFTER EVERY COMPLETED CYCLYE:
-  if (stepMode && !clearanceNextStep) {
+  if (stepMode && !stepCompleted) {
     machineRunning = false;
   }
 
