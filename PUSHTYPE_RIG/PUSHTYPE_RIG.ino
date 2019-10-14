@@ -12,12 +12,12 @@
  * FEED CYCLE.
  */
 
-#include <Controllino.h>
+#include <Controllino.h>    // https://github.com/CONTROLLINO-PLC/CONTROLLINO_Library
 #include <Nextion.h>        // https://github.com/itead/ITEADLIB_Arduino_Nextion
 #include <Cylinder.h>       // https://github.com/chischte/cylinder-library
 #include <Debounce.h>       // https://github.com/chischte/debounce-library.git
-#include <EEPROM_Counter.h> // https://github.com/chischte/eeprom-counter-library.git
-#include <Insomnia.h>       // https://github.com/chischte/insomnia-delay-library.git
+#include <EEPROM_Counter.h> // https://github.com/chischte/eeprom-counter-library
+#include <Insomnia.h>       // https://github.com/chischte/insomnia-delay-library
 
 //*****************************************************************************
 // DECLARATION OF VARIABLES / DATA TYPES
