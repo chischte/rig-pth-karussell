@@ -87,6 +87,7 @@ Debounce motorStartButton(START_BUTTON);
 Debounce endSwitch(TOOL_END_SWITCH_PIN);
 //*****************************************************************************
 // DEFINE NAMES AND SEQUENCE OF STEPS FOR THE MAIN CYCLE:
+//*****************************************************************************
 enum mainCycleSteps {
   VIBRIEREN,
   KLEMMEN,
@@ -106,7 +107,7 @@ enum mainCycleSteps {
 };
 
 int numberOfMainCycleSteps = endOfMainCycleEnum;
-// DEFINE NAMES TO DISPLAY ON THE TOUCH SCREE:
+// DEFINE NAMES TO DISPLAY ON THE TOUCH SCREEN:
 String cycleName[] = { "VIBRIEREN","KLEMMEN", "FALLENLASSEN", "AUSFAHREN", "BAND UNTEN", "ZENTRIEREN",
     "BAND OBEN", "VORPRESSEN", "ZURUECKFAHREN", "PRESSEN", "SCHNEIDEN", "LEERLAUF", "REVOLVER", "RESET" };
 
