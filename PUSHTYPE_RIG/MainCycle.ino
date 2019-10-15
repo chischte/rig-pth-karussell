@@ -2,6 +2,14 @@ void RunMainTestCycle() {
   if (clearanceNextStep && nextStepTimer.timedOut()) {
 
     switch (cycleStep) {
+    case VIBRIEREN: // PLOMBE FALLENLASSEN
+      ZylRevolverschieber.stroke(300, 300);    //(push time,release time)
+      if (ZylRevolverschieber.stroke_completed()) {
+        clearanceNextStep = false;
+        cycleStep++;
+      }
+      break;
+
     case KLEMMEN: // PLOMBEN IM RUTSCH-SCHACHT FIXIEREN
       errorBlink = !sealAvailable;
       if (sealAvailable) {
@@ -16,51 +24,68 @@ void RunMainTestCycle() {
       nextStepTimer.setTime(500);
       cycleStep++;
       break;
+
     case FALLENLASSEN: // PLOMBE FALLENLASSEN
-      ZylFalltuerschieber.stroke(700, 200);    //(push time,release time)
+      ZylFalltuerschieber.stroke(900, 400);    //(push time,release time)
       if (ZylFalltuerschieber.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
       }
       break;
+
     case MAGNETARM_AUSFAHREN: // PLOMBE ZUM ZANGENPAKET FAHREN
       ZylMagnetarm.set(1);
       ToolReset();    //reset tool "Wippenhebel ziehen"
       ZylGummihalter.set(0); // Plombenfixieren lösen
-      nextStepTimer.setTime(500);
+      nextStepTimer.setTime(600);
       clearanceNextStep = false;
       cycleStep++;
       break;
+
     case BAND_UNTEN: // UNTERES BAND VORSCHIEBEN
       ZylGummihalter.set(0);    //Plomben für nächsten Zyklus können nachrutschen
-      MotFeedUnten.stroke(eepromCounter.getValue(lowerFeedtime), 0);
-      if (MotFeedUnten.stroke_completed()) {
+      if (lowerStrapAvailable) {
+        MotFeedUnten.stroke(eepromCounter.getValue(lowerFeedtime), 0);
+        if (MotFeedUnten.stroke_completed()) {
+          clearanceNextStep = false;
+          cycleStep++;
+        }
+      } else {
         clearanceNextStep = false;
         cycleStep++;
       }
       break;
+
     case ZENTRIEREN: // PLOMBE DURCH PRESSMECHANIK ZENTRIEREN
-      Pressmotor.stroke(180, 0);
-      if (Pressmotor.stroke_completed()) {
+      MotorTool.stroke(180, 0);
+      if (MotorTool.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
       }
       break;
+
     case BAND_OBEN: // OBERES BAND VORSCHIEBEN
       ZylMesser.set(0); // Messer muss zurückgezogen sein
-      MotFeedOben.stroke(eepromCounter.getValue(upperFeedtime), 0);
-      if (MotFeedOben.stroke_completed()) {
+      if (upperStrapAvailable) {
+        MotFeedOben.stroke(eepromCounter.getValue(upperFeedtime), 0);
+        if (MotFeedOben.stroke_completed()) {
+          clearanceNextStep = false;
+          cycleStep++;
+        }
+      } else {
         clearanceNextStep = false;
         cycleStep++;
       }
       break;
+
     case VORPRESSEN: // PLOMBE DURCH PRESSMECHANIK ZENTRIEREN
-      Pressmotor.stroke(350, 0);
-      if (Pressmotor.stroke_completed()) {
+      MotorTool.stroke(350, 0);
+      if (MotorTool.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
       }
       break;
+
     case ZURUECKFAHREN: // MAGNETARM ZURÜCKZIEHEN
       if (ZylMagnetarm.stroke_completed()) {
         //Serial.println("Mangetarm zurückfahren...");
@@ -70,21 +95,29 @@ void RunMainTestCycle() {
       clearanceNextStep = false;
       cycleStep++;
       break;
+
     case PRESSEN: // CRIMPVORGANG STARTEN
       digitalWrite(TOOL_MOTOR_RELAY, HIGH);
       nextStepTimer.setTime(1500);
       clearanceNextStep = false;
       cycleStep++;
       break;
+
     case SCHNEIDEN: // BAND ABSCHNEIDEN
-      if (ZylMesser.stroke_completed()) {
-      }
-      ZylMesser.stroke(1000, 0); // push,release [ms]
+      ZylMesser.stroke(1500, 200); // push,release [ms]
       if (ZylMesser.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
       }
       break;
+
+    case LEERLAUF: // CRIMPVORGANG STARTEN
+      digitalWrite(TOOL_MOTOR_RELAY, HIGH);
+      nextStepTimer.setTime(1500);
+      clearanceNextStep = false;
+      cycleStep++;
+      break;
+
     case REVOLVER: // KARUSSELL DREHEN FALLS KEINE PLOMBE DETEKTIERT
       if (!sealAvailable) { // keine Plombe detektiert
         ZylRevolverschieber.stroke(4000, 3500);
@@ -95,6 +128,7 @@ void RunMainTestCycle() {
         cycleStep++;
       }
       break;
+
     case RESET: // RESET FÜR NÄCHSTEN ZYKLUS
       eepromCounter.countOneUp(shorttimeCounter);
       eepromCounter.countOneUp(longtimeCounter);
