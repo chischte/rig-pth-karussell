@@ -46,6 +46,7 @@ bool nex_state_ZylMesser;
 bool nex_state_ZylRevolverschieber;
 bool nexStateMachineRunning;
 bool nex_state_sealAvailable;
+bool nex_state_PressMotor;
 bool nex_prev_stepMode = true;
 //******************************************************************************
 bool stopwatch_running;
@@ -64,11 +65,11 @@ long counterResetStopwatch;
 NexPage nex_page0 = NexPage(0, 0, "page0");
 //PAGE 1 - LEFT SIDE:
 NexPage nex_page1 = NexPage(1, 0, "page1");
-NexButton nex_but_stepback = NexButton(1, 6, "b1");
+NexButton nex_but_stepback = NexButton(1, 2, "b1");
 NexButton nex_but_stepnxt = NexButton(1, 7, "b2");
-NexButton nex_but_reset_cycle = NexButton(1, 5, "b0");
-NexDSButton nex_switch_play_pause = NexDSButton(1, 2, "bt0");
-NexDSButton nex_switch_mode = NexDSButton(1, 4, "bt1");
+NexButton nex_but_reset_cycle = NexButton(1, 1, "b0");
+NexDSButton nex_switch_play_pause = NexDSButton(1, 4, "bt0");
+NexDSButton nex_switch_mode = NexDSButton(1, 6, "bt1");
 //PAGE 1 - RIGHT SIDE
 NexDSButton nex_ZylGummihalter = NexDSButton(1, 13, "bt5");
 NexDSButton nex_zyl_falltuer = NexDSButton(1, 12, "bt4");
@@ -77,6 +78,8 @@ NexButton nex_mot_band_oben = NexButton(1, 10, "b5");
 NexButton nex_mot_band_unten = NexButton(1, 9, "b4");
 NexButton nex_ZylMesser = NexButton(1, 15, "b6");
 NexButton nex_ZylRevolverschieber = NexButton(1, 8, "b3");
+NexButton nex_PressMotor = NexButton(1, 16, "b7");
+
 //PAGE 2 - LEFT SIDE:
 NexPage nex_page2 = NexPage(2, 0, "page2");
 NexButton nex_but_slider1_left = NexButton(2, 6, "b1");
@@ -96,7 +99,8 @@ NexTouch *nex_listen_list[] = { &nex_but_reset_shorttimeCounter, &nex_but_stepba
     &nex_but_stepnxt, &nex_but_reset_cycle, &nex_but_slider1_left, &nex_but_slider1_right,
     &nex_but_slider2_left, &nex_but_slider2_right, &nex_switch_play_pause, &nex_switch_mode,
     &nex_ZylMesser, &nex_ZylMagnetarm, &nex_page0, &nex_page1, &nex_page2, &nex_ZylGummihalter,
-    &nex_zyl_falltuer, &nex_mot_band_oben, &nex_mot_band_unten, &nex_ZylRevolverschieber, NULL //String terminated
+    &nex_zyl_falltuer, &nex_mot_band_oben, &nex_mot_band_unten, &nex_ZylRevolverschieber,
+    &nex_PressMotor, NULL //String terminated
         };
 //*****************************************************************************
 // END OF TOUCH EVENT LIST
@@ -158,6 +162,8 @@ void nextionSetup()
   nex_mot_band_unten.attachPop(nex_mot_band_untenPopCallback);
   nex_ZylMesser.attachPush(nex_ZylMesserPushCallback);
   nex_ZylMesser.attachPop(nex_ZylMesserPopCallback);
+  nex_PressMotor.attachPush(nex_PressMotorPushCallback);
+  nex_PressMotor.attachPop(nex_PressMotorPopCallback);
   nex_ZylRevolverschieber.attachPush(nex_ZylRevolverschieberPushCallback);
   nex_ZylRevolverschieber.attachPop(nex_ZylRevolverschieberPopCallback);
   nex_but_reset_shorttimeCounter.attachPush(nex_but_reset_shorttimeCounterPushCallback);
@@ -190,22 +196,11 @@ void NextionLoop()
     }
 
     // UPDATE SWITCHSTATE "STEP"/"AUTO"-MODE:
-
     if (stepMode != nex_prev_stepMode) {
       if (stepMode) {
         Serial2.print("click bt1,1");
-        send_to_nextion();
-        Serial2.print("bt1.txt=");
-        Serial2.print("\"");
-        Serial2.print("STEP MODE");
-        Serial2.print("\"");
       } else {
         Serial2.print("click bt1,1");
-        send_to_nextion();
-        Serial2.print("bt1.txt=");
-        Serial2.print("\"");
-        Serial2.print("AUTO MODE");
-        Serial2.print("\"");
       }
       send_to_nextion();
       nex_prev_stepMode = stepMode;
@@ -275,7 +270,7 @@ void NextionLoop()
 
     // UPDATE BUTTON (momentary):
     if (MotFeedUnten.request_state() != nex_state_MotFeedUnten) {
-      if (MotFeedUnten.request_state() == HIGH) {
+      if (MotFeedUnten.request_state()) {
         Serial2.print("click b4,1");
       } else {
         Serial2.print("click b4,0");
@@ -292,12 +287,12 @@ void NextionLoop()
         Serial2.print("click b6,0");
       }
       send_to_nextion();
-      nex_state_ZylMesser = !nex_state_ZylMesser;
+      nex_state_ZylMesser = ZylMesser.request_state();
     }
 
     // UPDATE BUTTON (momentary):
     if (ZylRevolverschieber.request_state() != nex_state_ZylRevolverschieber) {
-      if (ZylRevolverschieber.request_state() == HIGH) {
+      if (ZylRevolverschieber.request_state()) {
         Serial2.print("click b3,1");
       } else {
         Serial2.print("click b3,0");
@@ -305,8 +300,20 @@ void NextionLoop()
       send_to_nextion();
       nex_state_ZylRevolverschieber = ZylRevolverschieber.request_state();
     }
+
+    // UPDATE BUTTON (momentary):
+    if (MotorTool.request_state() != nex_state_PressMotor) {
+      if (MotorTool.request_state()) {
+        Serial2.print("click b7,1");
+      } else {
+        Serial2.print("click b7,0");
+      }
+      send_to_nextion();
+      nex_state_PressMotor = MotorTool.request_state();
+    }
+
   }    //END PAGE 1
-  //*****************************************************************************
+//*****************************************************************************
   if (CurrentPage == 2)  //START PAGE 2
           {
     //*******************
@@ -383,7 +390,6 @@ void nex_switch_play_pausePushCallback(void *ptr) {
     MotFeedUnten.set(0);
     ZylMesser.set(0);
     ZylRevolverschieber.set(0);
-
   }
   nexStateMachineRunning = !nexStateMachineRunning;
 }
@@ -458,12 +464,18 @@ void nex_mot_band_untenPopCallback(void *ptr) {
 }
 void nex_ZylMesserPushCallback(void *ptr) {
   ZylMesser.set(1);
-  nex_state_ZylMesser = !nex_state_ZylMesser;
 }
 void nex_ZylMesserPopCallback(void *ptr) {
   ZylMesser.set(0);
-  nex_state_ZylMesser = !nex_state_ZylMesser;
 }
+
+void nex_PressMotorPushCallback(void *ptr) {
+  MotorTool.set(1);
+}
+void nex_PressMotorPopCallback(void *ptr) {
+  MotorTool.set(0);
+}
+
 void nex_ZylRevolverschieberPushCallback(void *ptr) {
   ZylRevolverschieber.set(1);
 }
@@ -502,7 +514,7 @@ void nex_but_slider2_rightPushCallback(void *ptr) {
 //*************************************************
 void nex_but_reset_shorttimeCounterPushCallback(void *ptr) {
   eepromCounter.set(shorttimeCounter, 0);
-  // RESET LONGTIME COUNTER IF RESET BUTTON IS PRESSED LONG ENOUGH:
+// RESET LONGTIME COUNTER IF RESET BUTTON IS PRESSED LONG ENOUGH:
   counterResetStopwatch = millis();
   resetStopwatchActive = true;
 
@@ -520,7 +532,7 @@ void nex_page0PushCallback(void *ptr) {
 void nex_page1PushCallback(void *ptr) {
   CurrentPage = 1;
 
-  // REFRESH BUTTON STATES:
+// REFRESH BUTTON STATES:
   nexPrevCycleStep = !cycleStep;
   nex_prev_stepMode = true;
   nex_state_ZylGummihalter = 0;
@@ -530,12 +542,13 @@ void nex_page1PushCallback(void *ptr) {
   nex_state_MotFeedUnten = 0;
   nex_state_ZylMesser = 0;
   nex_state_ZylRevolverschieber = 0;
+  nex_state_PressMotor = 0;
   nexStateMachineRunning = 0;
   nex_state_sealAvailable = !sealAvailable;
 }
 void nex_page2PushCallback(void *ptr) {
   CurrentPage = 2;
-  // REFRESH BUTTON STATES:
+// REFRESH BUTTON STATES:
   nex_prev_upperFeedtime = 0;
   nex_prev_lowerFeedtime = 0;
   nex_prev_shorttimeCounter = 0;

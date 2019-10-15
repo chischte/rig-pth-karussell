@@ -57,8 +57,8 @@ void RunMainTestCycle() {
       break;
 
     case ZENTRIEREN: // PLOMBE DURCH PRESSMECHANIK ZENTRIEREN
-      Pressmotor.stroke(180, 0);
-      if (Pressmotor.stroke_completed()) {
+      MotorTool.stroke(180, 0);
+      if (MotorTool.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
       }
@@ -79,8 +79,8 @@ void RunMainTestCycle() {
       break;
 
     case VORPRESSEN: // PLOMBE DURCH PRESSMECHANIK ZENTRIEREN
-      Pressmotor.stroke(350, 0);
-      if (Pressmotor.stroke_completed()) {
+      MotorTool.stroke(350, 0);
+      if (MotorTool.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
       }

@@ -48,11 +48,12 @@ const byte SENSOR_PLOMBE = CONTROLLINO_A3;
 bool machineRunning = false;
 bool stepMode = true;
 bool clearancePlayPauseToggle = true;
-bool stepCompleted = false;
+bool clearanceNextStep = false;
 bool errorBlink = false;
 bool sealAvailable = false;
 bool upperStrapAvailable = false;
 bool lowerStrapAvailable = false;
+bool toolMotorState = 0;
 
 byte cycleStep = 0;
 
@@ -78,7 +79,7 @@ Cylinder MotFeedOben(CONTROLLINO_D0);
 Cylinder MotFeedUnten(CONTROLLINO_D1);
 Cylinder ZylMesser(CONTROLLINO_D3);
 Cylinder ZylRevolverschieber(CONTROLLINO_D2);
-Cylinder Pressmotor(TOOL_MOTOR_RELAY);
+Cylinder MotorTool(TOOL_MOTOR_RELAY);
 
 Insomnia nextStepTimer;
 Insomnia errorBlinkTimer;
@@ -108,8 +109,9 @@ enum mainCycleSteps {
 
 int numberOfMainCycleSteps = endOfMainCycleEnum;
 // DEFINE NAMES TO DISPLAY ON THE TOUCH SCREEN:
-String cycleName[] = { "VIBRIEREN","KLEMMEN", "FALLENLASSEN", "AUSFAHREN", "BAND UNTEN", "ZENTRIEREN",
-    "BAND OBEN", "VORPRESSEN", "ZURUECKFAHREN", "PRESSEN", "SCHNEIDEN", "LEERLAUF", "REVOLVER", "RESET" };
+String cycleName[] = { "VIBRIEREN", "KLEMMEN", "FALLENLASSEN", "AUSFAHREN", "BAND UNTEN",
+    "ZENTRIEREN", "BAND OBEN", "VORPRESSEN", "ZURUECKFAHREN", "PRESSEN", "SCHNEIDEN", "LEERLAUF",
+    "REVOLVER", "RESET" };
 
 void TestRigReset() {
   ToolReset();
@@ -135,22 +137,11 @@ void ToolReset() {
   digitalWrite(CONTROLLINO_RELAY_08, HIGH); //WIPPENSCHALTER WHITE CABLE (NO)delay(200);
 }
 void RunToolMotor() {
-  // Not the state of the motor-start-push-button is essential, but the state-change!
-  // Like this it is easily possible to deactivate the motor, even when
-  // the motor button is still being pushed.
 
-  // ACTIVATE THE MOTOR IF THE START BUTTON HAS BEEN PUSHED:
-  if (motorStartButton.switchedHigh()) { // button pushed
-    Pressmotor.set(1);
-  }
-  // DEACTIVATE THE MOTOR IF THE BUTTON HAS  BEEN RELEASED:
-  if (motorStartButton.switchedLow()) { // button released
-    Pressmotor.set(0);
-  }
   // DEACTIVATE THE MOTOR IF THE END SWITCH HAS BEEN DETECTED
   if (endSwitch.switchedLow()) {
-    Pressmotor.set(0);
     Serial.println("END SWITCH DETECTED");
+    MotorTool.set(0);
   }
 }
 //*****************************************************************************
@@ -165,7 +156,6 @@ void setup() {
   nextionSetup();
   pinMode(STOP_BUTTON, INPUT);
   pinMode(START_BUTTON, INPUT);
-  pinMode(TOOL_MOTOR_RELAY, INPUT);
   pinMode(GREEN_LIGHT_PIN, OUTPUT);
   pinMode(RED_LIGHT_PIN, OUTPUT);
   TestRigReset();
@@ -181,6 +171,7 @@ void setup() {
 //********************#######***#####***#####***#******************************
 //*****************************************************************************
 void loop() {
+
   upperStrapAvailable = digitalRead(BANDSENSOR_OBEN);
   if (!upperStrapAvailable) {
     MotFeedOben.set(0);
@@ -192,11 +183,11 @@ void loop() {
 
   // IN AUTO MODE, MACHINE RUNS FROM STEP TO STEP AUTOMATICALLY:
   if (!stepMode) {  // = AUTO MODE
-    stepCompleted = true;
+    clearanceNextStep = true;
   }
 
   // IN STEP MODE, MACHINE STOPS AFTER EVERY COMPLETED CYCLYE:
-  if (stepMode && !stepCompleted) {
+  if (stepMode && !clearanceNextStep) {
     machineRunning = false;
   }
 
