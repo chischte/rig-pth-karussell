@@ -10,6 +10,8 @@
  * TODO:
  * ADD ERROR BLINK AND MESSAGE IF NO STRAP IS DETECTED AT THE BEGINNING OF THE
  * FEED CYCLE.
+ * IMPLEMENT NEW LOGIC FOR MAIN CYCLE:
+ * run if: (autoMode && autoModeRunning) || (!autoMode && stepModeRunning)
  */
 
 #include <Controllino.h>    // https://github.com/CONTROLLINO-PLC/CONTROLLINO_Library
