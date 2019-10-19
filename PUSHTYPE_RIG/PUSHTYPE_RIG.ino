@@ -110,6 +110,7 @@ enum mainCycleSteps {
 };
 
 int numberOfMainCycleSteps = endOfMainCycleEnum;
+
 // DEFINE NAMES TO DISPLAY ON THE TOUCH SCREEN:
 String cycleName[] = { "VIBRIEREN", "KLEMMEN", "FALLENLASSEN", "AUSFAHREN", "BAND UNTEN",
     "ZENTRIEREN", "BAND OBEN", "VORPRESSEN", "ZURUECKFAHREN", "PRESSEN", "SCHNEIDEN", "LEERLAUF",
