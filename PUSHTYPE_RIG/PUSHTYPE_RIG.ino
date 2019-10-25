@@ -117,7 +117,7 @@ String cycleName[] = { "VIBRIEREN", "KLEMMEN", "FALLENLASSEN", "AUSFAHREN", "BAN
     "ZENTRIEREN", "BAND OBEN", "VORPRESSEN", "ZURUECKFAHREN", "PRESSEN", "SCHNEIDEN", "LEERLAUF",
     "REVOLVER", "RESET" };
 
-void TestRigReset() {
+void ResetTestRig() {
   ToolReset();
   ZylGummihalter.set(0);
   ZylFalltuerschieber.set(0);
@@ -162,7 +162,7 @@ void setup() {
   pinMode(START_BUTTON, INPUT);
   pinMode(GREEN_LIGHT_PIN, OUTPUT);
   pinMode(RED_LIGHT_PIN, OUTPUT);
-  TestRigReset();
+  ResetTestRig();
   motorStartButton.setDebounceTime(10);
   endSwitch.setDebounceTime(10);
   Serial.println("EXIT SETUP");
