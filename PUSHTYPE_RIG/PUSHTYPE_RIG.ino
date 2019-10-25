@@ -68,8 +68,9 @@ enum eepromCounter {
   upperFeedtime, lowerFeedtime, shorttimeCounter, longtimeCounter, endOfEepromEnum
 };
 int numberOfEepromValues = endOfEepromEnum;
-int eepromSize = 4096;
-EEPROM_Counter eepromCounter(eepromSize, numberOfEepromValues);
+int eepromMinAddress = 0;
+int eepromMaxAddress = 4095;
+EEPROM_Counter eepromCounter(eepromMinAddress, eepromMaxAddress, numberOfEepromValues);
 
 //*****************************************************************************
 // GENERATE INSTANCES OF CLASSES:
