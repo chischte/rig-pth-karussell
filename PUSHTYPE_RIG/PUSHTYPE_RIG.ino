@@ -70,7 +70,7 @@ enum eepromCounter {
 int numberOfEepromValues = endOfEepromEnum;
 int eepromMinAddress = 0;
 int eepromMaxAddress = 4095;
-EEPROM_Counter eepromCounter(eepromMinAddress, eepromMaxAddress, numberOfEepromValues);
+EEPROM_Counter eepromCounter;
 
 //*****************************************************************************
 // GENERATE INSTANCES OF CLASSES:
@@ -156,6 +156,7 @@ void RunToolMotor() {
 //*****************######***######*****#*****######**#*************************
 //*****************************************************************************
 void setup() {
+  eepromCounter.setup(eepromMinAddress, eepromMaxAddress, numberOfEepromValues);
   Serial.begin(115200);
   nextionSetup();
   pinMode(STOP_BUTTON, INPUT);
