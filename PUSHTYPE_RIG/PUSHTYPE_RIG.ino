@@ -8,10 +8,10 @@
  * Dezember 2018, Zürich
  * *****************************************************************************
  * TODO:
- * ADD ERROR BLINK AND MESSAGE IF NO STRAP IS DETECTED AT THE BEGINNING OF THE
- * FEED CYCLE.
- * IMPLEMENT NEW LOGIC FOR MAIN CYCLE:
+ * implement new logic for main cycle:
  * run if: (autoMode && autoModeRunning) || (!autoMode && stepModeRunning)
+ * ev. implement stateController
+ * ev. add button for ZylSchield
  */
 
 #include <Controllino.h>    // https://github.com/CONTROLLINO-PLC/CONTROLLINO_Library
@@ -83,6 +83,7 @@ Cylinder MotFeedUnten(CONTROLLINO_D1);
 Cylinder ZylMesser(CONTROLLINO_D3);
 Cylinder ZylRevolverschieber(CONTROLLINO_D2);
 Cylinder MotorTool(TOOL_MOTOR_RELAY);
+Cylinder ZylSchild(CONTROLLINO_D9);
 
 Insomnia nextStepTimer;
 Insomnia errorBlinkTimer;
@@ -101,10 +102,9 @@ enum mainCycleSteps {
   ZENTRIEREN,
   BAND_OBEN,
   VORPRESSEN,
-  ZURUECKFAHREN,
   PRESSEN,
   SCHNEIDEN,
-  LEERLAUF,
+  ZURUECKFAHREN,
   REVOLVER,
   RESET,
   endOfMainCycleEnum
@@ -114,8 +114,8 @@ int numberOfMainCycleSteps = endOfMainCycleEnum;
 
 // DEFINE NAMES TO DISPLAY ON THE TOUCH SCREEN:
 String cycleName[] = { "VIBRIEREN", "KLEMMEN", "FALLENLASSEN", "AUSFAHREN", "BAND UNTEN",
-    "ZENTRIEREN", "BAND OBEN", "VORPRESSEN", "ZURUECKFAHREN", "PRESSEN", "SCHNEIDEN", "LEERLAUF",
-    "REVOLVER", "RESET" };
+    "ZENTRIEREN", "BAND OBEN", "VORPRESSEN", "PRESSEN", "SCHNEIDEN", "ZURUECKFAHREN", "REVOLVER",
+    "RESET" };
 
 void ResetTestRig() {
   ToolReset();
@@ -126,6 +126,7 @@ void ResetTestRig() {
   MotFeedUnten.set(0);
   ZylMesser.set(0);
   ZylRevolverschieber.set(0);
+  ZylSchild.set(0);
   machineRunning = false;
   errorBlink = false;
   stepMode = true;

@@ -34,6 +34,7 @@ void RunMainTestCycle() {
       break;
 
     case MAGNETARM_AUSFAHREN: // PLOMBE ZUM ZANGENPAKET FAHREN
+      ZylSchild.set(0);
       ZylMagnetarm.set(1);
       ToolReset();    //reset tool "Wippenhebel ziehen"
       ZylGummihalter.set(0); // Plombenfixieren lösen
@@ -43,6 +44,7 @@ void RunMainTestCycle() {
       break;
 
     case BAND_UNTEN: // UNTERES BAND VORSCHIEBEN
+      ZylSchild.set(1);
       ZylGummihalter.set(0);    //Plomben für nächsten Zyklus können nachrutschen
       if (lowerStrapAvailable) {
         MotFeedUnten.stroke(eepromCounter.getValue(lowerFeedtime), 0);
@@ -57,7 +59,7 @@ void RunMainTestCycle() {
       break;
 
     case ZENTRIEREN: // PLOMBE DURCH PRESSMECHANIK ZENTRIEREN
-      MotorTool.stroke(180, 0);
+      MotorTool.stroke(130, 0);
       if (MotorTool.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
@@ -91,19 +93,21 @@ void RunMainTestCycle() {
         //Serial.println("Mangetarm zurückfahren...");
       }
       ZylMagnetarm.set(0);
-      nextStepTimer.setTime(500);
+      nextStepTimer.setTime(1000);
       clearanceNextStep = false;
       cycleStep++;
       break;
 
     case PRESSEN: // CRIMPVORGANG STARTEN
+
       digitalWrite(TOOL_MOTOR_RELAY, HIGH);
-      nextStepTimer.setTime(1500);
+      nextStepTimer.setTime(3000);
       clearanceNextStep = false;
       cycleStep++;
       break;
 
     case SCHNEIDEN: // BAND ABSCHNEIDEN
+      ZylSchild.set(1);
       ZylMesser.stroke(1500, 200); // push,release [ms]
       if (ZylMesser.stroke_completed()) {
         clearanceNextStep = false;
@@ -111,12 +115,12 @@ void RunMainTestCycle() {
       }
       break;
 
-    case LEERLAUF: // CRIMPVORGANG STARTEN
-      digitalWrite(TOOL_MOTOR_RELAY, HIGH);
-      nextStepTimer.setTime(1500);
-      clearanceNextStep = false;
-      cycleStep++;
-      break;
+//    case LEERLAUF: // CRIMPVORGANG STARTEN
+//      digitalWrite(TOOL_MOTOR_RELAY, HIGH);
+//      nextStepTimer.setTime(1500);
+//      clearanceNextStep = false;
+//      cycleStep++;
+//      break;
 
     case REVOLVER: // KARUSSELL DREHEN FALLS KEINE PLOMBE DETEKTIERT
       if (!sealAvailable) { // keine Plombe detektiert
@@ -127,6 +131,7 @@ void RunMainTestCycle() {
         clearanceNextStep = false;
         cycleStep++;
       }
+      ZylSchild.set(0);
       break;
 
     case RESET: // RESET FÜR NÄCHSTEN ZYKLUS
