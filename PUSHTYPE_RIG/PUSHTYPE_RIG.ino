@@ -12,6 +12,9 @@
  * run if: (autoMode && autoModeRunning) || (!autoMode && stepModeRunning)
  * ev. implement stateController
  * ev. add button for ZylSchield
+ * clear info text field when rested
+ * immer bevor magnetarm ausfährt ,us falltüre geschlossen sein
+ * immer wenn magnetarm ausgefahren, falltüre nicht öffenbar
  */
 
 #include <Controllino.h>    // https://github.com/CONTROLLINO-PLC/CONTROLLINO_Library
