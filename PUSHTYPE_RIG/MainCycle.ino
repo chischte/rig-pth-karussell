@@ -26,7 +26,7 @@ void RunMainTestCycle() {
       break;
 
     case FALLENLASSEN: // PLOMBE FALLENLASSEN
-      ZylFalltuerschieber.stroke(900, 400);    //(push time,release time)
+      ZylFalltuerschieber.stroke(1200, 400);    //(push time,release time)
       if (ZylFalltuerschieber.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
@@ -34,13 +34,23 @@ void RunMainTestCycle() {
       break;
 
     case MAGNETARM_AUSFAHREN: // PLOMBE ZUM ZANGENPAKET FAHREN
-      ZylSchild.set(0);
-      ZylMagnetarm.set(1);
-      ToolReset();    //reset tool "Wippenhebel ziehen"
-      ZylGummihalter.set(0); // Plombenfixieren lösen
-      nextStepTimer.setTime(600);
-      clearanceNextStep = false;
-      cycleStep++;
+      static byte subStep = 0;
+      if (subStep == 0) {
+        ZylSchild.set(0);
+        ZylFalltuerschieber.set(0);
+        nextStepTimer.setTime(300);
+        subStep++;
+        break;
+      }
+      if (subStep == 1) {
+        ZylMagnetarm.set(1);
+        ToolReset();    //reset tool "Wippenhebel ziehen"
+        ZylGummihalter.set(0); // Plombenfixieren lösen
+        nextStepTimer.setTime(600);
+        clearanceNextStep = false;
+        subStep = 0;
+        cycleStep++;
+      }
       break;
 
     case BAND_UNTEN: // UNTERES BAND VORSCHIEBEN
@@ -58,13 +68,13 @@ void RunMainTestCycle() {
       }
       break;
 
-    case ZENTRIEREN: // PLOMBE DURCH PRESSMECHANIK ZENTRIEREN
-      MotorTool.stroke(130, 0);
-      if (MotorTool.stroke_completed()) {
-        clearanceNextStep = false;
-        cycleStep++;
-      }
-      break;
+//    case ZENTRIEREN: // PLOMBE DURCH PRESSMECHANIK ZENTRIEREN
+//      MotorTool.stroke(130, 0);
+//      if (MotorTool.stroke_completed()) {
+//        clearanceNextStep = false;
+//        cycleStep++;
+//      }
+//      break;
 
     case BAND_OBEN: // OBERES BAND VORSCHIEBEN
       ZylMesser.set(0); // Messer muss zurückgezogen sein
@@ -80,13 +90,13 @@ void RunMainTestCycle() {
       }
       break;
 
-    case VORPRESSEN: // PLOMBE DURCH PRESSMECHANIK ZENTRIEREN
-      MotorTool.stroke(350, 0);
-      if (MotorTool.stroke_completed()) {
-        clearanceNextStep = false;
-        cycleStep++;
-      }
-      break;
+//    case VORPRESSEN: // PLOMBE DURCH PRESSMECHANIK ZENTRIEREN
+//      MotorTool.stroke(350, 0);
+//      if (MotorTool.stroke_completed()) {
+//        clearanceNextStep = false;
+//        cycleStep++;
+//      }
+//      break;
 
     case ZURUECKFAHREN: // MAGNETARM ZURÜCKZIEHEN
       if (ZylMagnetarm.stroke_completed()) {

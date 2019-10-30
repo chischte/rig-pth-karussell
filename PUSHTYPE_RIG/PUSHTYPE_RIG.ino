@@ -38,8 +38,8 @@ const byte GREEN_LIGHT_PIN = CONTROLLINO_D12;
 const byte RED_LIGHT_PIN = CONTROLLINO_D11;
 const byte TOOL_MOTOR_RELAY = CONTROLLINO_R5;
 const byte TOOL_END_SWITCH_PIN = CONTROLLINO_A4;
-const byte BANDSENSOR_OBEN = CONTROLLINO_A5;
-const byte BANDSENOR_UNTEN = CONTROLLINO_A6;
+//const byte BANDSENSOR_OBEN = CONTROLLINO_A5;
+//const byte BANDSENOR_UNTEN = CONTROLLINO_A6;
 //const byte STEP_MODE_BUTTON = CONTROLLINO_A2;
 //const byte AUTO_MODE_BUTTON = CONTROLLINO_A4;
 
@@ -90,21 +90,19 @@ Insomnia errorBlinkTimer;
 
 Debounce motorStartButton(START_BUTTON);
 Debounce endSwitch(TOOL_END_SWITCH_PIN);
+Debounce bandsensorOben(CONTROLLINO_A5);
+Debounce bandsensorUnten(CONTROLLINO_A6);
 //*****************************************************************************
 // DEFINE NAMES AND SEQUENCE OF STEPS FOR THE MAIN CYCLE:
 //*****************************************************************************
 enum mainCycleSteps {
-  VIBRIEREN,
-  KLEMMEN,
-  FALLENLASSEN,
-  MAGNETARM_AUSFAHREN,
-  BAND_UNTEN,
-  ZENTRIEREN,
+  VIBRIEREN, KLEMMEN, FALLENLASSEN, MAGNETARM_AUSFAHREN, BAND_UNTEN,
+  //ZENTRIEREN,
   BAND_OBEN,
-  VORPRESSEN,
+  //VORPRESSEN,
+  ZURUECKFAHREN,
   PRESSEN,
   SCHNEIDEN,
-  ZURUECKFAHREN,
   REVOLVER,
   RESET,
   endOfMainCycleEnum
@@ -114,7 +112,7 @@ int numberOfMainCycleSteps = endOfMainCycleEnum;
 
 // DEFINE NAMES TO DISPLAY ON THE TOUCH SCREEN:
 String cycleName[] = { "VIBRIEREN", "KLEMMEN", "FALLENLASSEN", "AUSFAHREN", "BAND UNTEN",
-    "ZENTRIEREN", "BAND OBEN", "VORPRESSEN", "PRESSEN", "SCHNEIDEN", "ZURUECKFAHREN", "REVOLVER",
+/*"ZENTRIEREN",*/"BAND OBEN", /*"VORPRESSEN",*/"ZURUECKFAHREN", "PRESSEN", "SCHNEIDEN", "REVOLVER",
     "RESET" };
 
 void ResetTestRig() {
@@ -178,11 +176,11 @@ void setup() {
 //*****************************************************************************
 void loop() {
 
-  upperStrapAvailable = digitalRead(BANDSENSOR_OBEN);
+  upperStrapAvailable = bandsensorOben.requestButtonState();
   if (!upperStrapAvailable) {
     MotFeedOben.set(0);
   }
-  lowerStrapAvailable = digitalRead(BANDSENOR_UNTEN);
+  lowerStrapAvailable = bandsensorUnten.requestButtonState();
   if (!lowerStrapAvailable) {
     MotFeedUnten.set(0);
   }

@@ -222,6 +222,20 @@ void NextionLoop()
       send_to_nextion();
       nex_state_sealAvailable = sealAvailable;
     }
+    if (bandsensorOben.switchedLow()) {
+      Serial2.print("t4.txt=");
+      Serial2.print("\"");
+      Serial2.print("BAND OBEN");
+      Serial2.print("\"");
+      send_to_nextion();
+    }
+    if (bandsensorUnten.switchedLow()) {
+      Serial2.print("t4.txt=");
+      Serial2.print("\"");
+      Serial2.print("BAND UNTEN");
+      Serial2.print("\"");
+      send_to_nextion();
+    }
 
     //*******************
     // PAGE 1 - RIGHT SIDE:
@@ -437,12 +451,12 @@ void nex_mot_band_obenPopCallback(void *ptr) {
   MotFeedOben.set(0);
   stopped_button_pushtime = millis() - button_push_stopwatch;
   stopwatch_running = false;
-  Serial2.print("t4.txt=");
-  Serial2.print("\"");
-  Serial2.print(stopped_button_pushtime);
-  Serial2.print(" ms");
-  Serial2.print("\"");
-  send_to_nextion();
+//  Serial2.print("t4.txt=");
+//  Serial2.print("\"");
+//  Serial2.print(stopped_button_pushtime);
+//  Serial2.print(" ms");
+//  Serial2.print("\"");
+//  send_to_nextion();
 }
 void nex_mot_band_untenPushCallback(void *ptr) {
   if (lowerStrapAvailable) {
@@ -455,12 +469,12 @@ void nex_mot_band_untenPopCallback(void *ptr) {
   MotFeedUnten.set(0);
   stopped_button_pushtime = millis() - button_push_stopwatch;
   stopwatch_running = false;
-  Serial2.print("t4.txt=");
-  Serial2.print("\"");
-  Serial2.print(stopped_button_pushtime);
-  Serial2.print(" ms");
-  Serial2.print("\"");
-  send_to_nextion();
+//  Serial2.print("t4.txt=");
+//  Serial2.print("\"");
+//  Serial2.print(stopped_button_pushtime);
+//  Serial2.print(" ms");
+//  Serial2.print("\"");
+//  send_to_nextion();
 }
 void nex_ZylMesserPushCallback(void *ptr) {
   ZylMesser.set(1);
