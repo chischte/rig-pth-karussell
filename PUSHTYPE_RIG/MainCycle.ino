@@ -35,6 +35,7 @@ void RunMainTestCycle() {
 
     case MAGNETARM_AUSFAHREN: // PLOMBE ZUM ZANGENPAKET FAHREN
       static byte subStep = 0;
+      // ZUERST SICHERSTELLEN DASS FALLTÜRE GESCHLOSSEN IST:
       if (subStep == 0) {
         ZylSchild.set(0);
         ZylFalltuerschieber.set(0);
