@@ -419,25 +419,50 @@ void nex_but_reset_cyclePushCallback(void *ptr) {
 // TOUCH EVENT FUNCTIONS PAGE 1 - RIGHT SIDE
 //*************************************************
 void nex_ZylGummihalterPushCallback(void *ptr) {
+  // WENN DER GUMMIHALTER GESCHLOSSEN IST...
+  if (ZylGummihalter.request_state()) {
+    // ...UND DER FALLTUERSCHIEBER OFFEN IST...
+    if (ZylFalltuerschieber.request_state()) {
+      //...ERST FALLTUERSCHIEBER SCHLIESSEN:
+      ZylFalltuerschieber.toggle();
+    }
+  }
   ZylGummihalter.toggle();
   nex_state_ZylGummihalter = !nex_state_ZylGummihalter;
 }
 void nex_zyl_falltuerPushCallback(void *ptr) {
-  if (!ZylMagnetarm.request_state()) {
-    ZylFalltuerschieber.toggle();
+  // WENN DIE FALLTUER GESCHLOSSEN IST...
+  if (!ZylFalltuerschieber.request_state()) {
+    // ...UND DER GUMMIHALTER OFFEN IST...
+    if (!ZylGummihalter.request_state()) {
+      // ...ERST GUMMIHALTER SCHLIESSEN:
+      ZylGummihalter.toggle();
+    }
+    // WENN DER MAGNETARM NICHT VORNE IST ...
+    if (ZylMagnetarm.request_state()) {
+      // FEHLERMELDUNG ANZEIGEN:
+      printOnTextField("MAGNETARM!", "t4");
+    } else
+      ZylFalltuerschieber.toggle();
   } else {
-    printOnTextField("MAGNETARM VORNE!", "t4");
+    // WENN DIE FALLTUER OFFEN IST, DARF SIE IMMER GESCHLOSSEN WERDEN:
+    ZylFalltuerschieber.toggle();
   }
   nex_state_ZylFalltuerschieber = !nex_state_ZylFalltuerschieber;
 }
 void nex_ZylMagnetarmPushCallback(void *ptr) {
-  if (!ZylFalltuerschieber.request_state()) {
-    ZylMagnetarm.toggle();
-  } else {
-    printOnTextField("FALLTUER OFFEN!", "t4");
+  // WENN DER MAGNETARM ZURÜCKGEFAHREN IST ...
+  if (!ZylMagnetarm.request_state()) {
+    // ... UND DIE FALLTÜR OFFEN IST ...
+    if (ZylFalltuerschieber.request_state()) {
+      // ... ERST DIE FALLTÜR SCHLIESSEN
+      ZylFalltuerschieber.toggle();
+    }
   }
-    nex_state_ZylMagnetarm = !nex_state_ZylMagnetarm;
+  ZylMagnetarm.toggle();
+  nex_state_ZylMagnetarm = !nex_state_ZylMagnetarm;
 }
+
 void nex_mot_band_obenPushCallback(void *ptr) {
   if (upperStrapAvailable) {
     MotFeedOben.set(1);
@@ -522,7 +547,7 @@ void nex_page0PushCallback(void *ptr) {
 void nex_page1PushCallback(void *ptr) {
   CurrentPage = 1;
 
-  // REFRESH BUTTON STATES:
+// REFRESH BUTTON STATES:
   nexPrevCycleStep = !cycleStep;
   nex_prev_stepMode = true;
   nex_state_ZylGummihalter = 0;
@@ -538,7 +563,7 @@ void nex_page1PushCallback(void *ptr) {
 }
 void nex_page2PushCallback(void *ptr) {
   CurrentPage = 2;
-  // REFRESH BUTTON STATES:
+// REFRESH BUTTON STATES:
   nex_prev_upperFeedtime = 0;
   nex_prev_lowerFeedtime = 0;
   nex_prev_shorttimeCounter = 0;

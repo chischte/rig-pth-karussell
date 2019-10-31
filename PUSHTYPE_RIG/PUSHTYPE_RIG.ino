@@ -11,6 +11,7 @@
  * can:    implement new logic for main cycle:
  * can:    run if: (autoMode && autoModeRunning) || (!autoMode && stepModeRunning)
  * can:    implement stateController
+ * can:    make info text on touchscreen better visible
  * should: start screen write test rig in two words
  */
 
