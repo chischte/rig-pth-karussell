@@ -7,19 +7,11 @@
  * Michael Wettstein
  * Dezember 2018, Zürich
  * *****************************************************************************
- * TODO:
- * CHECK IF NEW DIPSPLAY PRINT FUNCTIONS WORK
- * CHECK OUT INCREASING BAUD RATE
- * CHECK IF FALLTÜRSCHIEBER LOGIC WORKS:
- * immer wenn magnetarm ausgefahren, falltüre nicht öffenbar
- * CHECK IF MAGNETARM LOGIC WORKS:
- * immer bevor magnetarm ausfährt ,us falltüre geschlossen sein
- *
- * implement new logic for main cycle:
- * run if: (autoMode && autoModeRunning) || (!autoMode && stepModeRunning)
- * ev. implement stateController
- * ev. add button for ZylSchield
- * clear info text field when rested
+ * TODO: (can, should, must)
+ * can:    implement new logic for main cycle:
+ * can:    run if: (autoMode && autoModeRunning) || (!autoMode && stepModeRunning)
+ * can:    implement stateController
+ * should: start screen write test rig in two words
  */
 
 #include <Controllino.h>    // https://github.com/CONTROLLINO-PLC/CONTROLLINO_Library

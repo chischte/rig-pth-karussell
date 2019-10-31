@@ -97,16 +97,16 @@ char buffer[100] = { 0 }; // This is needed only if you are going to receive a t
 // TOUCH EVENT LIST //DECLARATION OF TOUCH EVENTS TO BE MONITORED
 //*****************************************************************************
 NexTouch *nex_listen_list[] = { //
-                // PAGE 0:
-                &nex_page0,
-                // PAGE 1:
-                &nex_page1, &nex_but_stepback, &nex_but_stepnxt, &nex_but_reset_cycle,
-                &nex_switch_play_pause, &nex_switch_mode, &nex_ZylMesser, &nex_ZylMagnetarm,
-                &nex_ZylGummihalter, &nex_zyl_falltuer, &nex_mot_band_oben, &nex_mot_band_unten,
-                &nex_ZylRevolverschieber, &nex_PressMotor,
-                // PAGE 2:
-                &nex_page2, &nex_but_reset_shorttimeCounter, &nex_but_slider1_left,
-                &nex_but_slider1_right, &nex_but_slider2_left, &nex_but_slider2_right, NULL };
+            // PAGE 0:
+            &nex_page0,
+            // PAGE 1:
+            &nex_page1, &nex_but_stepback, &nex_but_stepnxt, &nex_but_reset_cycle,
+            &nex_switch_play_pause, &nex_switch_mode, &nex_ZylMesser, &nex_ZylMagnetarm,
+            &nex_ZylGummihalter, &nex_zyl_falltuer, &nex_mot_band_oben, &nex_mot_band_unten,
+            &nex_ZylRevolverschieber, &nex_PressMotor,
+            // PAGE 2:
+            &nex_page2, &nex_but_reset_shorttimeCounter, &nex_but_slider1_left,
+            &nex_but_slider1_right, &nex_but_slider2_left, &nex_but_slider2_right, NULL };
 //*****************************************************************************
 // END OF TOUCH EVENT LIST
 //*****************************************************************************
@@ -149,14 +149,15 @@ void nextionSetup()
   send_to_nextion();
 
   //*****************************************************************************
-  // INCREASE BAUD RATE
+  // INCREASE BAUD RATE DOES NOT WORK YET
+  // CHECK IF LIBRARY ALWAY SWITCHES BACK TO 9600
   //*****************************************************************************
   /*
-   delay(500);
+   delay(100);
    send_to_nextion();
    Serial2.print("baud=38400");
    send_to_nextion();
-   Serial2.end();
+   delay(100);
    Serial2.begin(38400);
    */
   //*****************************************************************************
@@ -345,25 +346,27 @@ void NextionLoop()
     //*******************
 
     if (nex_prev_upperFeedtime != eepromCounter.getValue(upperFeedtime)) {
-      printOnValueField(eepromCounter.getValue(upperFeedtime), "h0");
-      printOnTextField(eepromCounter.getValue(upperFeedtime) + (" ms"), "t4");
+      printOnValueField((int) eepromCounter.getValue(upperFeedtime), "h0");
+      printOnTextField(String(eepromCounter.getValue(upperFeedtime)) + " ms", "t4");
       nex_prev_upperFeedtime = eepromCounter.getValue(upperFeedtime);
     }
 
     if (nex_prev_lowerFeedtime != eepromCounter.getValue(lowerFeedtime)) {
-      printOnValueField(eepromCounter.getValue(lowerFeedtime), "h1");
-      printOnTextField(eepromCounter.getValue(lowerFeedtime) + (" ms"), "t6");
+      printOnValueField((int) eepromCounter.getValue(lowerFeedtime), "h1");
+      printOnTextField(String(eepromCounter.getValue(lowerFeedtime)) + " ms", "t6");
       nex_prev_lowerFeedtime = eepromCounter.getValue(lowerFeedtime);
     }
     //*******************
     // PAGE 2 - RIGHT SIDE
     //*******************
     if (nex_prev_longtimeCounter != eepromCounter.getValue(longtimeCounter)) {
-      printOnTextField(eepromCounter.getValue(longtimeCounter) + (""), "t10");
+
+      printOnTextField(String(eepromCounter.getValue(longtimeCounter)), "t10");
+      //printOnTextField((eepromCounter.getValue(longtimeCounter) + ("")), "t10");
       nex_prev_longtimeCounter = eepromCounter.getValue(longtimeCounter);
     }
     if (nex_prev_shorttimeCounter != eepromCounter.getValue(shorttimeCounter)) {
-      printOnTextField(eepromCounter.getValue(shorttimeCounter) + (""), "t12");
+      printOnTextField(String(eepromCounter.getValue(shorttimeCounter)), "t12");
       nex_prev_shorttimeCounter = eepromCounter.getValue(shorttimeCounter);
     }
     if (resetStopwatchActive) {
@@ -410,6 +413,7 @@ void nex_but_stepnxtPushCallback(void *ptr) {
 }
 void nex_but_reset_cyclePushCallback(void *ptr) {
   ResetTestRig();
+  clearTextField("t4");
 }
 //*************************************************
 // TOUCH EVENT FUNCTIONS PAGE 1 - RIGHT SIDE
@@ -421,18 +425,18 @@ void nex_ZylGummihalterPushCallback(void *ptr) {
 void nex_zyl_falltuerPushCallback(void *ptr) {
   if (!ZylMagnetarm.request_state()) {
     ZylFalltuerschieber.toggle();
-    nex_state_ZylFalltuerschieber = !nex_state_ZylFalltuerschieber;
   } else {
     printOnTextField("MAGNETARM VORNE!", "t4");
   }
+  nex_state_ZylFalltuerschieber = !nex_state_ZylFalltuerschieber;
 }
 void nex_ZylMagnetarmPushCallback(void *ptr) {
   if (!ZylFalltuerschieber.request_state()) {
     ZylMagnetarm.toggle();
-    nex_state_ZylMagnetarm = !nex_state_ZylMagnetarm;
   } else {
-    printOnTextField("FALLTÜR OFFEN!", "t4");
+    printOnTextField("FALLTUER OFFEN!", "t4");
   }
+    nex_state_ZylMagnetarm = !nex_state_ZylMagnetarm;
 }
 void nex_mot_band_obenPushCallback(void *ptr) {
   if (upperStrapAvailable) {
