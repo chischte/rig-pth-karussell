@@ -67,7 +67,7 @@ void RunMainTestCycle() {
           cycleStep++;
         }
       } else {
-      MotFeedUnten.mark_stroke_completed();
+        MotFeedUnten.mark_stroke_completed();
         lowerStrapBlockCounter++;
         if (lowerStrapBlockCounter == 2) {
           machineRunning = false;
