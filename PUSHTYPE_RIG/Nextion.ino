@@ -256,6 +256,10 @@ void NextionLoop()
     if (bandsensorUnten.switchedLow()) {
       printOnTextField("BAND UNTEN", "t4");
     }
+    if(upperStrapBlockCounter==2||lowerStrapBlockCounter==2){
+      printOnTextField("BAND BLOCKIERT", "t4");
+    }
+
     //*******************
     // PAGE 1 - RIGHT SIDE:
     //*******************

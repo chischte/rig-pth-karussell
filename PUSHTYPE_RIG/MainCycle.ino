@@ -1,9 +1,10 @@
 void RunMainTestCycle() {
+
   if (clearanceNextStep && nextStepTimer.timedOut()) {
 
     switch (cycleStep) {
     case VIBRIEREN: // PLOMBE FALLENLASSEN
-      ZylRevolverschieber.stroke(300, 300);    //(push time,release time)
+      ZylRevolverschieber.stroke(250, 300);    //(push time,release time)
       if (ZylRevolverschieber.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
@@ -26,7 +27,7 @@ void RunMainTestCycle() {
       break;
 
     case FALLENLASSEN: // PLOMBE FALLENLASSEN
-      ZylFalltuerschieber.stroke(1200, 400);    //(push time,release time)
+      ZylFalltuerschieber.stroke(1500, 600);    //(push time,release time)
       if (ZylFalltuerschieber.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
@@ -58,12 +59,21 @@ void RunMainTestCycle() {
       ZylSchild.set(1);
       ZylGummihalter.set(0);    //Plomben für nächsten Zyklus können nachrutschen
       if (lowerStrapAvailable) {
-        MotFeedUnten.stroke(eepromCounter.getValue(lowerFeedtime), 0);
+        MotFeedUnten.stroke(eepromCounter.getValue(lowerFeedtime), 200);
         if (MotFeedUnten.stroke_completed()) {
+          lowerStrapBlockCounter = 0;
+          nextStepTimer.setTime(500);
           clearanceNextStep = false;
           cycleStep++;
         }
       } else {
+      MotFeedUnten.mark_stroke_completed();
+        lowerStrapBlockCounter++;
+        if (lowerStrapBlockCounter == 2) {
+          machineRunning = false;
+          errorBlink = true;
+        }
+        nextStepTimer.setTime(500);
         clearanceNextStep = false;
         cycleStep++;
       }
@@ -80,12 +90,21 @@ void RunMainTestCycle() {
     case BAND_OBEN: // OBERES BAND VORSCHIEBEN
       ZylMesser.set(0); // Messer muss zurückgezogen sein
       if (upperStrapAvailable) {
-        MotFeedOben.stroke(eepromCounter.getValue(upperFeedtime), 0);
+        MotFeedOben.stroke(eepromCounter.getValue(upperFeedtime), 200);
         if (MotFeedOben.stroke_completed()) {
+          upperStrapBlockCounter = 0;
+          nextStepTimer.setTime(500);
           clearanceNextStep = false;
           cycleStep++;
         }
       } else {
+        MotFeedOben.mark_stroke_completed();
+        upperStrapBlockCounter++;
+        if (upperStrapBlockCounter == 2) {
+          machineRunning = false;
+          errorBlink = true;
+        }
+        nextStepTimer.setTime(500);
         clearanceNextStep = false;
         cycleStep++;
       }
@@ -126,6 +145,14 @@ void RunMainTestCycle() {
       }
       break;
 
+    case BLASEN: // BAND ABSCHNEIDEN
+      ZylAirBlower.stroke(800, 200); // push,release [ms]
+      if (ZylAirBlower.stroke_completed()) {
+        clearanceNextStep = false;
+        cycleStep++;
+      }
+      break;
+
 //    case LEERLAUF: // CRIMPVORGANG STARTEN
 //      digitalWrite(TOOL_MOTOR_RELAY, HIGH);
 //      nextStepTimer.setTime(1500);
@@ -150,7 +177,8 @@ void RunMainTestCycle() {
       eepromCounter.countOneUp(longtimeCounter);
       cycleStep = 0;
       clearanceNextStep = false;
-      stepMode = true; // STOP AUTO MODE AFTER EVERY CYLCE (FOR NOW)
+      //stepMode = true; // STOP AUTO MODE AFTER EVERY CYLCE (FOR NOW)
+      nextStepTimer.setTime(1000);
       break;
     }
   }

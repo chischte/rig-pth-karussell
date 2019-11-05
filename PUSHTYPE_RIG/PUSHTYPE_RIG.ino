@@ -59,6 +59,8 @@ bool lowerStrapAvailable = false;
 bool toolMotorState = 0;
 
 byte cycleStep = 0;
+byte upperStrapBlockCounter = 0;
+byte lowerStrapBlockCounter = 0;
 
 unsigned long runtime;
 unsigned long runtimeStopwatch;
@@ -85,6 +87,7 @@ Cylinder ZylMesser(CONTROLLINO_D3);
 Cylinder ZylRevolverschieber(CONTROLLINO_D2);
 Cylinder MotorTool(TOOL_MOTOR_RELAY);
 Cylinder ZylSchild(CONTROLLINO_D9);
+Cylinder ZylAirBlower(CONTROLLINO_D4);
 
 Insomnia nextStepTimer;
 Insomnia errorBlinkTimer;
@@ -104,6 +107,7 @@ enum mainCycleSteps {
   ZURUECKFAHREN,
   PRESSEN,
   SCHNEIDEN,
+  BLASEN,
   REVOLVER,
   RESET,
   endOfMainCycleEnum
@@ -113,12 +117,15 @@ int numberOfMainCycleSteps = endOfMainCycleEnum;
 
 // DEFINE NAMES TO DISPLAY ON THE TOUCH SCREEN:
 String cycleName[] = { "VIBRIEREN", "KLEMMEN", "FALLENLASSEN", "AUSFAHREN", "BAND UNTEN",
-/*"ZENTRIEREN",*/"BAND OBEN", /*"VORPRESSEN",*/"ZURUECKFAHREN", "PRESSEN", "SCHNEIDEN", "REVOLVER",
+/*"ZENTRIEREN",*/"BAND OBEN", /*"VORPRESSEN",*/"ZURUECKFAHREN", "PRESSEN", "SCHNEIDEN","BLASEN", "REVOLVER",
     "RESET" };
 
 void ResetTestRig() {
+  upperStrapBlockCounter=0;
+  lowerStrapBlockCounter=0;
   ToolReset();
   ZylGummihalter.set(0);
+  ZylAirBlower.set(0);
   ZylFalltuerschieber.set(0);
   ZylMagnetarm.set(0);
   MotFeedOben.set(0);
