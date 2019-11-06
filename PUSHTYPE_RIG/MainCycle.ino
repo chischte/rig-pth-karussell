@@ -59,46 +59,35 @@ void RunMainTestCycle() {
       ZylSchild.set(1);
       ZylGummihalter.set(0);    //Plomben für nächsten Zyklus können nachrutschen
       if (lowerStrapAvailable) {
-        MotFeedUnten.stroke(eepromCounter.getValue(lowerFeedtime), 200);
+        MotFeedUnten.stroke(eepromCounter.getValue(lowerFeedtime), 400);
         if (MotFeedUnten.stroke_completed()) {
           lowerStrapBlockCounter = 0;
-          nextStepTimer.setTime(500);
           clearanceNextStep = false;
           cycleStep++;
         }
       } else {
-        MotFeedUnten.mark_stroke_completed();
+        MotFeedUnten.abort_stroke();
         lowerStrapBlockCounter++;
         if (lowerStrapBlockCounter == 2) {
           machineRunning = false;
           errorBlink = true;
         }
-        nextStepTimer.setTime(500);
         clearanceNextStep = false;
         cycleStep++;
       }
       break;
 
-//    case ZENTRIEREN: // PLOMBE DURCH PRESSMECHANIK ZENTRIEREN
-//      MotorTool.stroke(130, 0);
-//      if (MotorTool.stroke_completed()) {
-//        clearanceNextStep = false;
-//        cycleStep++;
-//      }
-//      break;
-
     case BAND_OBEN: // OBERES BAND VORSCHIEBEN
       ZylMesser.set(0); // Messer muss zurückgezogen sein
       if (upperStrapAvailable) {
-        MotFeedOben.stroke(eepromCounter.getValue(upperFeedtime), 200);
+        MotFeedOben.stroke(eepromCounter.getValue(upperFeedtime), 400);
         if (MotFeedOben.stroke_completed()) {
           upperStrapBlockCounter = 0;
-          nextStepTimer.setTime(500);
           clearanceNextStep = false;
           cycleStep++;
         }
       } else {
-        MotFeedOben.mark_stroke_completed();
+        MotFeedOben.abort_stroke();
         upperStrapBlockCounter++;
         if (upperStrapBlockCounter == 2) {
           machineRunning = false;
@@ -109,14 +98,6 @@ void RunMainTestCycle() {
         cycleStep++;
       }
       break;
-
-//    case VORPRESSEN: // PLOMBE DURCH PRESSMECHANIK ZENTRIEREN
-//      MotorTool.stroke(350, 0);
-//      if (MotorTool.stroke_completed()) {
-//        clearanceNextStep = false;
-//        cycleStep++;
-//      }
-//      break;
 
     case ZURUECKFAHREN: // MAGNETARM ZURÜCKZIEHEN
       if (ZylMagnetarm.stroke_completed()) {
@@ -153,13 +134,6 @@ void RunMainTestCycle() {
       }
       break;
 
-//    case LEERLAUF: // CRIMPVORGANG STARTEN
-//      digitalWrite(TOOL_MOTOR_RELAY, HIGH);
-//      nextStepTimer.setTime(1500);
-//      clearanceNextStep = false;
-//      cycleStep++;
-//      break;
-
     case REVOLVER: // KARUSSELL DREHEN FALLS KEINE PLOMBE DETEKTIERT
       if (!sealAvailable) { // keine Plombe detektiert
         ZylRevolverschieber.stroke(4000, 3500);
@@ -177,7 +151,7 @@ void RunMainTestCycle() {
       eepromCounter.countOneUp(longtimeCounter);
       cycleStep = 0;
       clearanceNextStep = false;
-      //stepMode = true; // STOP AUTO MODE AFTER EVERY CYLCE (FOR NOW)
+      //stepMode = true; // activate this line to deactivate auto mode after every cycle
       nextStepTimer.setTime(1000);
       break;
     }

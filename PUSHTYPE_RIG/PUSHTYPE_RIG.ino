@@ -100,10 +100,12 @@ Debounce bandsensorUnten(CONTROLLINO_A6);
 // DEFINE NAMES AND SEQUENCE OF STEPS FOR THE MAIN CYCLE:
 //*****************************************************************************
 enum mainCycleSteps {
-  VIBRIEREN, KLEMMEN, FALLENLASSEN, MAGNETARM_AUSFAHREN, BAND_UNTEN,
-  //ZENTRIEREN,
+  VIBRIEREN,
+  KLEMMEN,
+  FALLENLASSEN,
+  MAGNETARM_AUSFAHREN,
+  BAND_UNTEN,
   BAND_OBEN,
-  //VORPRESSEN,
   ZURUECKFAHREN,
   PRESSEN,
   SCHNEIDEN,
@@ -116,13 +118,24 @@ enum mainCycleSteps {
 int numberOfMainCycleSteps = endOfMainCycleEnum;
 
 // DEFINE NAMES TO DISPLAY ON THE TOUCH SCREEN:
-String cycleName[] = { "VIBRIEREN", "KLEMMEN", "FALLENLASSEN", "AUSFAHREN", "BAND UNTEN",
-/*"ZENTRIEREN",*/"BAND OBEN", /*"VORPRESSEN",*/"ZURUECKFAHREN", "PRESSEN", "SCHNEIDEN","BLASEN", "REVOLVER",
-    "RESET" };
+String cycleName[] = {       //
+        "VIBRIEREN",         //
+            "KLEMMEN",       //
+            "FALLENLASSEN",  //
+            "AUSFAHREN",     //
+            "BAND UNTEN",    //
+            "BAND OBEN",     //
+            "ZURUECKFAHREN", //
+            "PRESSEN",       //
+            "SCHNEIDEN",     //
+            "BLASEN",        //
+            "REVOLVER",      //
+            "RESET"          //
+        };
 
 void ResetTestRig() {
-  upperStrapBlockCounter=0;
-  lowerStrapBlockCounter=0;
+  upperStrapBlockCounter = 0;
+  lowerStrapBlockCounter = 0;
   ToolReset();
   ZylGummihalter.set(0);
   ZylAirBlower.set(0);
