@@ -1,6 +1,7 @@
 void RunMainTestCycle() {
 
   if (clearanceNextStep && nextStepTimer.timedOut()) {
+    static byte subStep = 0;
 
     switch (cycleStep) {
     case VIBRIEREN: // PLOMBE FALLENLASSEN
@@ -22,20 +23,36 @@ void RunMainTestCycle() {
       }
       ZylMagnetarm.set(0);
       clearanceNextStep = false;
-      nextStepTimer.setTime(500);
+      nextStepTimer.setTime(300);
       cycleStep++;
       break;
 
     case FALLENLASSEN: // PLOMBE FALLENLASSEN
-      ZylFalltuerschieber.stroke(1500, 600);    //(push time,release time)
-      if (ZylFalltuerschieber.stroke_completed()) {
-        clearanceNextStep = false;
-        cycleStep++;
+      if (subStep == (0)) {
+        ZylFalltuerschieber.stroke(150, 40);    //(push time,release time)
+        if (ZylFalltuerschieber.stroke_completed()) {
+          subStep++;
+        }
+      }
+      if (subStep == 1 || subStep == 2) {
+        ZylFalltuerschieber.stroke(40, 40);    //(push time,release time)
+        if (ZylFalltuerschieber.stroke_completed()) {
+          subStep++;
+        }
+      }
+      if (subStep == 3) {
+        ZylFalltuerschieber.stroke(300, 40);    //(push time,release time)
+        if (ZylFalltuerschieber.stroke_completed()) {
+          subStep = 0;
+          clearanceNextStep = false;
+          cycleStep++;
+        }
       }
       break;
 
-    case MAGNETARM_AUSFAHREN: // PLOMBE ZUM ZANGENPAKET FAHREN
-      static byte subStep = 0;
+    case MAGNETARM_AUSFAHREN:
+      // PLOMBE ZUM ZANGENPAKET FAHREN
+
       // ZUERST SICHERSTELLEN DASS FALLTÜRE GESCHLOSSEN IST:
       if (subStep == 0) {
         ZylSchild.set(0);
@@ -55,7 +72,8 @@ void RunMainTestCycle() {
       }
       break;
 
-    case BAND_UNTEN: // UNTERES BAND VORSCHIEBEN
+    case BAND_UNTEN:
+      // UNTERES BAND VORSCHIEBEN
       ZylSchild.set(1);
       ZylGummihalter.set(0);    //Plomben für nächsten Zyklus können nachrutschen
       if (lowerStrapAvailable) {
@@ -77,7 +95,8 @@ void RunMainTestCycle() {
       }
       break;
 
-    case BAND_OBEN: // OBERES BAND VORSCHIEBEN
+    case BAND_OBEN:
+      // OBERES BAND VORSCHIEBEN
       ZylMesser.set(0); // Messer muss zurückgezogen sein
       if (upperStrapAvailable) {
         MotFeedOben.stroke(eepromCounter.getValue(upperFeedtime), 400);
@@ -99,17 +118,19 @@ void RunMainTestCycle() {
       }
       break;
 
-    case ZURUECKFAHREN: // MAGNETARM ZURÜCKZIEHEN
+    case ZURUECKFAHREN:
+      // MAGNETARM ZURÜCKZIEHEN
       if (ZylMagnetarm.stroke_completed()) {
         //Serial.println("Mangetarm zurückfahren...");
       }
       ZylMagnetarm.set(0);
-      nextStepTimer.setTime(1000);
+      nextStepTimer.setTime(600);
       clearanceNextStep = false;
       cycleStep++;
       break;
 
-    case PRESSEN: // CRIMPVORGANG STARTEN
+    case PRESSEN:
+      // CRIMPVORGANG STARTEN
 
       digitalWrite(TOOL_MOTOR_RELAY, HIGH);
       nextStepTimer.setTime(3000);
@@ -117,7 +138,8 @@ void RunMainTestCycle() {
       cycleStep++;
       break;
 
-    case SCHNEIDEN: // BAND ABSCHNEIDEN
+    case SCHNEIDEN:
+      // BAND ABSCHNEIDEN
       ZylSchild.set(1);
       ZylMesser.stroke(1500, 200); // push,release [ms]
       if (ZylMesser.stroke_completed()) {
@@ -126,33 +148,34 @@ void RunMainTestCycle() {
       }
       break;
 
-    case BLASEN: // BAND ABSCHNEIDEN
-      ZylAirBlower.stroke(800, 200); // push,release [ms]
+    case BLASEN:
+      // BAND ABSCHNEIDEN
+      ZylAirBlower.stroke(100, 50); // push,release [ms]
       if (ZylAirBlower.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
       }
       break;
 
-    case REVOLVER: // KARUSSELL DREHEN FALLS KEINE PLOMBE DETEKTIERT
+    case REVOLVER:
+      // KARUSSELL DREHEN FALLS KEINE PLOMBE DETEKTIERT
       if (!sealAvailable) { // keine Plombe detektiert
         ZylRevolverschieber.stroke(4000, 3500);
       }
       if (ZylRevolverschieber.stroke_completed()) {
-        nextStepTimer.setTime(500);
         clearanceNextStep = false;
         cycleStep++;
       }
       ZylSchild.set(0);
       break;
 
-    case RESET: // RESET FÜR NÄCHSTEN ZYKLUS
+    case RESET:
+      // RESET FÜR NÄCHSTEN ZYKLUS
       eepromCounter.countOneUp(shorttimeCounter);
       eepromCounter.countOneUp(longtimeCounter);
       cycleStep = 0;
       clearanceNextStep = false;
       //stepMode = true; // activate this line to deactivate auto mode after every cycle
-      nextStepTimer.setTime(1000);
       break;
     }
   }
