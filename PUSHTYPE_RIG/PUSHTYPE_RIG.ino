@@ -156,6 +156,7 @@ void ResetTestRig() {
   ZylSchild.set(0);
   machineRunning = false;
   errorBlink = false;
+  greenBlink=false;
   stepMode = true;
   cycleStep = 0;
   cycleDurationTimer.setTime(eepromCounter.getValue(cycleDurationTime) * 1000);

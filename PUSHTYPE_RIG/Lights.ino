@@ -4,7 +4,7 @@ void Lights() {
   //*****************************************************************************
   //in automatic mode the green light is on permanently:
   //in cycle step pause it is reserved for the "green blink" function
-  if (!stepMode&&!greenBlink) {
+  if (!stepMode && !greenBlink) {
     if (machineRunning) {
       digitalWrite((GREEN_LIGHT_PIN), HIGH);
     } else {
@@ -31,13 +31,11 @@ void Lights() {
     digitalWrite((RED_LIGHT_PIN), LOW);
   }
   // GREEN LIGHT / PAUSE BLINKER
-    //*****************************************************************************
-    if (greenBlink) {
-      if (greenBlinkTimer.delayTimeUp(1000)) {
-        digitalWrite((GREEN_LIGHT_PIN), !(digitalRead(GREEN_LIGHT_PIN)));
-      }
-    } else {
-      digitalWrite((GREEN_LIGHT_PIN), LOW);
+  //*****************************************************************************
+  if (greenBlink) {
+    if (greenBlinkTimer.delayTimeUp(1000)) {
+      digitalWrite((GREEN_LIGHT_PIN), !(digitalRead(GREEN_LIGHT_PIN)));
     }
+  }
 }
 
