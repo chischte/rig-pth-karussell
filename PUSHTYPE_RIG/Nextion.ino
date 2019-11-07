@@ -145,6 +145,18 @@ void send_to_nextion() {
   Serial2.write(0xff);
   Serial2.write(0xff);
 }
+void showInfoField() {
+  if (CurrentPage == 1) {
+    Serial2.print("vis t4,1");
+    send_to_nextion();
+  }
+}
+void hideInfoField() {
+  if (CurrentPage == 1) {
+    Serial2.print("vis t4,0");
+    send_to_nextion();
+  }
+}
 //*****************************************************************************
 void nextionSetup()
 //*****************************************************************************
@@ -254,24 +266,30 @@ void NextionLoop()
     // DISPLAY IF MAGAZINE IS EMPTY:
     if (nex_state_sealAvailable != sealAvailable) {
       if (!sealAvailable) {
+        showInfoField();
         printOnTextField("MAGAZIN LEER!", "t4");
       } else {
         clearTextField("t4");
+        hideInfoField();
       }
       nex_state_sealAvailable = sealAvailable;
     }
     if (bandsensorOben.switchedLow()) {
+      showInfoField();
       printOnTextField("BAND OBEN", "t4");
     }
     if (bandsensorUnten.switchedLow()) {
+      showInfoField();
       printOnTextField("BAND UNTEN", "t4");
     }
     if (upperStrapBlockCounter == 2 || lowerStrapBlockCounter == 2) {
+      showInfoField();
       printOnTextField("BAND BLOCKIERT", "t4");
     }
     if (cycleStep == PAUSE) {
-      String remainingWaitingTime=String(cycleDurationTimer.remainingTimeoutTime()/1000);
+      String remainingWaitingTime = String(cycleDurationTimer.remainingTimeoutTime() / 1000);
       Serial.println(remainingWaitingTime);
+      showInfoField();
       printOnTextField((remainingWaitingTime + " s"), "t4");
     }
 
@@ -580,6 +598,7 @@ void nex_page0PushCallback(void *ptr) {
 }
 void nex_page1PushCallback(void *ptr) {
   CurrentPage = 1;
+  hideInfoField();
 
 // REFRESH BUTTON STATES:
   nexPrevCycleStep = !cycleStep;
@@ -602,7 +621,7 @@ void nex_page2PushCallback(void *ptr) {
   nex_prev_lowerFeedtime = 0;
   nex_prev_shorttimeCounter = 0;
   nex_prev_longtimeCounter = 0;
-  nex_prev_cycleDurationTime=0;
+  nex_prev_cycleDurationTime = 0;
 }
 //*************************************************
 // END OF TOUCH EVENT FUNCTIONS

@@ -180,7 +180,7 @@ void RunMainTestCycle() {
         clearanceNextStep = false;
         //stepMode = true; // activate this line to deactivate auto mode after every cycle
         cycleDurationTimer.resetTime();
-        printOnTextField((" "), "t4"); //clear display text field
+        hideInfoField();
         greenBlink = false;
         eepromCounter.countOneUp(shorttimeCounter);
         eepromCounter.countOneUp(longtimeCounter);

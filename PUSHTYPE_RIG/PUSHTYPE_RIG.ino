@@ -159,6 +159,7 @@ void ResetTestRig() {
   stepMode = true;
   cycleStep = 0;
   cycleDurationTimer.setTime(eepromCounter.getValue(cycleDurationTime) * 1000);
+  hideInfoField();
 }
 void ToolReset() {
   // SIMULIERE WIPPENHEBEL ZIEHEN:
