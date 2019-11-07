@@ -68,7 +68,7 @@ unsigned long runtimeStopwatch;
 
 // SET UP EEPROM COUNTER:
 enum eepromCounter {
-  upperFeedtime, lowerFeedtime, shorttimeCounter, longtimeCounter, endOfEepromEnum
+  upperFeedtime, lowerFeedtime, shorttimeCounter, longtimeCounter, cycleDurationTime, endOfEepromEnum
 };
 int numberOfEepromValues = endOfEepromEnum;
 int eepromMinAddress = 0;
@@ -91,6 +91,7 @@ Cylinder ZylAirBlower(CONTROLLINO_D4);
 
 Insomnia nextStepTimer;
 Insomnia errorBlinkTimer;
+Insomnia cycleDurationTimer;
 
 Debounce motorStartButton(START_BUTTON);
 Debounce endSwitch(TOOL_END_SWITCH_PIN);
@@ -111,7 +112,7 @@ enum mainCycleSteps {
   SCHNEIDEN,
   BLASEN,
   REVOLVER,
-  RESET,
+  PAUSE,
   endOfMainCycleEnum
 };
 
@@ -130,7 +131,7 @@ String cycleName[] = {       //
             "SCHNEIDEN",     //
             "BLASEN",        //
             "REVOLVER",      //
-            "RESET"          //
+            "PAUSE"          //
         };
 
 void ResetTestRig() {

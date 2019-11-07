@@ -59,6 +59,7 @@ long nex_prev_shorttimeCounter;
 long nex_prev_longtimeCounter;
 long button_push_stopwatch;
 long counterResetStopwatch;
+long nex_prev_cycleDurationTime;
 //******************************************************************************
 // DECLARATION OF OBJECTS TO BE READ FROM NEXTION
 //******************************************************************************
@@ -83,12 +84,15 @@ NexButton nex_PressMotor = NexButton(1, 16, "b7");
 
 // PAGE 2 - LEFT SIDE:
 NexPage nex_page2 = NexPage(2, 0, "page2");
-NexButton nex_but_slider1_left = NexButton(2, 6, "b1");
-NexButton nex_but_slider1_right = NexButton(2, 7, "b2");
-NexButton nex_but_slider2_left = NexButton(2, 9, "b0");
-NexButton nex_but_slider2_right = NexButton(2, 11, "b3");
+NexButton nex_but_slider1_left = NexButton(2, 5, "b1");
+NexButton nex_but_slider1_right = NexButton(2, 6, "b2");
+NexButton nex_but_slider2_left = NexButton(2, 8, "b0");
+NexButton nex_but_slider2_right = NexButton(2, 9, "b3");
+NexButton nex_but_slider3_left = NexButton(2, 19, "b6");
+NexButton nex_but_slider3_right = NexButton(2, 18, "b5");
+
 // PAGE 2 - RIGHT SIDE:
-NexButton nex_but_reset_shorttimeCounter = NexButton(2, 18, "b4");
+NexButton nex_but_reset_shorttimeCounter = NexButton(2, 16, "b4");
 //*****************************************************************************
 // END OF OBJECT DECLARATION
 //*****************************************************************************
@@ -104,9 +108,13 @@ NexTouch *nex_listen_list[] = { //
             &nex_switch_play_pause, &nex_switch_mode, &nex_ZylMesser, &nex_ZylMagnetarm,
             &nex_ZylGummihalter, &nex_zyl_falltuer, &nex_mot_band_oben, &nex_mot_band_unten,
             &nex_ZylRevolverschieber, &nex_PressMotor,
-            // PAGE 2:
-            &nex_page2, &nex_but_reset_shorttimeCounter, &nex_but_slider1_left,
-            &nex_but_slider1_right, &nex_but_slider2_left, &nex_but_slider2_right, NULL };
+            // PAGE 2 LEFT:
+            &nex_page2, &nex_but_slider1_left, &nex_but_slider1_right, &nex_but_slider2_left,
+            &nex_but_slider2_right, &nex_but_slider3_left, &nex_but_slider3_right,
+            // PAGE 2 RIGHT:
+            &nex_but_reset_shorttimeCounter,
+            // END OF LISTEN LIST:
+            NULL };
 //*****************************************************************************
 // END OF TOUCH EVENT LIST
 //*****************************************************************************
@@ -187,6 +195,8 @@ void nextionSetup()
   nex_but_slider1_right.attachPush(nex_but_slider1_rightPushCallback);
   nex_but_slider2_left.attachPush(nex_but_slider2_leftPushCallback);
   nex_but_slider2_right.attachPush(nex_but_slider2_rightPushCallback);
+  nex_but_slider3_left.attachPush(nex_but_slider3_leftPushCallback);
+  nex_but_slider3_right.attachPush(nex_but_slider3_rightPushCallback);
 
   //*****PUSH+POP:
   // PAGE 1:
@@ -256,8 +266,12 @@ void NextionLoop()
     if (bandsensorUnten.switchedLow()) {
       printOnTextField("BAND UNTEN", "t4");
     }
-    if(upperStrapBlockCounter==2||lowerStrapBlockCounter==2){
+    if (upperStrapBlockCounter == 2 || lowerStrapBlockCounter == 2) {
       printOnTextField("BAND BLOCKIERT", "t4");
+    }
+    if (cycleStep == PAUSE) {
+      String remainingCycleDuration = String(cycleDurationTimer.remainingTimeoutTime() / 1000);
+      printOnTextField(remainingCycleDuration + " s", "t4");
     }
 
     //*******************
@@ -350,15 +364,17 @@ void NextionLoop()
     //*******************
 
     if (nex_prev_upperFeedtime != eepromCounter.getValue(upperFeedtime)) {
-      printOnValueField((int) eepromCounter.getValue(upperFeedtime), "h0");
       printOnTextField(String(eepromCounter.getValue(upperFeedtime)) + " ms", "t4");
       nex_prev_upperFeedtime = eepromCounter.getValue(upperFeedtime);
     }
 
     if (nex_prev_lowerFeedtime != eepromCounter.getValue(lowerFeedtime)) {
-      printOnValueField((int) eepromCounter.getValue(lowerFeedtime), "h1");
       printOnTextField(String(eepromCounter.getValue(lowerFeedtime)) + " ms", "t6");
       nex_prev_lowerFeedtime = eepromCounter.getValue(lowerFeedtime);
+    }
+    if (nex_prev_cycleDurationTime != eepromCounter.getValue(cycleDurationTime)) {
+      printOnTextField(String(eepromCounter.getValue(cycleDurationTime)) + " s", "t1");
+      nex_prev_lowerFeedtime = eepromCounter.getValue(cycleDurationTime);
     }
     //*******************
     // PAGE 2 - RIGHT SIDE
@@ -528,6 +544,19 @@ void nex_but_slider2_rightPushCallback(void *ptr) {
   eepromCounter.set(lowerFeedtime, eepromCounter.getValue(lowerFeedtime) + 50);
   if (eepromCounter.getValue(lowerFeedtime) > 5000) {
     eepromCounter.set(lowerFeedtime, 5000);
+  }
+}
+
+void nex_but_slider3_leftPushCallback(void *ptr) {
+  eepromCounter.set(cycleDurationTime, eepromCounter.getValue(cycleDurationTime) - 10);
+  if (eepromCounter.getValue(cycleDurationTime) < 0) {
+    eepromCounter.set(cycleDurationTime, 0);
+  }
+}
+void nex_but_slider3_rightPushCallback(void *ptr) {
+  eepromCounter.set(cycleDurationTime, eepromCounter.getValue(cycleDurationTime) + 10);
+  if (eepromCounter.getValue(cycleDurationTime) > 240) {
+    eepromCounter.set(cycleDurationTime, 240);
   }
 }
 //*************************************************

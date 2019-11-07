@@ -5,6 +5,7 @@ void RunMainTestCycle() {
 
     switch (cycleStep) {
     case VIBRIEREN: // PLOMBE FALLENLASSEN
+      cycleDurationTimer.setTime(eepromCounter.getValue(cycleDurationTime*1000));
       ZylRevolverschieber.stroke(250, 300);    //(push time,release time)
       if (ZylRevolverschieber.stroke_completed()) {
         clearanceNextStep = false;
@@ -169,13 +170,18 @@ void RunMainTestCycle() {
       ZylSchild.set(0);
       break;
 
-    case RESET:
+    case PAUSE:
       // RESET FÜR NÄCHSTEN ZYKLUS
       eepromCounter.countOneUp(shorttimeCounter);
       eepromCounter.countOneUp(longtimeCounter);
+
+
+      if(cycleDurationTimer.timedOut()){
       cycleStep = 0;
       clearanceNextStep = false;
       //stepMode = true; // activate this line to deactivate auto mode after every cycle
+      cycleDurationTimer.resetTime();
+      }
       break;
     }
   }
