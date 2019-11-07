@@ -53,6 +53,7 @@ bool stepMode = true;
 bool clearancePlayPauseToggle = true;
 bool clearanceNextStep = false;
 bool errorBlink = false;
+bool greenBlink = false;
 bool sealAvailable = false;
 bool upperStrapAvailable = false;
 bool lowerStrapAvailable = false;
@@ -68,7 +69,12 @@ unsigned long runtimeStopwatch;
 
 // SET UP EEPROM COUNTER:
 enum eepromCounter {
-  upperFeedtime, lowerFeedtime, shorttimeCounter, longtimeCounter, cycleDurationTime, endOfEepromEnum
+  upperFeedtime,
+  lowerFeedtime,
+  shorttimeCounter,
+  longtimeCounter,
+  cycleDurationTime,
+  endOfEepromEnum
 };
 int numberOfEepromValues = endOfEepromEnum;
 int eepromMinAddress = 0;
@@ -91,6 +97,7 @@ Cylinder ZylAirBlower(CONTROLLINO_D4);
 
 Insomnia nextStepTimer;
 Insomnia errorBlinkTimer;
+Insomnia greenBlinkTimer;
 Insomnia cycleDurationTimer;
 
 Debounce motorStartButton(START_BUTTON);
@@ -151,6 +158,8 @@ void ResetTestRig() {
   errorBlink = false;
   stepMode = true;
   cycleStep = 0;
+  cycleDurationTimer.setTime(eepromCounter.getValue(cycleDurationTime) * 1000);
+  hideInfoField();
 }
 void ToolReset() {
   // SIMULIERE WIPPENHEBEL ZIEHEN:
