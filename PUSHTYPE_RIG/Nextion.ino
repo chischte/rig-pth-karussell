@@ -270,8 +270,9 @@ void NextionLoop()
       printOnTextField("BAND BLOCKIERT", "t4");
     }
     if (cycleStep == PAUSE) {
-      String remainingCycleDuration = String(cycleDurationTimer.remainingTimeoutTime() / 1000);
-      printOnTextField(remainingCycleDuration + " s", "t4");
+      String remainingWaitingTime=String(cycleDurationTimer.remainingTimeoutTime()/1000);
+      Serial.println(remainingWaitingTime);
+      printOnTextField((remainingWaitingTime + " s"), "t4");
     }
 
     //*******************
@@ -374,7 +375,7 @@ void NextionLoop()
     }
     if (nex_prev_cycleDurationTime != eepromCounter.getValue(cycleDurationTime)) {
       printOnTextField(String(eepromCounter.getValue(cycleDurationTime)) + " s", "t1");
-      nex_prev_lowerFeedtime = eepromCounter.getValue(cycleDurationTime);
+      nex_prev_cycleDurationTime = eepromCounter.getValue(cycleDurationTime);
     }
     //*******************
     // PAGE 2 - RIGHT SIDE
@@ -601,6 +602,7 @@ void nex_page2PushCallback(void *ptr) {
   nex_prev_lowerFeedtime = 0;
   nex_prev_shorttimeCounter = 0;
   nex_prev_longtimeCounter = 0;
+  nex_prev_cycleDurationTime=0;
 }
 //*************************************************
 // END OF TOUCH EVENT FUNCTIONS
