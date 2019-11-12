@@ -59,7 +59,6 @@ void RunMainTestCycle() {
       if (subStep == 0) {
         ZylSchild.set(0);
         ZylFalltuerschieber.set(0);
-        nextStepTimer.setTime(300);
         subStep++;
         break;
       }
@@ -67,7 +66,7 @@ void RunMainTestCycle() {
         ZylMagnetarm.set(1);
         ToolReset();    //reset tool "Wippenhebel ziehen"
         ZylGummihalter.set(0); // Plombenfixieren lösen
-        nextStepTimer.setTime(600);
+        nextStepTimer.setTime(3000);
         clearanceNextStep = false;
         subStep = 0;
         cycleStep++;
