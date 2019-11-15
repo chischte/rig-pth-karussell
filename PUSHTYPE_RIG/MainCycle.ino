@@ -1,4 +1,4 @@
-void RunMainTestCycle() {
+void runMainTestCycle() {
 
   if (clearanceNextStep && nextStepTimer.timedOut()) {
     static byte subStep = 0;

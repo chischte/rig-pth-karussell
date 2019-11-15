@@ -141,7 +141,7 @@ String cycleName[] = {       //
             "PAUSE"          //
         };
 
-void ResetTestRig() {
+void resetTestRig() {
   upperStrapBlockCounter = 0;
   lowerStrapBlockCounter = 0;
   ToolReset();
@@ -194,7 +194,7 @@ void setup() {
   pinMode(START_BUTTON, INPUT);
   pinMode(GREEN_LIGHT_PIN, OUTPUT);
   pinMode(RED_LIGHT_PIN, OUTPUT);
-  ResetTestRig();
+  resetTestRig();
   motorStartButton.setDebounceTime(10);
   endSwitch.setDebounceTime(10);
   Serial.println("EXIT SETUP");
@@ -228,10 +228,10 @@ void loop() {
   }
 
   if (machineRunning) {
-    RunMainTestCycle();
+    runMainTestCycle();
   }
 
-  NextionLoop();
+  nextionLoop();
   RunToolMotor(); // if the right conditions apply
   Lights();
   sealAvailable = digitalRead(SENSOR_PLOMBE);
