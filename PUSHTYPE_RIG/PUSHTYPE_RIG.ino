@@ -108,7 +108,7 @@ Debounce bandsensorUnten(CONTROLLINO_A6);
 // DEFINE NAMES AND SEQUENCE OF STEPS FOR THE MAIN CYCLE:
 //*****************************************************************************
 enum mainCycleSteps {
-  VIBRIEREN,
+  /*VIBRIEREN,*/
   KLEMMEN,
   FALLENLASSEN,
   MAGNETARM_AUSFAHREN,
@@ -127,7 +127,7 @@ int numberOfMainCycleSteps = endOfMainCycleEnum;
 
 // DEFINE NAMES TO DISPLAY ON THE TOUCH SCREEN:
 String cycleName[] = {       //
-        "VIBRIEREN",         //
+        /*"VIBRIEREN",*/         //
             "KLEMMEN",       //
             "FALLENLASSEN",  //
             "AUSFAHREN",     //

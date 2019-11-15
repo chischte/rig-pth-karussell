@@ -4,15 +4,15 @@ void RunMainTestCycle() {
     static byte subStep = 0;
 
     switch (cycleStep) {
-    case VIBRIEREN: // PLOMBE FALLENLASSEN
-      eepromCounter.getValue(cycleDurationTime);
-      cycleDurationTimer.setTime(eepromCounter.getValue(cycleDurationTime) * 1000);
-      ZylRevolverschieber.stroke(250, 300);    //(push time,release time)
-      if (ZylRevolverschieber.stroke_completed()) {
-        clearanceNextStep = false;
-        cycleStep++;
-      }
-      break;
+//    case VIBRIEREN: // PLOMBE FALLENLASSEN
+//      eepromCounter.getValue(cycleDurationTime);
+//      cycleDurationTimer.setTime(eepromCounter.getValue(cycleDurationTime) * 1000);
+//      ZylRevolverschieber.stroke(250, 300);    //(push time,release time)
+//      if (ZylRevolverschieber.stroke_completed()) {
+//        clearanceNextStep = false;
+//        cycleStep++;
+//      }
+//      break;
 
     case KLEMMEN: // PLOMBEN IM RUTSCH-SCHACHT FIXIEREN
       errorBlink = !sealAvailable;
