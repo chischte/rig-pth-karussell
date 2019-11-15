@@ -4,7 +4,8 @@ void RunMainTestCycle() {
     static byte subStep = 0;
 
     switch (cycleStep) {
-//    case VIBRIEREN: // PLOMBE FALLENLASSEN
+
+    //    case VIBRIEREN: // PLOMBE FALLENLASSEN
 //      eepromCounter.getValue(cycleDurationTime);
 //      cycleDurationTimer.setTime(eepromCounter.getValue(cycleDurationTime) * 1000);
 //      ZylRevolverschieber.stroke(250, 300);    //(push time,release time)
@@ -65,7 +66,7 @@ void RunMainTestCycle() {
       if (subStep == 1) {
         ZylMagnetarm.set(1);
         ToolReset();    //reset tool "Wippenhebel ziehen"
-        ZylGummihalter.set(0); // Plombenfixieren lösen
+        ZylGummihalter.set(0);    // Plombenfixieren lösen
         nextStepTimer.setTime(3000);
         clearanceNextStep = false;
         subStep = 0;
@@ -98,7 +99,7 @@ void RunMainTestCycle() {
 
     case BAND_OBEN:
       // OBERES BAND VORSCHIEBEN
-      ZylMesser.set(0); // Messer muss zurückgezogen sein
+      ZylMesser.set(0);    // Messer muss zurückgezogen sein
       if (upperStrapAvailable) {
         MotFeedOben.stroke(eepromCounter.getValue(upperFeedtime), 400);
         if (MotFeedOben.stroke_completed()) {
@@ -142,7 +143,7 @@ void RunMainTestCycle() {
     case SCHNEIDEN:
       // BAND ABSCHNEIDEN
       ZylSchild.set(1);
-      ZylMesser.stroke(1500, 200); // push,release [ms]
+      ZylMesser.stroke(1500, 200);    // push,release [ms]
       if (ZylMesser.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
@@ -151,7 +152,7 @@ void RunMainTestCycle() {
 
     case BLASEN:
       // BAND ABSCHNEIDEN
-      ZylAirBlower.stroke(100, 50); // push,release [ms]
+      ZylAirBlower.stroke(100, 50);    // push,release [ms]
       if (ZylAirBlower.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
@@ -159,15 +160,26 @@ void RunMainTestCycle() {
       break;
 
     case REVOLVER:
-      // KARUSSELL DREHEN FALLS KEINE PLOMBE DETEKTIERT
-      if (!sealAvailable) { // keine Plombe detektiert
-        ZylRevolverschieber.stroke(4000, 3500);
+      // KARUSSELL DREHEN FALLS KEINE PLOMBE DETEKTIERT:
+      if (subStep == 0) {
+        if (!sealAvailable) {
+          subStep = 1;
+        } else {
+          subStep = 2;
+        }
       }
-      if (ZylRevolverschieber.stroke_completed()) {
+      if (subStep == 1) {
+        ZylRevolverschieber.stroke(3000, 2500);
+        if (ZylRevolverschieber.stroke_completed()) {
+          subStep = 2;
+        }
+      }
+      if (subStep == 2) {
+        ZylSchild.set(0);
+        subStep = 0;
         clearanceNextStep = false;
         cycleStep++;
       }
-      ZylSchild.set(0);
       break;
 
     case PAUSE:
