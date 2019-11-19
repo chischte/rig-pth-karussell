@@ -32,20 +32,20 @@
 // float (6-7 Digits)
 //*****************************************************************************
 
-// KNOBS AND POTENTIOMETERS:
-const byte START_BUTTON = CONTROLLINO_A1;
+// INPUT PINS:
 const byte STOP_BUTTON = CONTROLLINO_A0;
-const byte GREEN_LIGHT_PIN = CONTROLLINO_D12;
-const byte RED_LIGHT_PIN = CONTROLLINO_D11;
-const byte TOOL_MOTOR_RELAY = CONTROLLINO_R5;
-const byte TOOL_END_SWITCH_PIN = CONTROLLINO_A4;
-//const byte BANDSENSOR_OBEN = CONTROLLINO_A5;
-//const byte BANDSENOR_UNTEN = CONTROLLINO_A6;
-//const byte STEP_MODE_BUTTON = CONTROLLINO_A2;
-//const byte AUTO_MODE_BUTTON = CONTROLLINO_A4;
-
-// SENSORS:
+const byte START_BUTTON = CONTROLLINO_A1;
+const byte TEMP_SENSOR_PIN = CONTROLLINO_A2;
 const byte SENSOR_PLOMBE = CONTROLLINO_A3;
+const byte TOOL_END_SWITCH_PIN = CONTROLLINO_A4;
+const byte BANDSENSOR_OBEN = CONTROLLINO_A5;
+const byte BANDSENSOR_UNTEN = CONTROLLINO_A6;
+
+
+// OUTPUT PINS:
+const byte RED_LIGHT_PIN = CONTROLLINO_D11;
+const byte GREEN_LIGHT_PIN = CONTROLLINO_D12;
+// MORE OUTPUT PINS ARE DEFINED IN "GENERATE INSTANCES OF CLASSES"
 
 //OTHER VARIABLES:
 bool machineRunning = false;
@@ -91,7 +91,7 @@ Cylinder MotFeedOben(CONTROLLINO_D0);
 Cylinder MotFeedUnten(CONTROLLINO_D1);
 Cylinder ZylMesser(CONTROLLINO_D3);
 Cylinder ZylRevolverschieber(CONTROLLINO_D2);
-Cylinder MotorTool(TOOL_MOTOR_RELAY);
+Cylinder MotorTool(CONTROLLINO_R5);
 Cylinder ZylSchild(CONTROLLINO_D9);
 Cylinder ZylAirBlower(CONTROLLINO_D4);
 
@@ -102,8 +102,8 @@ Insomnia cycleDurationTimer;
 
 Debounce motorStartButton(START_BUTTON);
 Debounce endSwitch(TOOL_END_SWITCH_PIN);
-Debounce bandsensorOben(CONTROLLINO_A5);
-Debounce bandsensorUnten(CONTROLLINO_A6);
+Debounce bandsensorOben(BANDSENSOR_OBEN);
+Debounce bandsensorUnten(BANDSENSOR_UNTEN);
 //*****************************************************************************
 // DEFINE NAMES AND SEQUENCE OF STEPS FOR THE MAIN CYCLE:
 //*****************************************************************************
@@ -165,7 +165,7 @@ void resetTestRig() {
 void ToolReset() {
   // SIMULIERE WIPPENHEBEL ZIEHEN:
   digitalWrite(CONTROLLINO_RELAY_08, LOW);  //WIPPENSCHALTER WHITE CABLE (NO)
-  digitalWrite(CONTROLLINO_RELAY_09, HIGH); //WIPPENSCHALTER RED   CABLE (NC)
+  digitalWrite(CONTROLLINO_RELAY_09, HIGH); //WIPPENSCHALTER RED CABLE (NC)
   delay(200);
   // SIMULIERE WIPPENHEBEL LOSLASEN:
   digitalWrite(CONTROLLINO_RELAY_09, LOW);  //WIPPENSCHALTER RED   CABLE (NC)
@@ -190,8 +190,6 @@ void setup() {
   eepromCounter.setup(eepromMinAddress, eepromMaxAddress, numberOfEepromValues);
   Serial.begin(115200);
   nextionSetup();
-  pinMode(STOP_BUTTON, INPUT);
-  pinMode(START_BUTTON, INPUT);
   pinMode(GREEN_LIGHT_PIN, OUTPUT);
   pinMode(RED_LIGHT_PIN, OUTPUT);
   resetTestRig();
