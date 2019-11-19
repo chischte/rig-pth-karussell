@@ -1,18 +1,19 @@
-void RunMainTestCycle() {
+void runMainTestCycle() {
 
   if (clearanceNextStep && nextStepTimer.timedOut()) {
-    static byte subStep = 0;
+    static byte subStep = 1;
 
     switch (cycleStep) {
-    case VIBRIEREN: // PLOMBE FALLENLASSEN
-      eepromCounter.getValue(cycleDurationTime);
-      cycleDurationTimer.setTime(eepromCounter.getValue(cycleDurationTime) * 1000);
-      ZylRevolverschieber.stroke(250, 300);    //(push time,release time)
-      if (ZylRevolverschieber.stroke_completed()) {
-        clearanceNextStep = false;
-        cycleStep++;
-      }
-      break;
+
+    //    case VIBRIEREN: // PLOMBE FALLENLASSEN
+//      eepromCounter.getValue(cycleDurationTime);
+//      cycleDurationTimer.setTime(eepromCounter.getValue(cycleDurationTime) * 1000);
+//      ZylRevolverschieber.stroke(250, 300);    //(push time,release time)
+//      if (ZylRevolverschieber.stroke_completed()) {
+//        clearanceNextStep = false;
+//        cycleStep++;
+//      }
+//      break;
 
     case KLEMMEN: // PLOMBEN IM RUTSCH-SCHACHT FIXIEREN
       errorBlink = !sealAvailable;
@@ -30,22 +31,22 @@ void RunMainTestCycle() {
       break;
 
     case FALLENLASSEN: // PLOMBE FALLENLASSEN
-      if (subStep == (0)) {
+      if (subStep == (1)) {
         ZylFalltuerschieber.stroke(150, 40);    //(push time,release time)
         if (ZylFalltuerschieber.stroke_completed()) {
           subStep++;
         }
       }
-      if (subStep == 1 || subStep == 2) {
+      if (subStep == 2 || subStep == 3) {
         ZylFalltuerschieber.stroke(40, 40);    //(push time,release time)
         if (ZylFalltuerschieber.stroke_completed()) {
           subStep++;
         }
       }
-      if (subStep == 3) {
+      if (subStep == 4) {
         ZylFalltuerschieber.stroke(300, 40);    //(push time,release time)
         if (ZylFalltuerschieber.stroke_completed()) {
-          subStep = 0;
+          subStep = 1;
           clearanceNextStep = false;
           cycleStep++;
         }
@@ -56,20 +57,19 @@ void RunMainTestCycle() {
       // PLOMBE ZUM ZANGENPAKET FAHREN
 
       // ZUERST SICHERSTELLEN DASS FALLTÜRE GESCHLOSSEN IST:
-      if (subStep == 0) {
+      if (subStep == 1) {
         ZylSchild.set(0);
         ZylFalltuerschieber.set(0);
-        nextStepTimer.setTime(300);
         subStep++;
         break;
       }
-      if (subStep == 1) {
+      if (subStep == 2) {
         ZylMagnetarm.set(1);
         ToolReset();    //reset tool "Wippenhebel ziehen"
-        ZylGummihalter.set(0); // Plombenfixieren lösen
-        nextStepTimer.setTime(600);
+        ZylGummihalter.set(0);    // Plombenfixieren lösen
+        nextStepTimer.setTime(3000);
         clearanceNextStep = false;
-        subStep = 0;
+        subStep = 1;
         cycleStep++;
       }
       break;
@@ -99,7 +99,7 @@ void RunMainTestCycle() {
 
     case BAND_OBEN:
       // OBERES BAND VORSCHIEBEN
-      ZylMesser.set(0); // Messer muss zurückgezogen sein
+      ZylMesser.set(0);    // Messer muss zurückgezogen sein
       if (upperStrapAvailable) {
         MotFeedOben.stroke(eepromCounter.getValue(upperFeedtime), 400);
         if (MotFeedOben.stroke_completed()) {
@@ -133,17 +133,23 @@ void RunMainTestCycle() {
 
     case PRESSEN:
       // CRIMPVORGANG STARTEN
-
-      digitalWrite(TOOL_MOTOR_RELAY, HIGH);
-      nextStepTimer.setTime(3000);
-      clearanceNextStep = false;
-      cycleStep++;
+      if (subStep == 1) {
+        MotorTool.set(1);
+        subStep++;
+      }
+      if (subStep == 2) {
+        if (!MotorTool.request_state())
+          clearanceNextStep = false;
+        subStep = 1;
+        nextStepTimer.setTime(1000);
+        cycleStep++;
+      }
       break;
 
     case SCHNEIDEN:
       // BAND ABSCHNEIDEN
       ZylSchild.set(1);
-      ZylMesser.stroke(1500, 200); // push,release [ms]
+      ZylMesser.stroke(1500, 200);    // push,release [ms]
       if (ZylMesser.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
@@ -152,7 +158,7 @@ void RunMainTestCycle() {
 
     case BLASEN:
       // BAND ABSCHNEIDEN
-      ZylAirBlower.stroke(100, 50); // push,release [ms]
+      ZylAirBlower.stroke(100, 50);    // push,release [ms]
       if (ZylAirBlower.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
@@ -160,15 +166,26 @@ void RunMainTestCycle() {
       break;
 
     case REVOLVER:
-      // KARUSSELL DREHEN FALLS KEINE PLOMBE DETEKTIERT
-      if (!sealAvailable) { // keine Plombe detektiert
-        ZylRevolverschieber.stroke(4000, 3500);
+      // KARUSSELL DREHEN FALLS KEINE PLOMBE DETEKTIERT:
+      if (subStep == 1) {
+        if (!sealAvailable) {
+          subStep = 2;
+        } else {
+          subStep = 3;
+        }
       }
-      if (ZylRevolverschieber.stroke_completed()) {
+      if (subStep == 2) {
+        ZylRevolverschieber.stroke(3000, 2500);
+        if (ZylRevolverschieber.stroke_completed()) {
+          subStep++;
+        }
+      }
+      if (subStep == 3) {
+        ZylSchild.set(0);
         clearanceNextStep = false;
+        subStep = 1;
         cycleStep++;
       }
-      ZylSchild.set(0);
       break;
 
     case PAUSE:

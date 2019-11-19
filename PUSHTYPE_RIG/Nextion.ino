@@ -124,7 +124,7 @@ void printOnTextField(String text, String textField) {
   Serial2.print("\"");
   Serial2.print(text);
   Serial2.print("\"");
-  send_to_nextion();
+  sendToNextion();
 }
 void clearTextField(String textField) {
   Serial2.print(textField);
@@ -132,15 +132,15 @@ void clearTextField(String textField) {
   Serial2.print("\"");
   Serial2.print("");    // erase text
   Serial2.print("\"");
-  send_to_nextion();
+  sendToNextion();
 }
 void printOnValueField(int value, String valueField) {
   Serial2.print(valueField);
   Serial2.print(".val=");
   Serial2.print(value);
-  send_to_nextion();
+  sendToNextion();
 }
-void send_to_nextion() {
+void sendToNextion() {
   Serial2.write(0xff);
   Serial2.write(0xff);
   Serial2.write(0xff);
@@ -148,13 +148,13 @@ void send_to_nextion() {
 void showInfoField() {
   if (CurrentPage == 1) {
     Serial2.print("vis t4,1");
-    send_to_nextion();
+    sendToNextion();
   }
 }
 void hideInfoField() {
   if (CurrentPage == 1) {
     Serial2.print("vis t4,0");
-    send_to_nextion();
+    sendToNextion();
   }
 }
 //*****************************************************************************
@@ -164,9 +164,9 @@ void nextionSetup()
   Serial2.begin(9600);
 
   // RESET NEXTION DISPLAY: (refresh display after PLC restart)
-  send_to_nextion(); // needed for unknown reasons
+  sendToNextion(); // needed for unknown reasons
   Serial2.print("rest");
-  send_to_nextion();
+  sendToNextion();
 
   //*****************************************************************************
   // INCREASE BAUD RATE DOES NOT WORK YET
@@ -232,11 +232,11 @@ void nextionSetup()
   //*****************************************************************************
   delay(2000);
   sendCommand("page 1");  //SWITCH NEXTION TO PAGE X
-  send_to_nextion();
+  sendToNextion();
 
 }  // END OF NEXTION SETUP
 //*****************************************************************************
-void NextionLoop()
+void nextionLoop()
 //*****************************************************************************
 {
   nexLoop(nex_listen_list); //check for any touch event
@@ -248,7 +248,7 @@ void NextionLoop()
     // UPDATE SWITCHSTATE "PLAY"/"PAUSE":
     if (nexStateMachineRunning != machineRunning) {
       Serial2.print("click bt0,1");
-      send_to_nextion();
+      sendToNextion();
       nexStateMachineRunning = !nexStateMachineRunning;
     }
 
@@ -259,7 +259,7 @@ void NextionLoop()
       } else {
         Serial2.print("click bt1,1");
       }
-      send_to_nextion();
+      sendToNextion();
       nex_prev_stepMode = stepMode;
     }
 
@@ -304,19 +304,19 @@ void NextionLoop()
     // UPDATE SWITCHBUTTON (dual state):
     if (ZylGummihalter.request_state() != nex_state_ZylGummihalter) {
       Serial2.print("click bt5,1");
-      send_to_nextion();
+      sendToNextion();
       nex_state_ZylGummihalter = !nex_state_ZylGummihalter;
     }
     // UPDATE SWITCHBUTTON (dual state):
     if (ZylFalltuerschieber.request_state() != nex_state_ZylFalltuerschieber) {
       Serial2.print("click bt4,1");
-      send_to_nextion();
+      sendToNextion();
       nex_state_ZylFalltuerschieber = !nex_state_ZylFalltuerschieber;
     }
     // UPDATE SWITCHBUTTON (dual state):
     if (ZylMagnetarm.request_state() != nex_state_ZylMagnetarm) {
       Serial2.print("click bt3,1");
-      send_to_nextion();
+      sendToNextion();
       nex_state_ZylMagnetarm = !nex_state_ZylMagnetarm;
     }
 
@@ -327,7 +327,7 @@ void NextionLoop()
       } else {
         Serial2.print("click b5,0");
       }
-      send_to_nextion();
+      sendToNextion();
       nex_state_MotFeedOben = MotFeedOben.request_state();
     }
 
@@ -338,7 +338,7 @@ void NextionLoop()
       } else {
         Serial2.print("click b4,0");
       }
-      send_to_nextion();
+      sendToNextion();
       nex_state_MotFeedUnten = MotFeedUnten.request_state();
     }
 
@@ -349,7 +349,7 @@ void NextionLoop()
       } else {
         Serial2.print("click b6,0");
       }
-      send_to_nextion();
+      sendToNextion();
       nex_state_ZylMesser = ZylMesser.request_state();
     }
 
@@ -360,7 +360,7 @@ void NextionLoop()
       } else {
         Serial2.print("click b3,0");
       }
-      send_to_nextion();
+      sendToNextion();
       nex_state_ZylRevolverschieber = ZylRevolverschieber.request_state();
     }
 
@@ -371,7 +371,7 @@ void NextionLoop()
       } else {
         Serial2.print("click b7,0");
       }
-      send_to_nextion();
+      sendToNextion();
       nex_state_PressMotor = MotorTool.request_state();
     }
 
@@ -438,7 +438,7 @@ void nex_switch_play_pausePushCallback(void *ptr) {
 void nex_switch_modePushCallback(void *ptr) {
   stepMode = !stepMode;
   Serial2.print("click bt1,1");
-  send_to_nextion();
+  sendToNextion();
 }
 void nex_but_stepbackPushCallback(void *ptr) {
   if (cycleStep > 0) {
@@ -451,7 +451,7 @@ void nex_but_stepnxtPushCallback(void *ptr) {
   }
 }
 void nex_but_reset_cyclePushCallback(void *ptr) {
-  ResetTestRig();
+  resetTestRig();
   clearTextField("t4");
 }
 //*************************************************
