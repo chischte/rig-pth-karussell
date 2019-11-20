@@ -410,7 +410,8 @@ void nextionLoop()
       nexPrevMaxTemperature = eepromCounter.getValue(maxTemperature);
     }
     if (nexPrevCurrentTemperature != getTemperature()) {
-      printOnTextField("2=" + String(eepromCounter.getValue(maxTemperature)) + "°C", "t15");
+      //printOnTextField("t=" + String(eepromCounter.getValue(maxTemperature)) + "°C", "t15");
+      printOnTextField("t=" + String(getTemperature()), "t15");
       nexPrevCurrentTemperature = getTemperature();
     }
 

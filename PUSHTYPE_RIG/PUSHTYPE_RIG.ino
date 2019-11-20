@@ -180,7 +180,11 @@ void runToolMotor() {
   }
 }
 int getTemperature() {
+ //float minVoltage=0;
+ //float maxVoltage =10;
+delay(200);
   float temperature = analogRead(TEMP_SENSOR_PIN);
+  temperature= temperature/426*200;
   Serial.println(temperature);
   int temperatureInt=temperature;
   return temperatureInt;
