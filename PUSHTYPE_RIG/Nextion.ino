@@ -36,8 +36,11 @@
 //******************************************************************************
 int CurrentPage;
 byte nexPrevCycleStep;
+unsigned int stopped_button_pushtime;
+bool stopwatch_running;
+bool resetStopwatchActive;
 
-// SWITCHSTATES:
+// UPDATE SWITCHSTATES PAGE 1:
 bool nex_state_ZylGummihalter;
 bool nex_state_ZylFalltuerschieber;
 bool nex_state_ZylMagnetarm;
@@ -49,17 +52,22 @@ bool nexStateMachineRunning;
 bool nex_state_sealAvailable;
 bool nex_state_PressMotor;
 bool nex_prev_stepMode = true;
+// UPDATE VALUES PAGE 1:
+
 //******************************************************************************
-bool stopwatch_running;
-bool resetStopwatchActive;
-unsigned int stopped_button_pushtime;
+// UPDATE SWITCHSTATES PAGE 2:
 long nex_prev_upperFeedtime;
 long nex_prev_lowerFeedtime;
 long nex_prev_shorttimeCounter;
 long nex_prev_longtimeCounter;
+
 long button_push_stopwatch;
 long counterResetStopwatch;
 long nex_prev_cycleDurationTime;
+// UPDATE VALUES PAGE 2:
+int nexPrevCurrentTemperature;
+long nexPrevMaxTemperature;
+
 //******************************************************************************
 // DECLARATION OF OBJECTS TO BE READ FROM NEXTION
 //******************************************************************************
@@ -90,6 +98,8 @@ NexButton nex_but_slider2_left = NexButton(2, 8, "b0");
 NexButton nex_but_slider2_right = NexButton(2, 9, "b3");
 NexButton nex_but_slider3_left = NexButton(2, 19, "b6");
 NexButton nex_but_slider3_right = NexButton(2, 18, "b5");
+NexButton nex_but_slider4_left = NexButton(2, 22, "b7");
+NexButton nex_but_slider4_right = NexButton(2, 23, "b8");
 
 // PAGE 2 - RIGHT SIDE:
 NexButton nex_but_reset_shorttimeCounter = NexButton(2, 16, "b4");
@@ -111,6 +121,7 @@ NexTouch *nex_listen_list[] = { //
             // PAGE 2 LEFT:
             &nex_page2, &nex_but_slider1_left, &nex_but_slider1_right, &nex_but_slider2_left,
             &nex_but_slider2_right, &nex_but_slider3_left, &nex_but_slider3_right,
+            &nex_but_slider4_left, &nex_but_slider4_right,
             // PAGE 2 RIGHT:
             &nex_but_reset_shorttimeCounter,
             // END OF LISTEN LIST:
@@ -183,11 +194,10 @@ void nextionSetup()
   //*****************************************************************************
   // REGISTER THE EVENT CALLBACK FUNCTIONS
   //*****************************************************************************
-  //*****PUSH ONLY
-  // PAGE 0:
+  // PAGE 0 PUSH ONLY:
   nex_page0.attachPush(nex_page0PushCallback);
 
-  // PAGE 1:
+  // PAGE 1 PUSH ONLY:
   nex_page1.attachPush(nex_page1PushCallback);
   nex_but_stepback.attachPush(nex_but_stepbackPushCallback);
   nex_but_stepnxt.attachPush(nex_but_stepnxtPushCallback);
@@ -200,18 +210,7 @@ void nextionSetup()
   nex_ZylMagnetarm.attachPush(nex_ZylMagnetarmPushCallback);
   nex_ZylGummihalter.attachPush(nex_ZylGummihalterPushCallback);
   nex_zyl_falltuer.attachPush(nex_zyl_falltuerPushCallback);
-
-  // PAGE 2:
-  nex_page2.attachPush(nex_page2PushCallback);
-  nex_but_slider1_left.attachPush(nex_but_slider1_leftPushCallback);
-  nex_but_slider1_right.attachPush(nex_but_slider1_rightPushCallback);
-  nex_but_slider2_left.attachPush(nex_but_slider2_leftPushCallback);
-  nex_but_slider2_right.attachPush(nex_but_slider2_rightPushCallback);
-  nex_but_slider3_left.attachPush(nex_but_slider3_leftPushCallback);
-  nex_but_slider3_right.attachPush(nex_but_slider3_rightPushCallback);
-
-  //*****PUSH+POP:
-  // PAGE 1:
+  // PAGE 1 PUSH+POP:
   nex_mot_band_oben.attachPush(nex_mot_band_obenPushCallback);
   nex_mot_band_oben.attachPop(nex_mot_band_obenPopCallback);
   nex_mot_band_unten.attachPush(nex_mot_band_untenPushCallback);
@@ -223,7 +222,18 @@ void nextionSetup()
   nex_ZylRevolverschieber.attachPush(nex_ZylRevolverschieberPushCallback);
   nex_ZylRevolverschieber.attachPop(nex_ZylRevolverschieberPopCallback);
 
-  // PAGE 2:
+  // PAGE 2 PUSH ONLY:
+  nex_page2.attachPush(nex_page2PushCallback);
+  nex_but_slider1_left.attachPush(nex_but_slider1_leftPushCallback);
+  nex_but_slider1_right.attachPush(nex_but_slider1_rightPushCallback);
+  nex_but_slider2_left.attachPush(nex_but_slider2_leftPushCallback);
+  nex_but_slider2_right.attachPush(nex_but_slider2_rightPushCallback);
+  nex_but_slider3_left.attachPush(nex_but_slider3_leftPushCallback);
+  nex_but_slider3_right.attachPush(nex_but_slider3_rightPushCallback);
+  nex_but_slider4_left.attachPush(nex_but_slider4_leftPushCallback);
+  nex_but_slider4_right.attachPush(nex_but_slider4_rightPushCallback);
+
+  // PAGE 2 PUSH+POP:
   nex_but_reset_shorttimeCounter.attachPush(nex_but_reset_shorttimeCounterPushCallback);
   nex_but_reset_shorttimeCounter.attachPop(nex_but_reset_shorttimeCounterPopCallback);
 
@@ -395,6 +405,15 @@ void nextionLoop()
       printOnTextField(String(eepromCounter.getValue(cycleDurationTime)) + " s", "t1");
       nex_prev_cycleDurationTime = eepromCounter.getValue(cycleDurationTime);
     }
+    if (nexPrevMaxTemperature != eepromCounter.getValue(maxTemperature)) {
+      printOnTextField(String(eepromCounter.getValue(maxTemperature)) + "°C", "t14");
+      nexPrevMaxTemperature = eepromCounter.getValue(maxTemperature);
+    }
+    if (nexPrevCurrentTemperature != getTemperature()) {
+      printOnTextField("2=" + String(eepromCounter.getValue(maxTemperature)) + "°C", "t15");
+      nexPrevCurrentTemperature = getTemperature();
+    }
+
     //*******************
     // PAGE 2 - RIGHT SIDE
     //*******************
@@ -576,6 +595,18 @@ void nex_but_slider3_rightPushCallback(void *ptr) {
   eepromCounter.set(cycleDurationTime, eepromCounter.getValue(cycleDurationTime) + 10);
   if (eepromCounter.getValue(cycleDurationTime) > 240) {
     eepromCounter.set(cycleDurationTime, 240);
+  }
+}
+void nex_but_slider4_leftPushCallback(void *ptr) {
+  eepromCounter.set(maxTemperature, eepromCounter.getValue(maxTemperature) - 5);
+  if (eepromCounter.getValue(maxTemperature) < 50) {
+    eepromCounter.set(maxTemperature, 50);
+  }
+}
+void nex_but_slider4_rightPushCallback(void *ptr) {
+  eepromCounter.set(maxTemperature, eepromCounter.getValue(maxTemperature) + 5);
+  if (eepromCounter.getValue(maxTemperature) > 120) {
+    eepromCounter.set(maxTemperature, 120);
   }
 }
 //*************************************************

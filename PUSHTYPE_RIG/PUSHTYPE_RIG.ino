@@ -41,7 +41,6 @@ const byte TOOL_END_SWITCH_PIN = CONTROLLINO_A4;
 const byte BANDSENSOR_OBEN = CONTROLLINO_A5;
 const byte BANDSENSOR_UNTEN = CONTROLLINO_A6;
 
-
 // OUTPUT PINS:
 const byte RED_LIGHT_PIN = CONTROLLINO_D11;
 const byte GREEN_LIGHT_PIN = CONTROLLINO_D12;
@@ -74,6 +73,7 @@ enum eepromCounter {
   shorttimeCounter,
   longtimeCounter,
   cycleDurationTime,
+  maxTemperature,
   endOfEepromEnum
 };
 int numberOfEepromValues = endOfEepromEnum;
@@ -144,7 +144,7 @@ String cycleName[] = {       //
 void resetTestRig() {
   upperStrapBlockCounter = 0;
   lowerStrapBlockCounter = 0;
-  ToolReset();
+  toolReset();
   ZylGummihalter.set(0);
   ZylAirBlower.set(0);
   ZylFalltuerschieber.set(0);
@@ -162,7 +162,7 @@ void resetTestRig() {
   cycleDurationTimer.setTime(eepromCounter.getValue(cycleDurationTime) * 1000);
   hideInfoField();
 }
-void ToolReset() {
+void toolReset() {
   // SIMULIERE WIPPENHEBEL ZIEHEN:
   digitalWrite(CONTROLLINO_RELAY_08, LOW);  //WIPPENSCHALTER WHITE CABLE (NO)
   digitalWrite(CONTROLLINO_RELAY_09, HIGH); //WIPPENSCHALTER RED CABLE (NC)
@@ -171,13 +171,19 @@ void ToolReset() {
   digitalWrite(CONTROLLINO_RELAY_09, LOW);  //WIPPENSCHALTER RED   CABLE (NC)
   digitalWrite(CONTROLLINO_RELAY_08, HIGH); //WIPPENSCHALTER WHITE CABLE (NO)delay(200);
 }
-void RunToolMotor() {
+void runToolMotor() {
 
   // DEACTIVATE THE MOTOR IF THE END SWITCH HAS BEEN DETECTED
   if (endSwitch.switchedLow()) {
     Serial.println("END SWITCH DETECTED");
     MotorTool.set(0);
   }
+}
+int getTemperature() {
+  float temperature = analogRead(TEMP_SENSOR_PIN);
+  Serial.println(temperature);
+  int temperatureInt=temperature;
+  return temperatureInt;
 }
 //*****************************************************************************
 //******************######**#######*#######*#******#*######********************
@@ -230,10 +236,10 @@ void loop() {
   }
 
   nextionLoop();
-  RunToolMotor(); // if the right conditions apply
-  Lights();
+  runToolMotor(); // if the right conditions apply
+  lights();
   sealAvailable = digitalRead(SENSOR_PLOMBE);
-
+  getTemperature();
   //runtime = millis() - runtimeStopwatch;
   //Serial.println(runtime);
   //runtimeStopwatch = millis();

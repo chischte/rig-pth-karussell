@@ -65,7 +65,7 @@ void runMainTestCycle() {
       }
       if (subStep == 2) {
         ZylMagnetarm.set(1);
-        ToolReset();    //reset tool "Wippenhebel ziehen"
+        toolReset();    //reset tool "Wippenhebel ziehen"
         ZylGummihalter.set(0);    // Plombenfixieren lösen
         nextStepTimer.setTime(3000);
         clearanceNextStep = false;
