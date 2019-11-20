@@ -8,6 +8,8 @@
  * Dezember 2018, Zürich
  * *****************************************************************************
  * TODO: (can, should, must)
+ * should: eventuell, fix bug "MAGAZIN LEER" blinks every cycle
+ * should: check runtime
  * can:    implement new logic for main cycle:
  * can:    run if: (autoMode && autoModeRunning) || (!autoMode && stepModeRunning)
  * can:    implement stateController
@@ -57,6 +59,7 @@ bool sealAvailable = false;
 bool upperStrapAvailable = false;
 bool lowerStrapAvailable = false;
 bool toolMotorState = 0;
+bool temperatureMonitor = true;
 
 byte cycleStep = 0;
 byte upperStrapBlockCounter = 0;
@@ -180,13 +183,19 @@ void runToolMotor() {
   }
 }
 int getTemperature() {
- //float minVoltage=0;
- //float maxVoltage =10;
-delay(200);
-  float temperature = analogRead(TEMP_SENSOR_PIN);
-  temperature= temperature/426*200;
-  Serial.println(temperature);
-  int temperatureInt=temperature;
+  const float voltsPerUnit = 0.03; // DATASHEET
+  const float maxVoltage = 10;
+  const float maxSensorTemp = 200;
+  float sensorValue = analogRead(TEMP_SENSOR_PIN);
+  float sensorVoltage = sensorValue * voltsPerUnit;
+  float temperature = sensorVoltage / maxVoltage * maxSensorTemp;
+  int temperatureInt = temperature;
+  if (temperatureMonitor) {
+    if (temperatureInt > eepromCounter.getValue(maxTemperature)) {
+      errorBlink = true;
+    }
+  }
+
   return temperatureInt;
 }
 //*****************************************************************************
@@ -215,6 +224,8 @@ void setup() {
 //********************#######***#####***#####***#******************************
 //*****************************************************************************
 void loop() {
+
+  getTemperature();
 
   upperStrapAvailable = bandsensorOben.requestButtonState();
   if (!upperStrapAvailable) {

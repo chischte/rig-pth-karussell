@@ -406,11 +406,18 @@ void nextionLoop()
       nex_prev_cycleDurationTime = eepromCounter.getValue(cycleDurationTime);
     }
     if (nexPrevMaxTemperature != eepromCounter.getValue(maxTemperature)) {
-      printOnTextField(String(eepromCounter.getValue(maxTemperature)) + "°C", "t14");
+      if (eepromCounter.getValue(maxTemperature) < 105) {
+        temperatureMonitor = true;
+        printOnTextField(String(eepromCounter.getValue(maxTemperature)), "t14");
+      } else {
+        temperatureMonitor = false;
+        printOnTextField("OFF", "t14");
+      }
       nexPrevMaxTemperature = eepromCounter.getValue(maxTemperature);
     }
+    // TODO: IF TEMPERATURE HAS CHANGED MORE THAN ONE DEGREE, UPDATE:
+    //if (abs(nexPrevCurrentTemperature - getTemperature()) > 1) {
     if (nexPrevCurrentTemperature != getTemperature()) {
-      //printOnTextField("t=" + String(eepromCounter.getValue(maxTemperature)) + "°C", "t15");
       printOnTextField("t=" + String(getTemperature()), "t15");
       nexPrevCurrentTemperature = getTemperature();
     }
@@ -600,14 +607,14 @@ void nex_but_slider3_rightPushCallback(void *ptr) {
 }
 void nex_but_slider4_leftPushCallback(void *ptr) {
   eepromCounter.set(maxTemperature, eepromCounter.getValue(maxTemperature) - 5);
-  if (eepromCounter.getValue(maxTemperature) < 50) {
-    eepromCounter.set(maxTemperature, 50);
+  if (eepromCounter.getValue(maxTemperature) < 20) {
+    eepromCounter.set(maxTemperature, 20);
   }
 }
 void nex_but_slider4_rightPushCallback(void *ptr) {
   eepromCounter.set(maxTemperature, eepromCounter.getValue(maxTemperature) + 5);
-  if (eepromCounter.getValue(maxTemperature) > 120) {
-    eepromCounter.set(maxTemperature, 120);
+  if (eepromCounter.getValue(maxTemperature) > 105) {
+    eepromCounter.set(maxTemperature, 105);
   }
 }
 //*************************************************
@@ -654,6 +661,7 @@ void nex_page2PushCallback(void *ptr) {
   nex_prev_shorttimeCounter = 0;
   nex_prev_longtimeCounter = 0;
   nex_prev_cycleDurationTime = 0;
+  nexPrevMaxTemperature = 0;
 }
 //*************************************************
 // END OF TOUCH EVENT FUNCTIONS

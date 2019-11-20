@@ -139,10 +139,12 @@ void runMainTestCycle() {
       }
       if (subStep == 2) {
         if (!MotorTool.request_state())
-          clearanceNextStep = false;
+        {
+         clearanceNextStep = false;
         subStep = 1;
         nextStepTimer.setTime(1000);
         cycleStep++;
+        }
       }
       break;
 
@@ -158,7 +160,7 @@ void runMainTestCycle() {
 
     case BLASEN:
       // BAND ABSCHNEIDEN
-      ZylAirBlower.stroke(100, 50);    // push,release [ms]
+      ZylAirBlower.stroke(50, 50);    // push,release [ms]
       if (ZylAirBlower.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
