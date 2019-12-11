@@ -97,6 +97,17 @@ void runMainTestCycle() {
       }
       break;
 
+    case ZURUECKFAHREN:
+      // MAGNETARM ZURÜCKZIEHEN
+      if (ZylMagnetarm.stroke_completed()) {
+        //Serial.println("Mangetarm zurückfahren...");
+      }
+      ZylMagnetarm.set(0);
+      nextStepTimer.setTime(600);
+        clearanceNextStep = false;
+      cycleStep++;
+      break;
+
     case BAND_OBEN:
       // OBERES BAND VORSCHIEBEN
       ZylMesser.set(0);    // Messer muss zurückgezogen sein
@@ -120,17 +131,6 @@ void runMainTestCycle() {
       }
       break;
 
-    case ZURUECKFAHREN:
-      // MAGNETARM ZURÜCKZIEHEN
-      if (ZylMagnetarm.stroke_completed()) {
-        //Serial.println("Mangetarm zurückfahren...");
-      }
-      ZylMagnetarm.set(0);
-      nextStepTimer.setTime(600);
-      clearanceNextStep = false;
-      cycleStep++;
-      break;
-
     case PRESSEN:
       // CRIMPVORGANG STARTEN
       if (subStep == 1) {
@@ -138,12 +138,10 @@ void runMainTestCycle() {
         subStep++;
       }
       if (subStep == 2) {
-        if (!MotorTool.request_state())
-        {
-         clearanceNextStep = false;
-        subStep = 1;
-        nextStepTimer.setTime(1000);
-        cycleStep++;
+        if (!MotorTool.request_state()) {
+          clearanceNextStep = false;
+          nextStepTimer.setTime(1000);
+          cycleStep++;
         }
       }
       break;
@@ -198,7 +196,6 @@ void runMainTestCycle() {
         cycleStep = 0;
         clearanceNextStep = false;
         //stepMode = true; // activate this line to deactivate auto mode after every cycle
-        cycleDurationTimer.resetTime();
         hideInfoField();
         greenBlink = false;
         eepromCounter.countOneUp(shorttimeCounter);

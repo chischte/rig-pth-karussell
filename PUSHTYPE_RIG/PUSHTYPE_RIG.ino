@@ -7,13 +7,11 @@
  * Michael Wettstein
  * Dezember 2018, Zürich
  * *****************************************************************************
- * TODO: (can, should, must)
- * should: eventuell, fix bug "MAGAZIN LEER" blinks every cycle
- * should: check runtime
- * can:    implement new logic for main cycle:
- * can:    run if: (autoMode && autoModeRunning) || (!autoMode && stepModeRunning)
- * can:    implement stateController
- * can:    make info text on touchscreen better visible
+ * TODO:
+ * check runtime
+ * implement new logic for main cycle:
+ * run if: (autoMode && autoModeRunning) || (!autoMode && stepModeRunning)
+ * implement stateController
  * should: start screen write test rig in two words
  */
 
@@ -27,9 +25,8 @@
 //*****************************************************************************
 // DECLARATION OF VARIABLES / DATA TYPES
 //*****************************************************************************
-// boolean (true/false)
-// byte (0-255)
-// int   (-32,768 to 32,767) / unsigned int: 0 to 65,535
+// byte  (0-255)
+// int   (-32,768 to 32,767)
 // long  (-2,147,483,648 to 2,147,483,647)
 // float (6-7 Digits)
 //*****************************************************************************
@@ -46,7 +43,6 @@ const byte BANDSENSOR_UNTEN = CONTROLLINO_A6;
 // OUTPUT PINS:
 const byte RED_LIGHT_PIN = CONTROLLINO_D11;
 const byte GREEN_LIGHT_PIN = CONTROLLINO_D12;
-// MORE OUTPUT PINS ARE DEFINED IN "GENERATE INSTANCES OF CLASSES"
 
 //OTHER VARIABLES:
 bool machineRunning = false;
@@ -116,8 +112,8 @@ enum mainCycleSteps {
   FALLENLASSEN,
   MAGNETARM_AUSFAHREN,
   BAND_UNTEN,
-  BAND_OBEN,
   ZURUECKFAHREN,
+  BAND_OBEN,
   PRESSEN,
   SCHNEIDEN,
   BLASEN,
@@ -135,8 +131,8 @@ String cycleName[] = {       //
             "FALLENLASSEN",  //
             "AUSFAHREN",     //
             "BAND UNTEN",    //
-            "BAND OBEN",     //
             "ZURUECKFAHREN", //
+            "BAND OBEN",     //
             "PRESSEN",       //
             "SCHNEIDEN",     //
             "BLASEN",        //
@@ -145,6 +141,7 @@ String cycleName[] = {       //
         };
 
 void resetTestRig() {
+
   upperStrapBlockCounter = 0;
   lowerStrapBlockCounter = 0;
   toolReset();
@@ -165,6 +162,7 @@ void resetTestRig() {
   cycleDurationTimer.setTime(eepromCounter.getValue(cycleDurationTime) * 1000);
   hideInfoField();
 }
+
 void toolReset() {
   // SIMULIERE WIPPENHEBEL ZIEHEN:
   digitalWrite(CONTROLLINO_RELAY_08, LOW);  //WIPPENSCHALTER WHITE CABLE (NO)
@@ -174,6 +172,7 @@ void toolReset() {
   digitalWrite(CONTROLLINO_RELAY_09, LOW);  //WIPPENSCHALTER RED   CABLE (NC)
   digitalWrite(CONTROLLINO_RELAY_08, HIGH); //WIPPENSCHALTER WHITE CABLE (NO)delay(200);
 }
+
 void runToolMotor() {
 
   // DEACTIVATE THE MOTOR IF THE END SWITCH HAS BEEN DETECTED
@@ -182,6 +181,7 @@ void runToolMotor() {
     MotorTool.set(0);
   }
 }
+
 int getTemperature() {
   const float voltsPerUnit = 0.03; // DATASHEET
   const float maxVoltage = 10;
@@ -198,6 +198,48 @@ int getTemperature() {
 
   return temperatureInt;
 }
+
+void lights() {
+
+  // GREEN LIGHT
+  //*****************************************************************************
+  //in automatic mode the green light is on permanently:
+  //in cycle step pause it is reserved for the "green blink" function
+  if (!stepMode && !greenBlink) {
+    if (machineRunning) {
+      digitalWrite((GREEN_LIGHT_PIN), HIGH);
+    } else {
+      digitalWrite((GREEN_LIGHT_PIN), LOW);
+    }
+  }
+
+  //in step mode the green is off between steps:
+  if (stepMode) {
+    if (machineRunning && clearanceNextStep) {
+      digitalWrite((GREEN_LIGHT_PIN), HIGH);
+    } else {
+      digitalWrite((GREEN_LIGHT_PIN), LOW);
+    }
+  }
+
+  // RED LIGHT / ERROR BLINKER
+  //*****************************************************************************
+  if (errorBlink) {
+    if (errorBlinkTimer.delayTimeUp(1000)) {
+      digitalWrite((RED_LIGHT_PIN), !(digitalRead(RED_LIGHT_PIN)));
+    }
+  } else {
+    digitalWrite((RED_LIGHT_PIN), LOW);
+  }
+  // GREEN LIGHT / PAUSE BLINKER
+  //*****************************************************************************
+  if (greenBlink) {
+    if (greenBlinkTimer.delayTimeUp(1000)) {
+      digitalWrite((GREEN_LIGHT_PIN), !(digitalRead(GREEN_LIGHT_PIN)));
+    }
+  }
+}
+
 //*****************************************************************************
 //******************######**#######*#######*#******#*######********************
 //*****************#********#**********#****#******#*#*****#*******************
@@ -255,6 +297,7 @@ void loop() {
   lights();
   sealAvailable = digitalRead(SENSOR_PLOMBE);
   getTemperature();
+
   //runtime = millis() - runtimeStopwatch;
   //Serial.println(runtime);
   //runtimeStopwatch = millis();
