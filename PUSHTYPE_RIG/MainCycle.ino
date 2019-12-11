@@ -139,6 +139,7 @@ void runMainTestCycle() {
       }
       if (subStep == 2) {
         if (!MotorTool.request_state()) {
+          subStep = 1;
           clearanceNextStep = false;
           nextStepTimer.setTime(1000);
           cycleStep++;
