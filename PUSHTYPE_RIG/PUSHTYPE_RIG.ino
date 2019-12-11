@@ -116,8 +116,8 @@ enum mainCycleSteps {
   FALLENLASSEN,
   MAGNETARM_AUSFAHREN,
   BAND_UNTEN,
-  BAND_OBEN,
   ZURUECKFAHREN,
+  BAND_OBEN,
   PRESSEN,
   SCHNEIDEN,
   BLASEN,
@@ -135,8 +135,8 @@ String cycleName[] = {       //
             "FALLENLASSEN",  //
             "AUSFAHREN",     //
             "BAND UNTEN",    //
-            "BAND OBEN",     //
             "ZURUECKFAHREN", //
+            "BAND OBEN",     //
             "PRESSEN",       //
             "SCHNEIDEN",     //
             "BLASEN",        //
