@@ -78,7 +78,7 @@ void runMainTestCycle() {
       // UNTERES BAND VORSCHIEBEN
       ZylSchild.set(1);
       ZylGummihalter.set(0);    //Plomben für nächsten Zyklus können nachrutschen
-      if (lowerStrapAvailable) {
+      if (lowerStrapAvailable && upperStrapAvailable) {
         MotFeedUnten.stroke(eepromCounter.getValue(lowerFeedtime), 400);
         if (MotFeedUnten.stroke_completed()) {
           lowerStrapBlockCounter = 0;
@@ -104,14 +104,14 @@ void runMainTestCycle() {
       }
       ZylMagnetarm.set(0);
       nextStepTimer.setTime(600);
-        clearanceNextStep = false;
+      clearanceNextStep = false;
       cycleStep++;
       break;
 
     case BAND_OBEN:
       // OBERES BAND VORSCHIEBEN
       ZylMesser.set(0);    // Messer muss zurückgezogen sein
-      if (upperStrapAvailable) {
+      if (upperStrapAvailable && lowerStrapAvailable) {
         MotFeedOben.stroke(eepromCounter.getValue(upperFeedtime), 400);
         if (MotFeedOben.stroke_completed()) {
           upperStrapBlockCounter = 0;
