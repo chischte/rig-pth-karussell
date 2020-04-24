@@ -19,6 +19,7 @@
 //#include <SD.h>
 //#include <Arduino.h>
 
+// ADD THE FOLLOWING LIBRARIES TO project/lib:
 #include <Controllino.h>    // https://github.com/CONTROLLINO-PLC/CONTROLLINO_Library
 #include <Nextion.h>        // https://github.com/chischte/nextion-platformio-dualstate.git
 #include <Cylinder.h>       // https://github.com/chischte/cylinder-library

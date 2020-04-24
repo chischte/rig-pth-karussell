@@ -1,15 +1,9 @@
+.pio
+.vscode/.browse.c_cpp.db*
+.vscode/c_cpp_properties.json
+.vscode/launch.json
+.vscode/ipch
 
-PUSHTYPE_RIG/.cproject
+.vscode/
 
-PUSHTYPE_RIG/.project
-
-PUSHTYPE_RIG/.settings/language.settings.xml
-
-PUSHTYPE_RIG/.settings/org.eclipse.cdt.core.prefs
-
-PUSHTYPE_RIG/PUSHTYPE_RIG.ino.orig
-
-PUSHTYPE_RIG/spec.d
-Documents/~$Layout_Map_Push_Type.xlsx
-
-DOCUMENTS/.~lock.Layout_Map_Push_Type.xlsx#
+lib/
