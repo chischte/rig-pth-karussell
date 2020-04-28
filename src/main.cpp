@@ -20,9 +20,15 @@
 //#include <Arduino.h>
 
 // ADD THE FOLLOWING LIBRARIES TO project/lib:
+
 #include <Arduino.h>
 #include <Controllino.h>    // https://github.com/CONTROLLINO-PLC/CONTROLLINO_Library
-#include <Nextion.h>        // https://github.com/chischte/nextion-platformio-dualstate.git
+
+// The PIO Nextion Library works after installing "Adafruit SD" and setting
+// "lib_ldf_mode = deep+" or "deep" in platformio.ini 
+// The personal edited library (github.com/chischte/nextion-platformio-dualstate.git)
+// is not needed anymore
+#include <Nextion.h>        
 #include <Cylinder.h>       // https://github.com/chischte/cylinder-library
 #include <Debounce.h>       // https://github.com/chischte/debounce-library
 #include <EEPROM_Counter.h> // https://github.com/chischte/eeprom-counter-library
