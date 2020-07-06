@@ -15,25 +15,23 @@
  * should: start screen write test rig in two words
  */
 
-
 //#include <SD.h>
 //#include <Arduino.h>
 
 // ADD THE FOLLOWING LIBRARIES TO project/lib:
 
 #include <Arduino.h>
-#include <Controllino.h>    // https://github.com/CONTROLLINO-PLC/CONTROLLINO_Library
+#include <Controllino.h> // https://github.com/CONTROLLINO-PLC/CONTROLLINO_Library
 
 // The PIO Nextion Library works after installing "Adafruit SD" and setting
-// "lib_ldf_mode = deep+" or "deep" in platformio.ini 
-// The personal edited library (github.com/chischte/nextion-platformio-dualstate.git)
-// is not needed anymore
-#include <Nextion.h>        
+// "lib_ldf_mode = deep+" or "deep" in platformio.ini
+// The personal edited library
+// (github.com/chischte/nextion-platformio-dualstate.git) is not needed anymore
 #include <Cylinder.h>       // https://github.com/chischte/cylinder-library
 #include <Debounce.h>       // https://github.com/chischte/debounce-library
 #include <EEPROM_Counter.h> // https://github.com/chischte/eeprom-counter-library
-#include <Insomnia.h>       // https://github.com/chischte/insomnia-delay-library
-
+#include <Insomnia.h> // https://github.com/chischte/insomnia-delay-library
+#include <Nextion.h>
 
 //*****************************************************************************
 // DECLARATION OF VARIABLES / DATA TYPES
@@ -57,7 +55,7 @@ const byte BANDSENSOR_UNTEN = CONTROLLINO_A6;
 const byte RED_LIGHT_PIN = CONTROLLINO_D11;
 const byte GREEN_LIGHT_PIN = CONTROLLINO_D12;
 
-//OTHER VARIABLES:
+// OTHER VARIABLES:
 bool machineRunning = false;
 bool stepMode = true;
 bool clearancePlayPauseToggle = true;
@@ -76,14 +74,14 @@ byte lowerStrapBlockCounter = 0;
 
 unsigned long runtime;
 unsigned long runtimeStopwatch;
-//String cycleName;
+// String cycleName;
 
 //******************************************************************************
 // DECLARATION OF OBJECTS TO BE READ FROM NEXTION
 //******************************************************************************
 // PAGE 0:
 NexPage nex_page0 = NexPage(0, 0, "page0");
-//PAGE 1 - LEFT SIDE:
+// PAGE 1 - LEFT SIDE:
 NexPage nex_page1 = NexPage(1, 0, "page1");
 NexButton nex_but_stepback = NexButton(1, 2, "b1");
 NexButton nex_but_stepnxt = NexButton(1, 7, "b2");
@@ -154,27 +152,27 @@ long nex_prev_cycleDurationTime;
 int nexPrevCurrentTemperature;
 long nexPrevMaxTemperature;
 
-
-char buffer[100] = { 0 }; // This is needed only if you are going to receive a text from the display. You can remove it otherwise.
+char buffer[100] = {0}; // This is needed only if you are going to receive a
+                        // text from the display. You can remove it otherwise.
 //*****************************************************************************
 // TOUCH EVENT LIST //DECLARATION OF TOUCH EVENTS TO BE MONITORED
 //*****************************************************************************
 NexTouch *nex_listen_list[] = { //
-            // PAGE 0:
-            &nex_page0,
-            // PAGE 1:
-            &nex_page1, &nex_but_stepback, &nex_but_stepnxt, &nex_but_reset_cycle,
-            &nex_switch_play_pause, &nex_switch_mode, &nex_ZylMesser, &nex_ZylMagnetarm,
-            &nex_ZylGummihalter, &nex_zyl_falltuer, &nex_mot_band_oben, &nex_mot_band_unten,
-            &nex_ZylRevolverschieber, &nex_PressMotor,
-            // PAGE 2 LEFT:
-            &nex_page2, &nex_but_slider1_left, &nex_but_slider1_right, &nex_but_slider2_left,
-            &nex_but_slider2_right, &nex_but_slider3_left, &nex_but_slider3_right,
-            &nex_but_slider4_left, &nex_but_slider4_right,
-            // PAGE 2 RIGHT:
-            &nex_but_reset_shorttimeCounter,
-            // END OF LISTEN LIST:
-            NULL };
+    // PAGE 0:
+    &nex_page0,
+    // PAGE 1:
+    &nex_page1, &nex_but_stepback, &nex_but_stepnxt, &nex_but_reset_cycle,
+    &nex_switch_play_pause, &nex_switch_mode, &nex_ZylMesser, &nex_ZylMagnetarm,
+    &nex_ZylGummihalter, &nex_zyl_falltuer, &nex_mot_band_oben,
+    &nex_mot_band_unten, &nex_ZylRevolverschieber, &nex_PressMotor,
+    // PAGE 2 LEFT:
+    &nex_page2, &nex_but_slider1_left, &nex_but_slider1_right,
+    &nex_but_slider2_left, &nex_but_slider2_right, &nex_but_slider3_left,
+    &nex_but_slider3_right, &nex_but_slider4_left, &nex_but_slider4_right,
+    // PAGE 2 RIGHT:
+    &nex_but_reset_shorttimeCounter,
+    // END OF LISTEN LIST:
+    NULL};
 //*****************************************************************************
 // END OF TOUCH EVENT LIST
 //*****************************************************************************
@@ -226,8 +224,8 @@ enum mainCycleSteps {
   FALLENLASSEN,
   MAGNETARM_AUSFAHREN,
   BAND_UNTEN,
-  ZURUECKFAHREN,
   BAND_OBEN,
+  ZURUECKFAHREN,
   PRESSEN,
   SCHNEIDEN,
   BLASEN,
@@ -240,29 +238,31 @@ int numberOfMainCycleSteps = endOfMainCycleEnum;
 
 void toolReset() {
   // SIMULIERE WIPPENHEBEL ZIEHEN:
-  digitalWrite(CONTROLLINO_RELAY_08, LOW);  //WIPPENSCHALTER WHITE CABLE (NO)
-  digitalWrite(CONTROLLINO_RELAY_09, HIGH); //WIPPENSCHALTER RED CABLE (NC)
+  digitalWrite(CONTROLLINO_RELAY_08, LOW);  // WIPPENSCHALTER WHITE CABLE (NO)
+  digitalWrite(CONTROLLINO_RELAY_09, HIGH); // WIPPENSCHALTER RED CABLE (NC)
   delay(200);
   // SIMULIERE WIPPENHEBEL LOSLASEN:
-  digitalWrite(CONTROLLINO_RELAY_09, LOW);  //WIPPENSCHALTER RED   CABLE (NC)
-  digitalWrite(CONTROLLINO_RELAY_08, HIGH); //WIPPENSCHALTER WHITE CABLE (NO)delay(200);
+  digitalWrite(CONTROLLINO_RELAY_09, LOW); // WIPPENSCHALTER RED   CABLE (NC)
+  digitalWrite(CONTROLLINO_RELAY_08,
+               HIGH); // WIPPENSCHALTER WHITE CABLE (NO)delay(200);
 }
 
 // DEFINE NAMES TO DISPLAY ON THE TOUCH SCREEN:
-String cycleName[] = {       //
-        /*"VIBRIEREN",*/     //
-            "KLEMMEN",//
-            "FALLENLASSEN",  //
-            "AUSFAHREN",     //
-            "BAND UNTEN",    //
-            "ZURUECKFAHREN", //
-            "BAND OBEN",     //
-            "PRESSEN",       //
-            "SCHNEIDEN",     //
-            "BLASEN",        //
-            "REVOLVER",      //
-            "PAUSE"          //
-        };
+String cycleName[] = {
+    //
+    /*"VIBRIEREN",*/ //
+    "KLEMMEN",       //
+    "FALLENLASSEN",  //
+    "AUSFAHREN",     //
+    "BAND UNTEN",    //
+    "BAND OBEN",     //
+    "ZURUECKFAHREN", //
+    "PRESSEN",       //
+    "SCHNEIDEN",     //
+    "BLASEN",        //
+    "REVOLVER",      //
+    "PAUSE"          //
+};
 
 void sendToNextion() {
   Serial2.write(0xff);
@@ -282,7 +282,7 @@ void clearTextField(String textField) {
   Serial2.print(textField);
   Serial2.print(".txt=");
   Serial2.print("\"");
-  Serial2.print("");    // erase text
+  Serial2.print(""); // erase text
   Serial2.print("\"");
   sendToNextion();
 }
@@ -359,8 +359,8 @@ void lights() {
 
   // GREEN LIGHT
   //*****************************************************************************
-  //in automatic mode the green light is on permanently:
-  //in cycle step pause it is reserved for the "green blink" function
+  // in automatic mode the green light is on permanently:
+  // in cycle step pause it is reserved for the "green blink" function
   if (!stepMode && !greenBlink) {
     if (machineRunning) {
       digitalWrite((GREEN_LIGHT_PIN), HIGH);
@@ -369,7 +369,7 @@ void lights() {
     }
   }
 
-  //in step mode the green is off between steps:
+  // in step mode the green is off between steps:
   if (stepMode) {
     if (machineRunning && clearanceNextStep) {
       digitalWrite((GREEN_LIGHT_PIN), HIGH);
@@ -403,21 +403,21 @@ void runMainTestCycle() {
 
     switch (cycleStep) {
 
-    //    case VIBRIEREN: // PLOMBE FALLENLASSEN
-//      eepromCounter.getValue(cycleDurationTime);
-//      cycleDurationTimer.setTime(eepromCounter.getValue(cycleDurationTime) * 1000);
-//      ZylRevolverschieber.stroke(250, 300);    //(push time,release time)
-//      if (ZylRevolverschieber.stroke_completed()) {
-//        clearanceNextStep = false;
-//        cycleStep++;
-//      }
-//      break;
+      //    case VIBRIEREN: // PLOMBE FALLENLASSEN
+      //      eepromCounter.getValue(cycleDurationTime);
+      //      cycleDurationTimer.setTime(eepromCounter.getValue(cycleDurationTime)
+      //      * 1000); ZylRevolverschieber.stroke(250, 300);    //(push
+      //      time,release time) if (ZylRevolverschieber.stroke_completed()) {
+      //        clearanceNextStep = false;
+      //        cycleStep++;
+      //      }
+      //      break;
 
     case KLEMMEN: // PLOMBEN IM RUTSCH-SCHACHT FIXIEREN
       errorBlink = !sealAvailable;
       if (sealAvailable) {
         ZylGummihalter.set(1); // Plomben fixieren
-      } else { // MAGAZIN LEER!
+      } else {                 // MAGAZIN LEER!
         machineRunning = false;
         ZylGummihalter.set(0); // zum Befüllen zurückziehen
         break;
@@ -430,19 +430,19 @@ void runMainTestCycle() {
 
     case FALLENLASSEN: // PLOMBE FALLENLASSEN
       if (subStep == (1)) {
-        ZylFalltuerschieber.stroke(150, 40);    //(push time,release time)
+        ZylFalltuerschieber.stroke(150, 40); //(push time,release time)
         if (ZylFalltuerschieber.stroke_completed()) {
           subStep++;
         }
       }
       if (subStep == 2 || subStep == 3) {
-        ZylFalltuerschieber.stroke(40, 40);    //(push time,release time)
+        ZylFalltuerschieber.stroke(40, 40); //(push time,release time)
         if (ZylFalltuerschieber.stroke_completed()) {
           subStep++;
         }
       }
       if (subStep == 4) {
-        ZylFalltuerschieber.stroke(300, 40);    //(push time,release time)
+        ZylFalltuerschieber.stroke(300, 40); //(push time,release time)
         if (ZylFalltuerschieber.stroke_completed()) {
           subStep = 1;
           clearanceNextStep = false;
@@ -463,8 +463,8 @@ void runMainTestCycle() {
       }
       if (subStep == 2) {
         ZylMagnetarm.set(1);
-        toolReset();    //reset tool "Wippenhebel ziehen"
-        ZylGummihalter.set(0);    // Plombenfixieren lösen
+        toolReset();           // reset tool "Wippenhebel ziehen"
+        ZylGummihalter.set(0); // Plombenfixieren lösen
         nextStepTimer.setTime(3000);
         clearanceNextStep = false;
         subStep = 1;
@@ -475,7 +475,7 @@ void runMainTestCycle() {
     case BAND_UNTEN:
       // UNTERES BAND VORSCHIEBEN
       ZylSchild.set(1);
-      ZylGummihalter.set(0);    //Plomben für nächsten Zyklus können nachrutschen
+      ZylGummihalter.set(0); // Plomben für nächsten Zyklus können nachrutschen
       if (lowerStrapAvailable && upperStrapAvailable) {
         MotFeedUnten.stroke(eepromCounter.getValue(lowerFeedtime), 400);
         if (MotFeedUnten.stroke_completed()) {
@@ -495,20 +495,9 @@ void runMainTestCycle() {
       }
       break;
 
-    case ZURUECKFAHREN:
-      // MAGNETARM ZURÜCKZIEHEN
-      if (ZylMagnetarm.stroke_completed()) {
-        //Serial.println("Mangetarm zurückfahren...");
-      }
-      ZylMagnetarm.set(0);
-      nextStepTimer.setTime(600);
-      clearanceNextStep = false;
-      cycleStep++;
-      break;
-
     case BAND_OBEN:
       // OBERES BAND VORSCHIEBEN
-      ZylMesser.set(0);    // Messer muss zurückgezogen sein
+      ZylMesser.set(0); // Messer muss zurückgezogen sein
       if (upperStrapAvailable && lowerStrapAvailable) {
         MotFeedOben.stroke(eepromCounter.getValue(upperFeedtime), 400);
         if (MotFeedOben.stroke_completed()) {
@@ -527,6 +516,17 @@ void runMainTestCycle() {
         clearanceNextStep = false;
         cycleStep++;
       }
+      break;
+
+    case ZURUECKFAHREN:
+      // MAGNETARM ZURÜCKZIEHEN
+      if (ZylMagnetarm.stroke_completed()) {
+        // Serial.println("Mangetarm zurückfahren...");
+      }
+      ZylMagnetarm.set(0);
+      nextStepTimer.setTime(600);
+      clearanceNextStep = false;
+      cycleStep++;
       break;
 
     case PRESSEN:
@@ -548,7 +548,7 @@ void runMainTestCycle() {
     case SCHNEIDEN:
       // BAND ABSCHNEIDEN
       ZylSchild.set(1);
-      ZylMesser.stroke(1500, 200);    // push,release [ms]
+      ZylMesser.stroke(1500, 200); // push,release [ms]
       if (ZylMesser.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
@@ -557,7 +557,7 @@ void runMainTestCycle() {
 
     case BLASEN:
       // BAND ABSCHNEIDEN
-      ZylAirBlower.stroke(50, 50);    // push,release [ms]
+      ZylAirBlower.stroke(50, 50); // push,release [ms]
       if (ZylAirBlower.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
@@ -590,11 +590,12 @@ void runMainTestCycle() {
     case PAUSE:
       // WARTEN AUF NÄCHSTEN ZYKLUS
       greenBlink = true;
-      //Serial.println(cycleDurationTimer.remainingTimeoutTime()/1000);
+      // Serial.println(cycleDurationTimer.remainingTimeoutTime()/1000);
       if (cycleDurationTimer.timedOut()) {
         cycleStep = 0;
         clearanceNextStep = false;
-        //stepMode = true; // activate this line to deactivate auto mode after every cycle
+        // stepMode = true; // activate this line to deactivate auto mode after
+        // every cycle
         hideInfoField();
         greenBlink = false;
         eepromCounter.countOneUp(shorttimeCounter);
@@ -616,10 +617,12 @@ void runMainTestCycle() {
  * https://github.com/chischte/user-interface/NEXTION/
  * *****************************************************************************
  * CONFIGURING THE LIBRARY:
- * Include the nextion library (the official one) https://github.com/itead/ITEADLIB_Arduino_Nextion
- * Make sure you edit the NexConfig.h file on the library folder to set the correct serial port for the display.
- * By default it's set to Serial1, which most arduino boards don't have.
- * Change "#define nexSerial Serial1" to "#define nexSerial Serial" if you are using arduino uno, nano, etc.
+ * Include the nextion library (the official one)
+ * https://github.com/itead/ITEADLIB_Arduino_Nextion Make sure you edit the
+ * NexConfig.h file on the library folder to set the correct serial port for the
+ * display. By default it's set to Serial1, which most arduino boards don't
+ * have. Change "#define nexSerial Serial1" to "#define nexSerial Serial" if you
+ * are using arduino uno, nano, etc.
  * *****************************************************************************
  * NEXTION SWITCH STATES LIST
  * Every nextion switch button needs a switchstate variable (bool)
@@ -630,16 +633,17 @@ void runMainTestCycle() {
  * VARIOUS COMMANDS:
  * Serial2.print("click bt1,1");//CLICK BUTTON
  * send_to_nextion();
- * A switch (Dual State Button)will be toggled with this command, a Button will be set permanently pressed)
- * Serial2.print("click b3,0"); releases a push button again, has no effect on a Dual State Button
- * send_to_nextion();
+ * A switch (Dual State Button)will be toggled with this command, a Button will
+ * be set permanently pressed) Serial2.print("click b3,0"); releases a push
+ * button again, has no effect on a Dual State Button send_to_nextion();
  * Serial2.print("vis t0,0");//HIDE OBJECT
  * send_to_nextion();
  * *****************************************************************************
  */
 
 //*****************************************************************************
-// TOUCH EVENT FUNCTIONS //PushCallback = Press event //PopCallback = Release event
+// TOUCH EVENT FUNCTIONS //PushCallback = Press event //PopCallback = Release
+// event
 //*****************************************************************************
 //*************************************************
 // TOUCH EVENT FUNCTIONS PAGE 1 - LEFT SIDE
@@ -650,7 +654,7 @@ void nex_switch_play_pausePushCallback(void *ptr) {
     clearanceNextStep = true;
   }
   if (!machineRunning) {
-    //abort running processes:
+    // abort running processes:
     MotFeedOben.set(0);
     MotFeedUnten.set(0);
     ZylMesser.set(0);
@@ -732,29 +736,17 @@ void nex_mot_band_obenPushCallback(void *ptr) {
     stopwatch_running = true;
   }
 }
-void nex_mot_band_obenPopCallback(void *ptr) {
-  MotFeedOben.set(0);
-}
+void nex_mot_band_obenPopCallback(void *ptr) { MotFeedOben.set(0); }
 void nex_mot_band_untenPushCallback(void *ptr) {
   if (lowerStrapAvailable) {
     MotFeedUnten.set(1);
   }
 }
-void nex_mot_band_untenPopCallback(void *ptr) {
-  MotFeedUnten.set(0);
-}
-void nex_ZylMesserPushCallback(void *ptr) {
-  ZylMesser.set(1);
-}
-void nex_ZylMesserPopCallback(void *ptr) {
-  ZylMesser.set(0);
-}
-void nex_PressMotorPushCallback(void *ptr) {
-  MotorTool.set(1);
-}
-void nex_PressMotorPopCallback(void *ptr) {
-  MotorTool.set(0);
-}
+void nex_mot_band_untenPopCallback(void *ptr) { MotFeedUnten.set(0); }
+void nex_ZylMesserPushCallback(void *ptr) { ZylMesser.set(1); }
+void nex_ZylMesserPopCallback(void *ptr) { ZylMesser.set(0); }
+void nex_PressMotorPushCallback(void *ptr) { MotorTool.set(1); }
+void nex_PressMotorPopCallback(void *ptr) { MotorTool.set(0); }
 void nex_ZylRevolverschieberPushCallback(void *ptr) {
   ZylRevolverschieber.set(1);
 }
@@ -790,13 +782,15 @@ void nex_but_slider2_rightPushCallback(void *ptr) {
 }
 
 void nex_but_slider3_leftPushCallback(void *ptr) {
-  eepromCounter.set(cycleDurationTime, eepromCounter.getValue(cycleDurationTime) - 10);
+  eepromCounter.set(cycleDurationTime,
+                    eepromCounter.getValue(cycleDurationTime) - 10);
   if (eepromCounter.getValue(cycleDurationTime) < 0) {
     eepromCounter.set(cycleDurationTime, 0);
   }
 }
 void nex_but_slider3_rightPushCallback(void *ptr) {
-  eepromCounter.set(cycleDurationTime, eepromCounter.getValue(cycleDurationTime) + 10);
+  eepromCounter.set(cycleDurationTime,
+                    eepromCounter.getValue(cycleDurationTime) + 10);
   if (eepromCounter.getValue(cycleDurationTime) > 240) {
     eepromCounter.set(cycleDurationTime, 240);
   }
@@ -818,7 +812,7 @@ void nex_but_slider4_rightPushCallback(void *ptr) {
 //*************************************************
 void nex_but_reset_shorttimeCounterPushCallback(void *ptr) {
   eepromCounter.set(shorttimeCounter, 0);
-// RESET LONGTIME COUNTER IF RESET BUTTON IS PRESSED LONG ENOUGH:
+  // RESET LONGTIME COUNTER IF RESET BUTTON IS PRESSED LONG ENOUGH:
   counterResetStopwatch = millis();
   resetStopwatchActive = true;
 }
@@ -828,14 +822,12 @@ void nex_but_reset_shorttimeCounterPopCallback(void *ptr) {
 //*************************************************
 // TOUCH EVENT FUNCTIONS PAGE CHANGES
 //*************************************************
-void nex_page0PushCallback(void *ptr) {
-  CurrentPage = 0;
-}
+void nex_page0PushCallback(void *ptr) { CurrentPage = 0; }
 void nex_page1PushCallback(void *ptr) {
   CurrentPage = 1;
   hideInfoField();
 
-// REFRESH BUTTON STATES:
+  // REFRESH BUTTON STATES:
   nexPrevCycleStep = !cycleStep;
   nex_prev_stepMode = true;
   nex_state_ZylGummihalter = 0;
@@ -851,7 +843,7 @@ void nex_page1PushCallback(void *ptr) {
 }
 void nex_page2PushCallback(void *ptr) {
   CurrentPage = 2;
-// REFRESH BUTTON STATES:
+  // REFRESH BUTTON STATES:
   nex_prev_upperFeedtime = 0;
   nex_prev_lowerFeedtime = 0;
   nex_prev_shorttimeCounter = 0;
@@ -929,22 +921,24 @@ void nextionSetup()
   nex_but_slider4_right.attachPush(nex_but_slider4_rightPushCallback);
 
   // PAGE 2 PUSH+POP:
-  nex_but_reset_shorttimeCounter.attachPush(nex_but_reset_shorttimeCounterPushCallback);
-  nex_but_reset_shorttimeCounter.attachPop(nex_but_reset_shorttimeCounterPopCallback);
+  nex_but_reset_shorttimeCounter.attachPush(
+      nex_but_reset_shorttimeCounterPushCallback);
+  nex_but_reset_shorttimeCounter.attachPop(
+      nex_but_reset_shorttimeCounterPopCallback);
 
   //*****************************************************************************
   // END OF REGISTER
   //*****************************************************************************
   delay(2000);
-  sendCommand("page 1");  //SWITCH NEXTION TO PAGE X
+  sendCommand("page 1"); // SWITCH NEXTION TO PAGE X
   sendToNextion();
 
-}  // END OF NEXTION SETUP
+} // END OF NEXTION SETUP
 //*****************************************************************************
 void nextionLoop()
 //*****************************************************************************
 {
-  nexLoop(nex_listen_list); //check for any touch event
+  nexLoop(nex_listen_list); // check for any touch event
   //*****************************************************************************
   if (CurrentPage == 1) {
     //*******************
@@ -992,7 +986,8 @@ void nextionLoop()
       printOnTextField("BAND BLOCKIERT", "t4");
     }
     if (cycleStep == PAUSE) {
-      String remainingWaitingTime = String(cycleDurationTimer.remainingTimeoutTime() / 1000);
+      String remainingWaitingTime =
+          String(cycleDurationTimer.remainingTimeoutTime() / 1000);
       Serial.println(remainingWaitingTime);
       showInfoField();
       printOnTextField((remainingWaitingTime + " s"), "t4");
@@ -1080,24 +1075,28 @@ void nextionLoop()
       nex_state_PressMotor = MotorTool.request_state();
     }
 
-  }    //END PAGE 1
-//*****************************************************************************
+  } // END PAGE 1
+  //*****************************************************************************
   if (CurrentPage == 2) {
     //*******************
     // PAGE 2 - LEFT SIDE
     //*******************
 
     if (nex_prev_upperFeedtime != eepromCounter.getValue(upperFeedtime)) {
-      printOnTextField(String(eepromCounter.getValue(upperFeedtime)) + " ms", "t4");
+      printOnTextField(String(eepromCounter.getValue(upperFeedtime)) + " ms",
+                       "t4");
       nex_prev_upperFeedtime = eepromCounter.getValue(upperFeedtime);
     }
 
     if (nex_prev_lowerFeedtime != eepromCounter.getValue(lowerFeedtime)) {
-      printOnTextField(String(eepromCounter.getValue(lowerFeedtime)) + " ms", "t6");
+      printOnTextField(String(eepromCounter.getValue(lowerFeedtime)) + " ms",
+                       "t6");
       nex_prev_lowerFeedtime = eepromCounter.getValue(lowerFeedtime);
     }
-    if (nex_prev_cycleDurationTime != eepromCounter.getValue(cycleDurationTime)) {
-      printOnTextField(String(eepromCounter.getValue(cycleDurationTime)) + " s", "t1");
+    if (nex_prev_cycleDurationTime !=
+        eepromCounter.getValue(cycleDurationTime)) {
+      printOnTextField(String(eepromCounter.getValue(cycleDurationTime)) + " s",
+                       "t1");
       nex_prev_cycleDurationTime = eepromCounter.getValue(cycleDurationTime);
     }
     if (nexPrevMaxTemperature != eepromCounter.getValue(maxTemperature)) {
@@ -1111,7 +1110,7 @@ void nextionLoop()
       nexPrevMaxTemperature = eepromCounter.getValue(maxTemperature);
     }
     // TODO: IF TEMPERATURE HAS CHANGED MORE THAN ONE DEGREE, UPDATE:
-    //if (abs(nexPrevCurrentTemperature - getTemperature()) > 1) {
+    // if (abs(nexPrevCurrentTemperature - getTemperature()) > 1) {
     if (nexPrevCurrentTemperature != getTemperature()) {
       printOnTextField("t=" + String(getTemperature()), "t15");
       nexPrevCurrentTemperature = getTemperature();
@@ -1123,7 +1122,8 @@ void nextionLoop()
     if (nex_prev_longtimeCounter != eepromCounter.getValue(longtimeCounter)) {
 
       printOnTextField(String(eepromCounter.getValue(longtimeCounter)), "t10");
-      //printOnTextField((eepromCounter.getValue(longtimeCounter) + ("")), "t10");
+      // printOnTextField((eepromCounter.getValue(longtimeCounter) + ("")),
+      // "t10");
       nex_prev_longtimeCounter = eepromCounter.getValue(longtimeCounter);
     }
     if (nex_prev_shorttimeCounter != eepromCounter.getValue(shorttimeCounter)) {
@@ -1135,8 +1135,8 @@ void nextionLoop()
         eepromCounter.set(longtimeCounter, 0);
       }
     }
-  }    // END PAGE 2
-}    // END OF NEXTION LOOP
+  } // END PAGE 2
+} // END OF NEXTION LOOP
 
 //*****************************************************************************
 //******************######**#######*#######*#******#*######********************
@@ -1177,7 +1177,7 @@ void loop() {
   }
 
   // IN AUTO MODE, MACHINE RUNS FROM STEP TO STEP AUTOMATICALLY:
-  if (!stepMode) {  // = AUTO MODE
+  if (!stepMode) { // = AUTO MODE
     clearanceNextStep = true;
   }
 
@@ -1196,7 +1196,7 @@ void loop() {
   sealAvailable = digitalRead(SENSOR_PLOMBE);
   getTemperature();
 
-  //runtime = millis() - runtimeStopwatch;
-  //Serial.println(runtime);
-  //runtimeStopwatch = millis();
+  // runtime = millis() - runtimeStopwatch;
+  // Serial.println(runtime);
+  // runtimeStopwatch = millis();
 }
