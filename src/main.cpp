@@ -15,31 +15,18 @@
  * should: start screen write test rig in two words
  */
 
-//#include <SD.h>
-//#include <Arduino.h>
-
 // ADD THE FOLLOWING LIBRARIES TO project/lib:
 
 #include <Arduino.h>
 #include <Controllino.h> // https://github.com/CONTROLLINO-PLC/CONTROLLINO_Library
-
-// The PIO Nextion Library works after installing "Adafruit SD" and setting
-// "lib_ldf_mode = deep+" or "deep" in platformio.ini
-// The personal edited library
-// (github.com/chischte/nextion-platformio-dualstate.git) is not needed anymore
-#include <Cylinder.h>       // https://github.com/chischte/cylinder-library
-#include <Debounce.h>       // https://github.com/chischte/debounce-library
+#include <Cylinder.h>    // https://github.com/chischte/cylinder-library
+#include <Debounce.h>    // https://github.com/chischte/debounce-library
 #include <EEPROM_Counter.h> // https://github.com/chischte/eeprom-counter-library
 #include <Insomnia.h> // https://github.com/chischte/insomnia-delay-library
-#include <Nextion.h>
+#include <Nextion.h> // install "Adafruit SD", set "lib_ldf_mode = deep+" or "deep"
 
 //*****************************************************************************
 // DECLARATION OF VARIABLES / DATA TYPES
-//*****************************************************************************
-// byte  (0-255)
-// int   (-32,768 to 32,767)
-// long  (-2,147,483,648 to 2,147,483,647)
-// float (6-7 Digits)
 //*****************************************************************************
 
 // INPUT PINS:
@@ -97,7 +84,6 @@ NexButton nex_mot_band_unten = NexButton(1, 9, "b4");
 NexButton nex_ZylMesser = NexButton(1, 15, "b6");
 NexButton nex_ZylRevolverschieber = NexButton(1, 8, "b3");
 NexButton nex_PressMotor = NexButton(1, 16, "b7");
-
 // PAGE 2 - LEFT SIDE:
 NexPage nex_page2 = NexPage(2, 0, "page2");
 NexButton nex_but_slider1_left = NexButton(2, 5, "b1");
@@ -108,12 +94,11 @@ NexButton nex_but_slider3_left = NexButton(2, 19, "b6");
 NexButton nex_but_slider3_right = NexButton(2, 18, "b5");
 NexButton nex_but_slider4_left = NexButton(2, 22, "b7");
 NexButton nex_but_slider4_right = NexButton(2, 23, "b8");
-
 // PAGE 2 - RIGHT SIDE:
 NexButton nex_but_reset_shorttimeCounter = NexButton(2, 16, "b4");
-//*****************************************************************************
+//******************************************************************************
 // END OF OBJECT DECLARATION
-//*****************************************************************************
+//******************************************************************************
 
 //******************************************************************************
 // DECLARATION OF NEXTION VARIABLES:
@@ -226,8 +211,10 @@ enum mainCycleSteps {
   BAND_UNTEN,
   BAND_OBEN,
   ZURUECKFAHREN,
+  SCHILD_AUSFAHREN,
   PRESSEN,
   SCHNEIDEN,
+  SCHILD_EINFAHREN,
   BLASEN,
   REVOLVER,
   PAUSE,
@@ -257,8 +244,10 @@ String cycleName[] = {
     "BAND UNTEN",    //
     "BAND OBEN",     //
     "ZURUECKFAHREN", //
+    "SCHILD VOR",    //
     "PRESSEN",       //
     "SCHNEIDEN",     //
+    "SCHILD WEG",    //
     "BLASEN",        //
     "REVOLVER",      //
     "PAUSE"          //
@@ -456,7 +445,6 @@ void runMainTestCycle() {
 
       // ZUERST SICHERSTELLEN DASS FALLTÜRE GESCHLOSSEN IST:
       if (subStep == 1) {
-        ZylSchild.set(0);
         ZylFalltuerschieber.set(0);
         subStep++;
         break;
@@ -474,7 +462,6 @@ void runMainTestCycle() {
 
     case BAND_UNTEN:
       // UNTERES BAND VORSCHIEBEN
-      ZylSchild.set(1);
       ZylGummihalter.set(0); // Plomben für nächsten Zyklus können nachrutschen
       if (lowerStrapAvailable && upperStrapAvailable) {
         MotFeedUnten.stroke(eepromCounter.getValue(lowerFeedtime), 400);
@@ -520,11 +507,16 @@ void runMainTestCycle() {
 
     case ZURUECKFAHREN:
       // MAGNETARM ZURÜCKZIEHEN
-      if (ZylMagnetarm.stroke_completed()) {
-        // Serial.println("Mangetarm zurückfahren...");
-      }
+      // if (ZylMagnetarm.stroke_completed()) {
+      // }
       ZylMagnetarm.set(0);
       nextStepTimer.setTime(600);
+      clearanceNextStep = false;
+      cycleStep++;
+      break;
+
+    case SCHILD_AUSFAHREN:
+      ZylSchild.set(1);
       clearanceNextStep = false;
       cycleStep++;
       break;
@@ -547,12 +539,17 @@ void runMainTestCycle() {
 
     case SCHNEIDEN:
       // BAND ABSCHNEIDEN
-      ZylSchild.set(1);
       ZylMesser.stroke(1500, 200); // push,release [ms]
       if (ZylMesser.stroke_completed()) {
         clearanceNextStep = false;
         cycleStep++;
       }
+      break;
+
+    case SCHILD_EINFAHREN:
+      ZylSchild.set(0);
+      clearanceNextStep = false;
+      cycleStep++;
       break;
 
     case BLASEN:
@@ -580,7 +577,6 @@ void runMainTestCycle() {
         }
       }
       if (subStep == 3) {
-        ZylSchild.set(0);
         clearanceNextStep = false;
         subStep = 1;
         cycleStep++;
@@ -608,10 +604,7 @@ void runMainTestCycle() {
 
 /*
  * *****************************************************************************
- * nextion.ino
- * configuration of the Nextion touch display
- * Michael Wettstein
- * November 2018, Zürich
+ * NOTES REGARDING NEXTION SETUP AND CONFIGURATION
  * *****************************************************************************
  * an XLS-sheet to generate Nextion events can be found here:
  * https://github.com/chischte/user-interface/NEXTION/
@@ -1110,7 +1103,6 @@ void nextionLoop()
       nexPrevMaxTemperature = eepromCounter.getValue(maxTemperature);
     }
     // TODO: IF TEMPERATURE HAS CHANGED MORE THAN ONE DEGREE, UPDATE:
-    // if (abs(nexPrevCurrentTemperature - getTemperature()) > 1) {
     if (nexPrevCurrentTemperature != getTemperature()) {
       printOnTextField("t=" + String(getTemperature()), "t15");
       nexPrevCurrentTemperature = getTemperature();
@@ -1122,8 +1114,6 @@ void nextionLoop()
     if (nex_prev_longtimeCounter != eepromCounter.getValue(longtimeCounter)) {
 
       printOnTextField(String(eepromCounter.getValue(longtimeCounter)), "t10");
-      // printOnTextField((eepromCounter.getValue(longtimeCounter) + ("")),
-      // "t10");
       nex_prev_longtimeCounter = eepromCounter.getValue(longtimeCounter);
     }
     if (nex_prev_shorttimeCounter != eepromCounter.getValue(shorttimeCounter)) {
