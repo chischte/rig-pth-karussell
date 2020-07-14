@@ -445,7 +445,6 @@ void runMainTestCycle() {
 
       // ZUERST SICHERSTELLEN DASS FALLTÜRE GESCHLOSSEN IST:
       if (subStep == 1) {
-        ZylSchild.set(0);
         ZylFalltuerschieber.set(0);
         subStep++;
         break;
@@ -463,7 +462,6 @@ void runMainTestCycle() {
 
     case BAND_UNTEN:
       // UNTERES BAND VORSCHIEBEN
-      ZylSchild.set(1);
       ZylGummihalter.set(0); // Plomben für nächsten Zyklus können nachrutschen
       if (lowerStrapAvailable && upperStrapAvailable) {
         MotFeedUnten.stroke(eepromCounter.getValue(lowerFeedtime), 400);
@@ -519,6 +517,8 @@ void runMainTestCycle() {
 
     case SCHILD_AUSFAHREN:
       ZylSchild.set(1);
+      clearanceNextStep = false;
+      cycleStep++;
       break;
 
     case PRESSEN:
@@ -539,7 +539,6 @@ void runMainTestCycle() {
 
     case SCHNEIDEN:
       // BAND ABSCHNEIDEN
-      ZylSchild.set(1);
       ZylMesser.stroke(1500, 200); // push,release [ms]
       if (ZylMesser.stroke_completed()) {
         clearanceNextStep = false;
@@ -549,6 +548,8 @@ void runMainTestCycle() {
 
     case SCHILD_EINFAHREN:
       ZylSchild.set(0);
+      clearanceNextStep = false;
+      cycleStep++;
       break;
 
     case BLASEN:
@@ -576,7 +577,6 @@ void runMainTestCycle() {
         }
       }
       if (subStep == 3) {
-        ZylSchild.set(0);
         clearanceNextStep = false;
         subStep = 1;
         cycleStep++;
