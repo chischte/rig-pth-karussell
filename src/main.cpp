@@ -414,6 +414,7 @@ void runMainTestCycle() {
       ZylMagnetarm.set(0);
       clearanceNextStep = false;
       nextStepTimer.setTime(300);
+      toolReset(); // Wippenhebel ziehen
       cycleStep++;
       break;
 
