@@ -227,7 +227,7 @@ void toolReset() {
   // SIMULIERE WIPPENHEBEL ZIEHEN:
   digitalWrite(CONTROLLINO_RELAY_08, LOW);  // WIPPENSCHALTER WHITE CABLE (NO)
   digitalWrite(CONTROLLINO_RELAY_09, HIGH); // WIPPENSCHALTER RED CABLE (NC)
-  delay(200);
+  delay(150);
   // SIMULIERE WIPPENHEBEL LOSLASEN:
   digitalWrite(CONTROLLINO_RELAY_09, LOW); // WIPPENSCHALTER RED   CABLE (NC)
   digitalWrite(CONTROLLINO_RELAY_08,
@@ -739,7 +739,10 @@ void nex_mot_band_untenPushCallback(void *ptr) {
 void nex_mot_band_untenPopCallback(void *ptr) { MotFeedUnten.set(0); }
 void nex_ZylMesserPushCallback(void *ptr) { ZylMesser.set(1); }
 void nex_ZylMesserPopCallback(void *ptr) { ZylMesser.set(0); }
-void nex_PressMotorPushCallback(void *ptr) { MotorTool.set(1); }
+void nex_PressMotorPushCallback(void *ptr) {
+  toolReset();
+  MotorTool.set(1);
+}
 void nex_PressMotorPopCallback(void *ptr) { MotorTool.set(0); }
 void nex_ZylRevolverschieberPushCallback(void *ptr) {
   ZylRevolverschieber.set(1);
