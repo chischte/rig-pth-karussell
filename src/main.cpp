@@ -300,15 +300,15 @@ void resetTestRig() {
   upperStrapBlockCounter = 0;
   lowerStrapBlockCounter = 0;
   toolReset();
-  ZylGummihalter.set(0);
-  ZylAirBlower.set(0);
-  ZylFalltuerschieber.set(0);
-  ZylMagnetarm.set(0);
-  MotFeedOben.set(0);
-  MotFeedUnten.set(0);
-  ZylMesser.set(0);
-  ZylRevolverschieber.set(0);
-  ZylSchild.set(0);
+  ZylGummihalter.abort_stroke();
+  ZylAirBlower.abort_stroke();
+  ZylFalltuerschieber.abort_stroke();
+  ZylMagnetarm.abort_stroke();
+  MotFeedOben.abort_stroke();
+  MotFeedUnten.abort_stroke();
+  ZylMesser.abort_stroke();
+  ZylRevolverschieber.abort_stroke();
+  ZylSchild.abort_stroke();
   machineRunning = false;
   errorBlink = false;
   greenBlink = false;
@@ -323,7 +323,7 @@ void runToolMotor() {
   // DEACTIVATE THE MOTOR IF THE END SWITCH HAS BEEN DETECTED
   if (endSwitch.switchedLow()) {
     Serial.println("END SWITCH DETECTED");
-    MotorTool.set(0);
+    MotorTool.abort_stroke();
   }
 }
 
@@ -647,10 +647,10 @@ void nex_switch_play_pausePushCallback(void *ptr) {
   }
   if (!machineRunning) {
     // abort running processes:
-    MotFeedOben.set(0);
-    MotFeedUnten.set(0);
-    ZylMesser.set(0);
-    ZylRevolverschieber.set(0);
+    MotFeedOben.abort_stroke();
+    MotFeedUnten.abort_stroke();
+    ZylMesser.abort_stroke();
+    ZylRevolverschieber.abort_stroke();
   }
   nexStateMachineRunning = !nexStateMachineRunning;
 }
@@ -728,15 +728,15 @@ void nex_mot_band_obenPushCallback(void *ptr) {
     stopwatch_running = true;
   }
 }
-void nex_mot_band_obenPopCallback(void *ptr) { MotFeedOben.set(0); }
+void nex_mot_band_obenPopCallback(void *ptr) { MotFeedOben.abort_stroke(); }
 void nex_mot_band_untenPushCallback(void *ptr) {
   if (lowerStrapAvailable) {
     MotFeedUnten.set(1);
   }
 }
-void nex_mot_band_untenPopCallback(void *ptr) { MotFeedUnten.set(0); }
+void nex_mot_band_untenPopCallback(void *ptr) { MotFeedUnten.abort_stroke(); }
 void nex_ZylMesserPushCallback(void *ptr) { ZylMesser.set(1); }
-void nex_ZylMesserPopCallback(void *ptr) { ZylMesser.set(0); }
+void nex_ZylMesserPopCallback(void *ptr) { ZylMesser.abort_stroke(); }
 void nex_PressMotorPushCallback(void *ptr) {
   toolReset();
   MotorTool.set(1);
@@ -1161,11 +1161,11 @@ void loop() {
 
   upperStrapAvailable = bandsensorOben.requestButtonState();
   if (!upperStrapAvailable) {
-    MotFeedOben.set(0);
+    MotFeedOben.abort_stroke();
   }
   lowerStrapAvailable = bandsensorUnten.requestButtonState();
   if (!lowerStrapAvailable) {
-    MotFeedUnten.set(0);
+    MotFeedUnten.abort_stroke();
   }
 
   // IN AUTO MODE, MACHINE RUNS FROM STEP TO STEP AUTOMATICALLY:
