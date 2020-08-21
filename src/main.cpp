@@ -387,16 +387,16 @@ void lights() {
 
 void runMainTestCycle() {
 
+  static byte subStep = 1;
+
+  // Reset subStep after every cycleStep change:
+  static byte prevCycleStep = 0;
+  if (cycleStep != prevCycleStep) {
+    subStep = 1;
+    prevCycleStep = cycleStep;
+  }
+
   if (clearanceNextStep && nextStepTimer.timedOut()) {
-
-    static byte subStep = 1;
-
-    // Reset subStep after every cycleStep change:
-    static byte prevCycleStep = 0;
-    if (cycleStep != prevCycleStep) {
-      subStep = 1;
-      prevCycleStep = cycleStep;
-    }
 
     switch (cycleStep) {
 
