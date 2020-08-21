@@ -388,19 +388,17 @@ void lights() {
 void runMainTestCycle() {
 
   if (clearanceNextStep && nextStepTimer.timedOut()) {
+
     static byte subStep = 1;
 
-    switch (cycleStep) {
+    // Reset subStep after every cycleStep change:
+    static byte prevCycleStep = 0;
+    if (cycleStep != prevCycleStep) {
+      subStep = 1;
+      prevCycleStep = cycleStep;
+    }
 
-      //    case VIBRIEREN: // PLOMBE FALLENLASSEN
-      //      eepromCounter.getValue(cycleDurationTime);
-      //      cycleDurationTimer.setTime(eepromCounter.getValue(cycleDurationTime)
-      //      * 1000); ZylRevolverschieber.stroke(250, 300);    //(push
-      //      time,release time) if (ZylRevolverschieber.stroke_completed()) {
-      //        clearanceNextStep = false;
-      //        cycleStep++;
-      //      }
-      //      break;
+    switch (cycleStep) {
 
     case KLEMMEN: // PLOMBEN IM RUTSCH-SCHACHT FIXIEREN
       errorBlink = !sealAvailable;
@@ -434,7 +432,6 @@ void runMainTestCycle() {
       if (subStep == 4) {
         ZylFalltuerschieber.stroke(300, 40); //(push time,release time)
         if (ZylFalltuerschieber.stroke_completed()) {
-          subStep = 1;
           clearanceNextStep = false;
           cycleStep++;
         }
@@ -456,7 +453,6 @@ void runMainTestCycle() {
         ZylGummihalter.set(0); // Plombenfixieren lösen
         nextStepTimer.setTime(3000);
         clearanceNextStep = false;
-        subStep = 1;
         cycleStep++;
       }
       break;
@@ -525,12 +521,15 @@ void runMainTestCycle() {
     case PRESSEN:
       // CRIMPVORGANG STARTEN
       if (subStep == 1) {
-        MotorTool.set(1);
+        toolReset();
         subStep++;
       }
       if (subStep == 2) {
+        MotorTool.set(1);
+        subStep++;
+      }
+      if (subStep == 3) {
         if (!MotorTool.request_state()) {
-          subStep = 1;
           clearanceNextStep = false;
           nextStepTimer.setTime(1000);
           cycleStep++;
@@ -579,7 +578,6 @@ void runMainTestCycle() {
       }
       if (subStep == 3) {
         clearanceNextStep = false;
-        subStep = 1;
         cycleStep++;
       }
       break;
