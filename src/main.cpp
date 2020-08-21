@@ -232,6 +232,7 @@ void toolReset() {
   digitalWrite(CONTROLLINO_RELAY_09, LOW); // WIPPENSCHALTER RED   CABLE (NC)
   digitalWrite(CONTROLLINO_RELAY_08,
                HIGH); // WIPPENSCHALTER WHITE CABLE (NO)delay(200);
+  delay(200);
 }
 
 // DEFINE NAMES TO DISPLAY ON THE TOUCH SCREEN:
@@ -300,15 +301,15 @@ void resetTestRig() {
   upperStrapBlockCounter = 0;
   lowerStrapBlockCounter = 0;
   toolReset();
-  ZylGummihalter.set(0);
-  ZylAirBlower.set(0);
-  ZylFalltuerschieber.set(0);
-  ZylMagnetarm.set(0);
-  MotFeedOben.set(0);
-  MotFeedUnten.set(0);
-  ZylMesser.set(0);
-  ZylRevolverschieber.set(0);
-  ZylSchild.set(0);
+  ZylGummihalter.abort_stroke();
+  ZylAirBlower.abort_stroke();
+  ZylFalltuerschieber.abort_stroke();
+  ZylMagnetarm.abort_stroke();
+  MotFeedOben.abort_stroke();
+  MotFeedUnten.abort_stroke();
+  ZylMesser.abort_stroke();
+  ZylRevolverschieber.abort_stroke();
+  ZylSchild.abort_stroke();
   machineRunning = false;
   errorBlink = false;
   greenBlink = false;
@@ -323,7 +324,7 @@ void runToolMotor() {
   // DEACTIVATE THE MOTOR IF THE END SWITCH HAS BEEN DETECTED
   if (endSwitch.switchedLow()) {
     Serial.println("END SWITCH DETECTED");
-    MotorTool.set(0);
+    MotorTool.abort_stroke();
   }
 }
 
@@ -387,20 +388,18 @@ void lights() {
 
 void runMainTestCycle() {
 
+  static byte subStep = 1;
+
+  // Reset subStep after every cycleStep change:
+  static byte prevCycleStep = 0;
+  if (cycleStep != prevCycleStep) {
+    subStep = 1;
+    prevCycleStep = cycleStep;
+  }
+
   if (clearanceNextStep && nextStepTimer.timedOut()) {
-    static byte subStep = 1;
 
     switch (cycleStep) {
-
-      //    case VIBRIEREN: // PLOMBE FALLENLASSEN
-      //      eepromCounter.getValue(cycleDurationTime);
-      //      cycleDurationTimer.setTime(eepromCounter.getValue(cycleDurationTime)
-      //      * 1000); ZylRevolverschieber.stroke(250, 300);    //(push
-      //      time,release time) if (ZylRevolverschieber.stroke_completed()) {
-      //        clearanceNextStep = false;
-      //        cycleStep++;
-      //      }
-      //      break;
 
     case KLEMMEN: // PLOMBEN IM RUTSCH-SCHACHT FIXIEREN
       errorBlink = !sealAvailable;
@@ -434,7 +433,6 @@ void runMainTestCycle() {
       if (subStep == 4) {
         ZylFalltuerschieber.stroke(300, 40); //(push time,release time)
         if (ZylFalltuerschieber.stroke_completed()) {
-          subStep = 1;
           clearanceNextStep = false;
           cycleStep++;
         }
@@ -456,7 +454,6 @@ void runMainTestCycle() {
         ZylGummihalter.set(0); // Plombenfixieren lösen
         nextStepTimer.setTime(3000);
         clearanceNextStep = false;
-        subStep = 1;
         cycleStep++;
       }
       break;
@@ -525,12 +522,15 @@ void runMainTestCycle() {
     case PRESSEN:
       // CRIMPVORGANG STARTEN
       if (subStep == 1) {
-        MotorTool.set(1);
+        toolReset();
         subStep++;
       }
       if (subStep == 2) {
+        MotorTool.set(1);
+        subStep++;
+      }
+      if (subStep == 3) {
         if (!MotorTool.request_state()) {
-          subStep = 1;
           clearanceNextStep = false;
           nextStepTimer.setTime(1000);
           cycleStep++;
@@ -579,7 +579,6 @@ void runMainTestCycle() {
       }
       if (subStep == 3) {
         clearanceNextStep = false;
-        subStep = 1;
         cycleStep++;
       }
       break;
@@ -649,10 +648,10 @@ void nex_switch_play_pausePushCallback(void *ptr) {
   }
   if (!machineRunning) {
     // abort running processes:
-    MotFeedOben.set(0);
-    MotFeedUnten.set(0);
-    ZylMesser.set(0);
-    ZylRevolverschieber.set(0);
+    MotFeedOben.abort_stroke();
+    MotFeedUnten.abort_stroke();
+    ZylMesser.abort_stroke();
+    ZylRevolverschieber.abort_stroke();
   }
   nexStateMachineRunning = !nexStateMachineRunning;
 }
@@ -730,16 +729,19 @@ void nex_mot_band_obenPushCallback(void *ptr) {
     stopwatch_running = true;
   }
 }
-void nex_mot_band_obenPopCallback(void *ptr) { MotFeedOben.set(0); }
+void nex_mot_band_obenPopCallback(void *ptr) { MotFeedOben.abort_stroke(); }
 void nex_mot_band_untenPushCallback(void *ptr) {
   if (lowerStrapAvailable) {
     MotFeedUnten.set(1);
   }
 }
-void nex_mot_band_untenPopCallback(void *ptr) { MotFeedUnten.set(0); }
+void nex_mot_band_untenPopCallback(void *ptr) { MotFeedUnten.abort_stroke(); }
 void nex_ZylMesserPushCallback(void *ptr) { ZylMesser.set(1); }
-void nex_ZylMesserPopCallback(void *ptr) { ZylMesser.set(0); }
-void nex_PressMotorPushCallback(void *ptr) { MotorTool.set(1); }
+void nex_ZylMesserPopCallback(void *ptr) { ZylMesser.abort_stroke(); }
+void nex_PressMotorPushCallback(void *ptr) {
+  toolReset();
+  MotorTool.set(1);
+}
 void nex_PressMotorPopCallback(void *ptr) { MotorTool.set(0); }
 void nex_ZylRevolverschieberPushCallback(void *ptr) {
   ZylRevolverschieber.set(1);
@@ -1160,11 +1162,11 @@ void loop() {
 
   upperStrapAvailable = bandsensorOben.requestButtonState();
   if (!upperStrapAvailable) {
-    MotFeedOben.set(0);
+    MotFeedOben.abort_stroke();
   }
   lowerStrapAvailable = bandsensorUnten.requestButtonState();
   if (!lowerStrapAvailable) {
-    MotFeedUnten.set(0);
+    MotFeedUnten.abort_stroke();
   }
 
   // IN AUTO MODE, MACHINE RUNS FROM STEP TO STEP AUTOMATICALLY:
