@@ -1148,6 +1148,7 @@ void setup() {
   motorStartButton.setDebounceTime(10);
   endSwitch.setDebounceTime(10);
   Serial.println("EXIT SETUP");
+  // eepromCounter.set(shorttimeCounter, 80115);
 }
 //*****************************************************************************
 //********************#*********#####***#####***######*************************
